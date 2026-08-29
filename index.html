@@ -330,16 +330,33 @@
             loadCampuses();
             document.getElementById('userId').focus();
         };
+
+
         async function loadCampuses() {
+            var select = document.getElementById('campusSelect');
+            select.innerHTML = '<option value="">កំពុងទាញយកទិន្នន័យ...</option>';
+            
             try {
                 const response = await fetch(BASE_URL, {
                     method: 'POST',
                     body: JSON.stringify({ action: 'getCampuses' }),
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    redirect: 'follow' // 🌟 ចំណុចសំខាន់៖ អនុញ្ញាតឲ្យ Browser លោតតាម Link របស់ Google
+                    redirect: 'follow'
                 });
-                const data = await response.json();
-                if (data.success && data.campuses && data.campuses.length > 0) {
+                
+                // អានទិន្នន័យឆៅសិន មុននឹងបំប្លែងជា JSON ដើម្បីការពារការគាំង
+                const text = await response.text(); 
+                
+                try {
+                    const data = JSON.parse(text);
+                    
+                    if (data.error) {
+                        select.innerHTML = '<option value="">កំហុស: ' + data.error + '</option>';
+                        return;
+                    }
+                    
+                    if (data.success && data.campuses && data.campuses.length > 0) {
+                        select.innerHTML = '<option value="">ជ្រើសរើសសាលា...</option>';
                         campuses = data.campuses;
                         data.campuses.forEach(function(campus) {
                             var option = document.createElement('option');
@@ -350,10 +367,16 @@
                             select.appendChild(option);
                         });
                     } else {
-                        select.innerHTML = '<option value="">គ្មានសាលា</option>';
+                        select.innerHTML = '<option value="">គ្មានទិន្នន័យសាលាទេ</option>';
                     }
+                } catch(e) {
+                    console.error("ទិន្នន័យឆ្លើយតបមិនមែនជា JSON ទេ:", text);
+                    select.innerHTML = '<option value="">Error: ទិន្នន័យពី Server ខុស (ភ្លេច Deploy ថ្មី)</option>';
+                }
+                
             } catch (error) {
-                document.getElementById('campusSelect').innerHTML = '<option value="">កំហុសក្នុងការផ្ទុក</option>';
+                console.error("Network/CORS Error:", error);
+                select.innerHTML = '<option value="">Error: មិនអាចភ្ជាប់ទៅកាន់ម៉ាស៊ីនមេ</option>';
             }
         }
         // function loadCampuses() {
