@@ -1555,7 +1555,7 @@ function renderLeaveTable(requests) {
                     Swal.fire({ title: 'កំពុងដំណើរការ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
                     
                     try {
-                        const data = await callAPI('handleLeaveRequest', { row: row, action: action, studentId: studentId, leaveDate: leaveDate });
+                        const data = await callAPI('Approved', { row: row, action: action, studentId: studentId, leaveDate: leaveDate });
                         if (data && data.success) {
                             Swal.fire('ជោគជ័យ!', data.success, 'success');
                             loadLeaveRequests(); // ហៅទិន្នន័យមកគូរតារាងឡើងវិញ
