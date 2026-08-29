@@ -488,7 +488,7 @@
             }
         }
 
-        const BASE_URL = "https://script.google.com/macros/s/AKfycbwNHlULVXlao5XGpQxq8UeGJ_CBo1rEGvP3ZqWfl3Qh9vDaMdfV7i59Id4RhkWFoczhzg/exec";
+        const BASE_URL = "https://script.google.com/macros/s/AKfycbzsrivSdBSb4s3zDaBhEZL-3R8g8ZJrnXGNweJQh8YGIAOyGohJAPzfOWoONj0LZhkg/exec";
         
         var sessionUser = null;
         var scannerWindow = null;
@@ -840,9 +840,7 @@
         }
 
 
-async function refreshStats(renderRep) {
-           
-            
+            async function refreshStats(renderRep) {
                     const data = await callAPI('getStudentData', { studentId: sessionUser.id });
                     if (data.success) {
                         allDailyLogs = data.logs || [];
