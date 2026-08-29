@@ -1113,10 +1113,11 @@
                 '</div></div>';
         }
         
-        async function loadClassLists() {
+async function loadClassLists() {
             const data = await callAPI('getClassList');
             if (data && data.success) {
-                ['qr_class', 'student_class_filter', 'report_class'].forEach(function(id) {
+                // រក្សាទុក ID ចាស់របស់អ្នកសម្រាប់ Dashboard ធម្មតា
+                ['qr_class', 'filter_class', 'report_class'].forEach(function(id) {
                     var select = document.getElementById(id);
                     if (select) {
                         data.classes.forEach(function(c) {
