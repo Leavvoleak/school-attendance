@@ -500,13 +500,13 @@
             try {
                 var savedSession = localStorage.getItem('sessionUser');
                 if (!savedSession) {
-                    window.location.href = 'Index.html';
+                    window.location.href = 'index.html';
                     return;
                 }
                 
                 sessionUser = JSON.parse(savedSession);
                 if (sessionUser.role !== 'Student') {
-                    window.location.href = 'Index.html';
+                    window.location.href = 'index.html';
                     return;
                 }
                 
