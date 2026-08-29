@@ -1056,21 +1056,14 @@
         }
 
         // មុខងារសម្រាប់គូរប៊ូតុង Pagination (ថយក្រោយ 1 2 3 បន្ទាប់)
-        function renderPagination() {
-            var tableDiv = document.querySelector('#page-students .table-responsive');
-            if(!tableDiv) return;
-            
-            var paginationContainer = document.getElementById('student_pagination');
-            if (!paginationContainer) {
-                paginationContainer = document.createElement('div');
-                paginationContainer.id = 'student_pagination';
-                paginationContainer.className = 'd-flex flex-wrap justify-content-between align-items-center mt-3';
-                tableDiv.parentNode.insertBefore(paginationContainer, tableDiv.nextSibling);
-            }
+function renderPagination() {
+            var paginationContainer = document.getElementById('student_pagination_container');
+            if (!paginationContainer) return;
             
             var totalItems = currentFilteredStudents.length;
             var totalPages = Math.ceil(totalItems / rowsPerPage);
             
+            // បើគ្មានទិន្នន័យ ឬមានតែ ១ ទំព័រ មិនបាច់បង្ហាញ Pagination ទេ
             if (totalPages <= 1) {
                 paginationContainer.innerHTML = '';
                 return;
@@ -1079,31 +1072,46 @@
             var startItem = ((currentPage - 1) * rowsPerPage) + 1;
             var endItem = Math.min(currentPage * rowsPerPage, totalItems);
             
-            var html = `<span class="text-muted small mb-2 mb-md-0">បង្ហាញ ${startItem} ដល់ ${endItem} នៃសិស្សសរុប ${totalItems} នាក់</span>`;
+            // រៀបចំ Layout: ខាងឆ្វេងបង្ហាញចំនួនសិស្ស ខាងស្តាំបង្ហាញប៊ូតុងទំព័រ
+            var html = `<div class="d-flex flex-column flex-md-row justify-content-between align-items-center">`;
             
-            html += `<nav><ul class="pagination pagination-sm mb-0">`;
+            // ផ្នែកខាងឆ្វេង
+            html += `<div class="text-muted small mb-2 mb-md-0">
+                        បង្ហាញ <strong>${startItem}</strong> ដល់ <strong>${endItem}</strong> នៃសិស្សសរុប <strong>${totalItems}</strong> នាក់
+                     </div>`;
             
-            // ប៊ូតុង ថយក្រោយ
+            // ផ្នែកខាងស្តាំ (Bootstrap Pagination)
+            html += `<nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm mb-0">`;
+            
+            // ប៊ូតុង "ថយក្រោយ"
             html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">ថយក្រោយ</a>
-            </li>`;
+                        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})" aria-label="Previous">
+                            <span aria-hidden="true">&laquo; ថយក្រោយ</span>
+                        </a>
+                    </li>`;
             
-            // លេខទំព័រ (បង្ហាញត្រឹម ៥ ទំព័រ ជុំវិញទំព័របច្ចុប្បន្ន)
+            // បង្ហាញលេខទំព័រ (កំណត់ត្រឹម ៥ ទំព័រ ដើម្បីកុំឲ្យវែងពេក)
             var startPage = Math.max(1, currentPage - 2);
             var endPage = Math.min(totalPages, currentPage + 2);
             
-            for(var i = startPage; i <= endPage; i++) {
+            for (var i = startPage; i <= endPage; i++) {
                 html += `<li class="page-item ${currentPage === i ? 'active' : ''}">
-                    <a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a>
-                </li>`;
+                            <a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a>
+                        </li>`;
             }
             
-            // ប៊ូតុង បន្ទាប់
+            // ប៊ូតុង "បន្ទាប់"
             html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">បន្ទាប់</a>
-            </li>`;
+                        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})" aria-label="Next">
+                            <span aria-hidden="true">បន្ទាប់ &raquo;</span>
+                        </a>
+                    </li>`;
             
-            html += `</ul></nav>`;
+            html += `   </ul>
+                      </nav>
+                    </div>`;
+                    
             paginationContainer.innerHTML = html;
         }
 
