@@ -650,6 +650,22 @@
             </div>
         </div>
     </div>
+
+
+
+<!-- Document Viewer Popup Overlay -->
+    <div id="doc_popup_overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div style="background: white; width: 95%; max-width: 900px; height: 85vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="padding: 15px 20px; background: #0f0659; color: white; display: flex; justify-content: space-between; align-items: center;">
+                <h5 style="margin: 0; font-family: 'Siemreap', sans-serif;"><i class="bi bi-file-earmark-text"></i> ឯកសារភ្ជាប់សុំច្បាប់</h5>
+                <button onclick="closeDocPopup()" style="background: none; border: none; color: white; font-size: 28px; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+            <div style="flex: 1; padding: 10px; background: #f0f2f5;">
+                <!-- ប្រើប្រាស់ iframe ដើម្បីបង្ហាញរូបភាព ឬ PDF -->
+                <iframe id="doc_popup_iframe" src="" style="width: 100%; height: 100%; border: none; border-radius: 8px;"></iframe>
+            </div>
+        </div>
+    </div>
     
 <script>
         // 🌟 ដាក់ Link Web App ថ្មីរបស់អ្នកនៅទីនេះ
@@ -1494,9 +1510,10 @@ function renderLeaveTable(requests) {
                 else if (r.status === 'Rejected') statusBadge = '<span class="badge bg-danger">បដិសេធ (Rejected)</span>';
                 else statusBadge = `<span class="badge bg-secondary">${r.status}</span>`;
                 
-                // ប៊ូតុងមើលឯកសារភ្ជាប់
+         
+               // 🌟 កែប្រែប៊ូតុងមើលឯកសារភ្ជាប់ (ប្រើ onClick ហៅ Popup ជំនួស href)
                 var docLink = (r.docUrl && r.docUrl !== 'null' && r.docUrl !== '') 
-                    ? `<a href="${r.docUrl}" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-file-earmark-text"></i> មើលឯកសារ</a>` 
+                    ? `<button onclick="viewDocument('${r.docUrl}')" class="btn btn-sm btn-outline-info"><i class="bi bi-file-earmark-text"></i> មើលឯកសារ</button>` 
                     : '<span class="text-muted">-</span>';
                 
                 // ប៊ូតុងអនុម័ត / បដិសេធ
@@ -1551,7 +1568,30 @@ function renderLeaveTable(requests) {
                 }
             });
         }
-    
+
+
+    // មុខងារសម្រាប់បើក Popup បង្ហាញឯកសារ
+        function viewDocument(url) {
+            var overlay = document.getElementById('doc_popup_overlay');
+            var iframe = document.getElementById('doc_popup_iframe');
+            
+            // ប្រសិនបើវាជា Link របស់ Google Drive យើងត្រូវប្តូរពាក្យ /view ទៅជា /preview ទើបវាអាចបង្ហាញក្នុង iframe បាន
+            if (url.includes('drive.google.com') && url.includes('/view')) {
+                url = url.replace('/view', '/preview');
+            }
+            
+            iframe.src = url;
+            overlay.style.display = 'flex'; // បង្ហាញ Popup
+        }
+
+        // មុខងារសម្រាប់បិទ Popup
+        function closeDocPopup() {
+            var overlay = document.getElementById('doc_popup_overlay');
+            var iframe = document.getElementById('doc_popup_iframe');
+            
+            overlay.style.display = 'none'; // លាក់ Popup វិញ
+            iframe.src = ''; // លុប URL ចេញដើម្បីកុំឲ្យវាដំណើរការចោលពីក្រោយ
+        }
     </script>
 </body>
 </html>
