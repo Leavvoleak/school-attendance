@@ -596,7 +596,7 @@
         function logout() {
             localStorage.removeItem('sessionUser');
             if (scannerWindow && !scannerWindow.closed) scannerWindow.close();
-            window.top.location.href = BASE_URL + '?page=Index';
+            window.location.href = 'index.html';
         }
 
         function switchView(viewName) {
