@@ -325,30 +325,36 @@
         <div id="page-qrcode" class="page-content">
             <div class="glass-card">
                 <h4><i class="bi bi-qr-code"></i> បង្កើត QR Code សម្រាប់សិស្ស</h4>
-                <p class="text-muted small">QR Code មានព័ត៌មាន: អត្តលេខ | Secret Word</p>
+                <p class="text-muted small">អ្នកអាចបង្កើត QR Code សម្រាប់សិស្សមួយថ្នាក់ ឬសិស្សម្នាក់ៗបាន។</p>
                 <div class="row g-3 mt-2">
-                    <div class="col-md-4">
-                        <label class="form-label">ថ្នាក់រៀន</label>
-                        <select id="qr_class" class="form-select" onchange="generateQR()">
-                            <option value="">ជ្រើសរើសថ្នាក់...</option>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-primary">ថ្នាក់រៀន៖</label>
+                        <select id="qr_class" class="form-select border-primary" onchange="loadStudentsForQR()" style="cursor: pointer;">
+                            <option value="">-- រើសថ្នាក់ --</option>
                         </select>
                     </div>
-                    <div class="col-md-4 d-flex align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-primary">ឈ្មោះសិស្ស៖</label>
+                        <select id="qr_student" class="form-select border-primary" style="cursor: pointer;">
+                            <option value="ALL">-- ទាំងអស់ --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
                         <button class="btn btn-primary w-100" onclick="generateQR()">
                             <i class="bi bi-qr-code"></i> បង្កើត QR Code
                         </button>
                     </div>
-                    <div class="col-md-4 d-flex align-items-end">
+                    <div class="col-md-3 d-flex align-items-end">
                         <button class="btn btn-success w-100" onclick="printQR()">
-                            <i class="bi bi-printer"></i> បោះពុម្ព
+                            <i class="bi bi-printer"></i> បោះពុម្ព QR
                         </button>
                     </div>
                 </div>
-                <div id="qr_container" class="qr-container mt-3"></div>
                 <div id="qr_loading" class="text-center py-4" style="display:none;">
                     <div class="spinner-border text-primary"></div>
-                    <div>កំពុងបង្កើត QR Code...</div>
+                    <div class="mt-2">កំពុងដំណើរការ សូមរង់ចាំ...</div>
                 </div>
+                <div id="qr_container" class="qr-container mt-3"></div>
             </div>
         </div>
         
@@ -356,21 +362,27 @@
         <div id="page-students" class="page-content">
             <div class="glass-card">
                 <h4><i class="bi bi-people-fill"></i> បញ្ជីសិស្ស</h4>
-                <div class="row g-3 mt-2">
-                    <div class="col-md-4">
-                        <label class="form-label">ថ្នាក់រៀន</label>
-                        <select id="student_class_filter" class="form-select" onchange="loadStudentList()">
-                            <option value="ALL">ទាំងអស់</option>
+                <div class="row mb-4 align-items-end">
+                    <div class="col-md-3 mb-2 mb-md-0">
+                        <label class="form-label text-muted small fw-bold">ថ្នាក់រៀន</label>
+                        <select class="form-select" id="student_filter_class" onchange="applyStudentFilter()">
+                            <option value="all">ទាំងអស់ (All Classes)</option>
                         </select>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">ឆ្នាំសិក្សា</label>
-                        <select id="student_year_filter" class="form-select" onchange="loadStudentList()">
-                            <option value="2024">2024-2025</option>
-                            <option value="2023">2023-2024</option>
+                    <div class="col-md-3 mb-2 mb-md-0">
+                        <label class="form-label text-muted small fw-bold">ឆ្នាំសិក្សា</label>
+                        <select class="form-select" id="student_filter_academic" onchange="applyStudentFilter()">
+                            <option value="all">ទាំងអស់ (All Years)</option>
                         </select>
                     </div>
-                    <div class="col-md-4 d-flex align-items-end">
+                    <div class="col-md-4 mb-2 mb-md-0">
+                        <label class="form-label text-muted small fw-bold">ស្វែងរកសិស្ស</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0 ps-0" id="student_search_input" placeholder="ស្វែងរក អត្តលេខ ឬ ឈ្មោះសិស្ស..." onkeyup="applyStudentFilter()">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
                         <button class="btn btn-success w-100" onclick="exportStudentList()">
                             <i class="bi bi-file-excel"></i> នាំចេញ
                         </button>
@@ -434,7 +446,10 @@
         var globalAdminLogs = [];
         var allStudents = [];
         var QR_TOP_TEXT = 'BA+1';
-        var totalStudentsFromServer = 0;
+        
+        var totalStudentsFromServer = 0; // សម្រាប់ Dashboard
+        var currentQRStudents = [];      // សម្រាប់ QR Code
+        var globalStudents = [];         // សម្រាប់បញ្ជីសិស្ស
         
         async function callAPI(action, data = {}) {
             data.action = action;
@@ -509,12 +524,13 @@
             document.getElementById('page_title').innerText = titles[page] || page;
             
             if (page === 'students') loadStudentList();
-            if (page === 'qrcode') loadQRClasses();
-            if (page === 'reports') loadReportClasses();
+            if (page === 'qrcode') loadClassLists();
+            if (page === 'reports') loadClassLists();
             
             document.getElementById('sidebar').classList.remove('open');
         }
         
+        // ------------------ (DASHBOARD FUNCTIONS) ------------------
         async function loadAdminData() {
             const data = await callAPI('getAdminDashboardData', { role: sessionUser.role, userId: sessionUser.id });
             if (data && data.success) {
@@ -537,10 +553,9 @@
                 } catch(e) { return false; }
             });
             
-            var present = todayLogs.filter(function(l) { return l.type === 'រៀនក្នុងថ្នាក់'; }).length;
-            var online = todayLogs.filter(function(l) { return l.type === 'រៀនអនឡាញ (Online)'; }).length;
+            var present = todayLogs.filter(function(l) { return l.type.includes('រៀនក្នុងថ្នាក់'); }).length;
+            var online = todayLogs.filter(function(l) { return l.type.includes('អនឡាញ'); }).length;
             
-            // ប្រើចំនួនសិស្សសរុបពិតប្រាកដដែលបញ្ជូនមកពី Server
             var total = totalStudentsFromServer;
             
             document.getElementById('total_students').innerText = total;
@@ -556,10 +571,7 @@
             
             var filtered = globalAdminLogs.filter(function(log) {
                 var logDate = "";
-                try {
-                    var d = new Date(log.date);
-                    logDate = d.toISOString().split('T')[0];
-                } catch(e) {}
+                try { logDate = new Date(log.date).toISOString().split('T')[0]; } catch(e) {}
                 
                 var classMatch = filterClass === 'ALL' || log.className === filterClass;
                 var dateMatch = filterDate === '' || logDate === filterDate;
@@ -579,9 +591,7 @@
             }
             
             tbody.innerHTML = filtered.slice(0, 100).map(function(log, i) {
-                var typeBadge = log.type === 'រៀនក្នុងថ្នាក់' ? 
-                    '<span class="badge badge-present">ក្នុងថ្នាក់</span>' : 
-                    '<span class="badge badge-online">អនឡាញ</span>';
+                var typeBadge = log.type.includes('ក្នុងថ្នាក់') ? '<span class="badge badge-present">ក្នុងថ្នាក់</span>' : '<span class="badge badge-online">អនឡាញ</span>';
                 return '<tr>' +
                     '<td>' + (i + 1) + '</td>' +
                     '<td>' + (log.date || 'N/A') + '</td>' +
@@ -622,37 +632,56 @@
             }
         }
         
-        // QR Code Functions
-        async function loadQRClasses() {
-            const data = await callAPI('getClassList');
-            if (data && data.success) {
-                var select = document.getElementById('qr_class');
-                if(!select) return;
-                
-                select.innerHTML = '<option value="">ជ្រើសរើសថ្នាក់...</option>';
-                data.classes.forEach(function(c) {
-                    select.innerHTML += '<option value="' + c + '">' + c + '</option>';
-                });
-            }
-        }
-        
-        async function generateQR() {
+        // ------------------ (QR CODE FUNCTIONS) ------------------
+        async function loadStudentsForQR() {
             var className = document.getElementById('qr_class').value;
+            var studentSelect = document.getElementById('qr_student');
+            
+            studentSelect.innerHTML = '<option value="ALL">-- ទាំងអស់ --</option>';
             if (!className) {
-                alert('សូមជ្រើសរើសថ្នាក់រៀន');
+                studentSelect.disabled = true;
                 return;
             }
             
+            studentSelect.disabled = true;
+            studentSelect.innerHTML = '<option value="ALL">កំពុងផ្ទុក...</option>';
+            
+            try {
+                const data = await callAPI('getStudentsByClass', { className: className });
+                if (data && data.success) {
+                    currentQRStudents = data.students;
+                    studentSelect.innerHTML = '<option value="ALL">-- ទាំងអស់ --</option>';
+                    data.students.forEach(function(s) {
+                        studentSelect.innerHTML += '<option value="' + s.id + '">' + s.id + ' - ' + s.name + '</option>';
+                    });
+                    studentSelect.disabled = false;
+                } else {
+                    studentSelect.innerHTML = '<option value="ALL">បរាជ័យក្នុងការទាញយក</option>';
+                }
+            } catch (error) {
+                studentSelect.innerHTML = '<option value="ALL">កំហុសបណ្តាញ</option>';
+            }
+        }
+        
+        function generateQR() {
+            var className = document.getElementById('qr_class').value;
+            var studentId = document.getElementById('qr_student').value;
+            
+            if (!className) { alert('សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន!'); return; }
+            
+            var studentsToRender = currentQRStudents;
+            if (studentId !== 'ALL') {
+                studentsToRender = currentQRStudents.filter(function(s) { return s.id === studentId; });
+            }
+            if (studentsToRender.length === 0) { alert('មិនមានទិន្នន័យសិស្ស'); return; }
+
             document.getElementById('qr_loading').style.display = 'block';
             document.getElementById('qr_container').innerHTML = '';
             
-            const data = await callAPI('getStudentsByClass', { className: className });
-            document.getElementById('qr_loading').style.display = 'none';
-            if (data && data.success) {
-                renderQRCodes(data.students);
-            } else {
-                alert(data.error || 'មិនអាចបង្កើត QR Code បានទេ');
-            }
+            setTimeout(function() {
+                renderQRCodes(studentsToRender);
+                document.getElementById('qr_loading').style.display = 'none';
+            }, 100);
         }
         
         function renderQRCodes(students) {
@@ -665,7 +694,6 @@
                 div.className = 'qr-item';
                 
                 var qrData = student.id + '|' + student.secretWord;
-                
                 var topText = document.createElement('div');
                 topText.className = 'qr-top-text';
                 topText.textContent = QR_TOP_TEXT;
@@ -683,43 +711,27 @@
                 container.appendChild(div);
                 
                 new QRCode(document.getElementById('qr_' + student.id), {
-                    text: qrData,
-                    width: 150,
-                    height: 150,
-                    colorDark: '#0f0659',
-                    colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.H
+                    text: qrData, width: 150, height: 150, colorDark: '#0f0659', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H
                 });
             });
         }
         
         function printQR() {
             var container = document.getElementById('qr_container');
-            if (!container || container.children.length === 0) {
-                alert('សូមបង្កើត QR Code ជាមុន');
-                return;
-            }
-            var printWindow = window.open('', '_blank');
-            printWindow.document.write('<html><head><title>QR Codes</title><style>' +
-                'body { font-family: "Siemreap", sans-serif; padding: 20px; }' +
-                '.qr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }' +
-                '.qr-item { text-align: center; border: 1px solid #ddd; padding: 10px; border-radius: 8px; }' +
-                '.qr-top { font-weight: bold; font-size: 14px; color: #0f0659; }' +
-                '.qr-bottom { font-size: 12px; margin-top: 5px; }' +
-                '@media print { .qr-grid { grid-template-columns: repeat(4, 1fr); } }' +
-                '</style></head><body><h3 style="text-align:center;">QR Code សម្រាប់សិស្ស</h3><div class="qr-grid">');
+            if (!container || container.children.length === 0) { alert('សូមបង្កើត QR Code ជាមុន'); return; }
             
-            var items = container.querySelectorAll('.qr-item');
-            items.forEach(function(item) {
+            var printWindow = window.open('', '_blank');
+            printWindow.document.write('<html><head><title>QR Codes</title><style>body { font-family: "Siemreap", sans-serif; padding: 20px; } .qr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; } .qr-item { text-align: center; border: 1px solid #ddd; padding: 10px; border-radius: 8px; } .qr-top { font-weight: bold; font-size: 14px; color: #0f0659; } .qr-bottom { font-size: 12px; margin-top: 5px; } @media print { .qr-grid { grid-template-columns: repeat(4, 1fr); } }</style></head><body><h3 style="text-align:center;">QR Code សម្រាប់សិស្ស</h3><div class="qr-grid">');
+            
+            container.querySelectorAll('.qr-item').forEach(function(item) {
                 var canvas = item.querySelector('canvas');
+                var imgData = canvas ? canvas.toDataURL("image/png") : "";
                 var topText = item.querySelector('.qr-top-text').textContent;
                 var bottomText = item.querySelector('.qr-bottom-text').textContent;
                 printWindow.document.write(
-                    '<div class="qr-item">' +
-                    '<div class="qr-top">' + topText + '</div>' +
-                    (canvas ? canvas.outerHTML : '') +
-                    '<div class="qr-bottom">' + bottomText + '</div>' +
-                    '</div>'
+                    '<div class="qr-item"><div class="qr-top">' + topText + '</div>' +
+                    (imgData ? '<img src="' + imgData + '" style="max-width:150px; height:auto;">' : '') +
+                    '<div class="qr-bottom">' + bottomText + '</div></div>'
                 );
             });
             
@@ -728,137 +740,164 @@
             setTimeout(function() { printWindow.print(); }, 500);
         }
         
-        // Student List Functions
+        // ------------------ (STUDENT LIST FUNCTIONS) ------------------
         async function loadStudentList() {
-            var classFilter = document.getElementById('student_class_filter');
-            var className = classFilter ? classFilter.value : 'ALL';
+            var tbody = document.getElementById('student_table_body');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><div class="spinner-border text-primary"></div><div class="mt-2">កំពុងផ្ទុកទិន្នន័យសិស្ស...</div></td></tr>';
             
             const data = await callAPI('getStudentList');
+            
             if (data && data.success) {
-                allStudents = data.students;
-                renderStudentTable(className);
+                globalStudents = data.students || [];
+                
+                var classSelect = document.getElementById('student_filter_class');
+                if (classSelect && data.classes) {
+                    classSelect.innerHTML = '<option value="all">ទាំងអស់ (All Classes)</option>';
+                    data.classes.forEach(function(c) { classSelect.innerHTML += '<option value="' + c + '">' + c + '</option>'; });
+                }
+                
+                var acaSelect = document.getElementById('student_filter_academic');
+                if (acaSelect && data.academicYears) {
+                    acaSelect.innerHTML = '<option value="all">ទាំងអស់ (All Years)</option>';
+                    data.academicYears.forEach(function(a) { acaSelect.innerHTML += '<option value="' + a.id + '">' + a.year + '</option>'; });
+                }
+                
+                applyStudentFilter();
+            } else {
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">បរាជ័យក្នុងការទាញយកទិន្នន័យ</td></tr>';
             }
         }
-        
-        function renderStudentTable(className) {
-            var filtered = allStudents;
-            if (className && className !== 'ALL') {
-                filtered = filtered.filter(function(s) { return s.className === className; });
+
+        function applyStudentFilter() {
+            var classSelect = document.getElementById('student_filter_class');
+            var acaSelect = document.getElementById('student_filter_academic');
+            var searchInput = document.getElementById('student_search_input');
+            
+            var classVal = classSelect ? classSelect.value : 'all';
+            var acaVal = acaSelect ? acaSelect.value : 'all';
+            var searchVal = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+            var filteredStudents = globalStudents.filter(function(student) {
+                var sClass = String(student.className).trim();
+                var sAca = String(student.academicId).replace('.0', '').trim();
+                var selectedAca = String(acaVal).replace('.0', '').trim();
+
+                var matchClass = (classVal === 'all' || sClass === classVal);
+                var matchAca = (acaVal === 'all' || sAca === selectedAca);
+                var matchSearch = true;
+                
+                if (searchVal !== '') {
+                    matchSearch = String(student.id).toLowerCase().includes(searchVal) || 
+                                  String(student.name).toLowerCase().includes(searchVal);
+                }
+                
+                return matchClass && matchAca && matchSearch;
+            });
+
+            renderStudentTable(filteredStudents); 
+        }
+
+        function renderStudentTable(studentArray) {
+            var tbody = document.getElementById('student_table_body');
+            
+            if (!tbody) {
+                var allThs = document.querySelectorAll('th');
+                for (var i = 0; i < allThs.length; i++) {
+                    if (allThs[i].innerText.includes('អត្តលេខ')) {
+                        tbody = allThs[i].closest('table').querySelector('tbody');
+                        break;
+                    }
+                }
             }
             
-            var tbody = document.getElementById('student_table_body');
-            if(!tbody) return;
-            
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">មិនមានសិស្ស</td></tr>';
+            if (!tbody) return; 
+
+            if (!studentArray || studentArray.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">មិនមានសិស្សនៅក្នុងជម្រើសនេះទេ</td></tr>';
                 return;
             }
-            
-            tbody.innerHTML = filtered.map(function(s, i) {
-                return '<tr>' +
-                    '<td>' + (i + 1) + '</td>' +
-                    '<td><code>' + s.id + '</code></td>' +
-                    '<td>' + s.name + '</td>' +
-                    '<td>' + (s.gender || 'N/A') + '</td>' +
-                    '<td><span class="badge bg-secondary">' + (s.className || 'N/A') + '</span></td>' +
-                    '<td>' + (s.group || 'N/A') + '</td>' +
-                '</tr>';
+
+            tbody.innerHTML = studentArray.map(function(s, index) {
+                return `<tr>
+                    <td>${index + 1}</td>
+                    <td class="text-primary fw-bold">${s.id}</td>
+                    <td>${s.name}</td>
+                    <td>${s.gender || '-'}</td>
+                    <td><span class="badge bg-secondary">${s.className}</span></td>
+                    <td>${s.group || '-'}</td>
+                </tr>`;
             }).join('');
         }
         
         async function exportStudentList() {
-            if (allStudents.length === 0) {
-                alert('មិនមានទិន្នន័យសិស្ស');
-                return;
-            }
-            const data = await callAPI('exportStudentList', { students: allStudents });
+            if (globalStudents.length === 0) { alert('មិនមានទិន្នន័យសិស្ស'); return; }
+            const data = await callAPI('exportStudentList', { students: globalStudents });
             if (data && data.success && data.url) {
                 window.open(data.url, '_blank');
+            } else {
+                alert('បរាជ័យក្នុងការនាំចេញទិន្នន័យ');
             }
         }
         
-        // Report Functions
-        async function loadReportClasses() {
-            const data = await callAPI('getClassList');
-            if (data && data.success) {
-                var select = document.getElementById('report_class');
-                if(!select) return;
-                
-                select.innerHTML = '<option value="ALL">ទាំងអស់</option>';
-                data.classes.forEach(function(c) {
-                    select.innerHTML += '<option value="' + c + '">' + c + '</option>';
-                });
-            }
-        }
-        
+        // ------------------ (REPORT FUNCTIONS) ------------------
         async function generateReport() {
             var className = document.getElementById('report_class').value;
             var fromDate = document.getElementById('report_from').value;
             var toDate = document.getElementById('report_to').value;
             
-            if (!fromDate || !toDate) {
-                alert('សូមជ្រើសរើសកាលបរិច្ឆេទ');
-                return;
-            }
+            if (!fromDate || !toDate) { alert('សូមជ្រើសរើសកាលបរិច្ឆេទ'); return; }
             
             var container = document.getElementById('report_container');
-            if(container) container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div><p>កំពុងទាញយកទិន្នន័យរបាយការណ៍...</p></div>';
+            if (container) container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div><p>កំពុងទាញយកទិន្នន័យរបាយការណ៍...</p></div>';
             
             const data = await callAPI('generateAttendanceReport', { className: className, fromDate: fromDate, toDate: toDate });
             if (data && data.success) {
                 displayReport(data.report, className, fromDate, toDate);
             } else {
                 alert(data.error || 'មិនអាចបង្កើតរបាយការណ៍បានទេ');
-                if(container) container.innerHTML = '';
+                if (container) container.innerHTML = '';
             }
         }
         
         function displayReport(report, className, fromDate, toDate) {
             var container = document.getElementById('report_container');
-            if(!container) return;
+            if (!container) return;
             
             if (report.length === 0) {
                 container.innerHTML = '<div class="alert alert-info">មិនមានទិន្នន័យក្នុងរយៈពេលនេះទេ</div>';
                 return;
             }
             
-            container.innerHTML = '<div class="card">' +
-                '<div class="card-header bg-primary text-white">' +
-                '<h5 class="mb-0"><i class="bi bi-file-bar-graph"></i> របាយការណ៍ចូលរៀន</h5>' +
-                '<small>ថ្នាក់: ' + (className === 'ALL' ? 'ទាំងអស់' : className) + ' | ពី: ' + fromDate + ' ដល់: ' + toDate + '</small>' +
-                '</div>' +
-                '<div class="card-body report-table">' +
-                '<div class="table-responsive">' +
-                '<table class="table table-bordered table-striped">' +
-                '<thead><tr><th>អត្តលេខ</th><th>ឈ្មោះ</th><th>ចំនួនថ្ងៃ</th><th>មានវត្តមាន</th><th>អវត្តមាន</th><th>ភាគរយ</th></tr></thead>' +
-                '<tbody>' +
+            container.innerHTML = `<div class="card">
+                <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-file-bar-graph"></i> របាយការណ៍ចូលរៀន</h5>
+                <small>ថ្នាក់: ${className === 'ALL' ? 'ទាំងអស់' : className} | ពី: ${fromDate} ដល់: ${toDate}</small>
+                </div>
+                <div class="card-body report-table">
+                <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                <thead><tr><th>អត្តលេខ</th><th>ឈ្មោះ</th><th>ចំនួនថ្ងៃ</th><th>មានវត្តមាន</th><th>អវត្តមាន</th><th>ភាគរយ</th></tr></thead>
+                <tbody>` +
                 report.map(function(r) {
                     var color = r.percentage >= 80 ? 'success' : r.percentage >= 50 ? 'warning' : 'danger';
-                    return '<tr>' +
-                        '<td><code>' + r.id + '</code></td>' +
-                        '<td>' + r.name + '</td>' +
-                        '<td>' + r.total + '</td>' +
-                        '<td class="text-success">' + r.present + '</td>' +
-                        '<td class="text-danger">' + r.absent + '</td>' +
-                        '<td>' +
-                        '<div class="progress">' +
-                        '<div class="progress-bar bg-' + color + '" style="width: ' + r.percentage + '%">' + r.percentage + '%</div>' +
-                        '</div>' +
-                        '</td>' +
-                    '</tr>';
+                    return `<tr><td><code>${r.id}</code></td><td>${r.name}</td><td>${r.total}</td><td class="text-success">${r.present}</td><td class="text-danger">${r.absent}</td>
+                        <td><div class="progress"><div class="progress-bar bg-${color}" style="width: ${r.percentage}%">${r.percentage}%</div></div></td></tr>`;
                 }).join('') +
-                '</tbody></table></div>' +
-                '<button class="btn btn-success mt-3" onclick="alert(\'Export function\')">' +
-                '<i class="bi bi-file-excel"></i> នាំចេញ</button>' +
-                '</div></div>';
+                `</tbody></table></div>
+                <button class="btn btn-success mt-3" onclick="alert('Export function')"><i class="bi bi-file-excel"></i> នាំចេញ</button>
+                </div></div>`;
         }
         
         async function loadClassLists() {
             const data = await callAPI('getClassList');
             if (data && data.success) {
-                ['qr_class', 'student_class_filter', 'report_class'].forEach(function(id) {
+                ['qr_class', 'filter_class', 'report_class'].forEach(function(id) {
                     var select = document.getElementById(id);
                     if (select) {
+                        if(id === 'qr_class') select.innerHTML = '<option value="">-- រើសថ្នាក់ --</option>';
+                        else if(id === 'report_class') select.innerHTML = '<option value="ALL">ទាំងអស់</option>';
+                        else if(id === 'filter_class') select.innerHTML = '<option value="ALL">ទាំងអស់</option>';
+                        
                         data.classes.forEach(function(c) {
                             if(!select.querySelector(`option[value="${c}"]`)) {
                                 select.innerHTML += '<option value="' + c + '">' + c + '</option>';
