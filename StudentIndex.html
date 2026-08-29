@@ -480,6 +480,7 @@
                     method: 'POST',
                     body: JSON.stringify(data),
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                    redirect: 'follow' // 🌟 ចំណុចសំខាន់៖ អនុញ្ញាតឲ្យ Browser លោតតាម Link របស់ Google
                 });
                 return await response.json();
             } catch (e) {
