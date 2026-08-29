@@ -734,10 +734,17 @@
             document.getElementById('sidebar').classList.remove('open');
         }
         
+// 🌟 ១. បង្កើតអថេរមួយដើម្បីផ្ទុកចំនួនសិស្សសរុបពិតប្រាកដពី Server
+        var totalStudentsFromServer = 0; 
+
         async function loadAdminData() {
             const data = await callAPI('getAdminDashboardData', { role: sessionUser.role, userId: sessionUser.id });
             if (data && data.success) {
                 globalAdminLogs = data.logs;
+                
+                // 🌟 ២. ចាប់យកចំនួនសិស្សសរុប (១៧៧៩នាក់) ដែល Backend បានផ្ញើមក
+                totalStudentsFromServer = data.totalStudents || 0; 
+                
                 updateStats();
                 renderAdminTable();
                 populateFilters();
@@ -750,18 +757,21 @@
             var today = new Date().toISOString().split('T')[0];
             var todayLogs = globalAdminLogs.filter(function(log) {
                 try {
-                    var d = new Date(log.date);
-                    return d.toISOString().split('T')[0] === today;
+                    return new Date(log.date).toISOString().split('T')[0] === today;
                 } catch(e) { return false; }
             });
             
-            var present = todayLogs.filter(function(l) { return l.type === 'រៀនក្នុងថ្នាក់'; }).length;
-            var online = todayLogs.filter(function(l) { return l.type === 'រៀនអនឡាញ (Online)'; }).length;
-            var total = new Set(globalAdminLogs.map(function(l) { return l.studentId; })).size;
+            var present = todayLogs.filter(function(l) { return l.type.includes('រៀនក្នុងថ្នាក់'); }).length;
+            var online = todayLogs.filter(function(l) { return l.type.includes('អនឡាញ'); }).length;
             
-            document.getElementById('total_students').innerText = total || 0;
+            // 🌟 ៣. ប្រើប្រាស់ចំនួនសិស្សសរុបពី Server ជំនួសការរាប់ពី Log 
+            var total = totalStudentsFromServer; 
+            
+            document.getElementById('total_students').innerText = total;
             document.getElementById('present_today').innerText = present;
             document.getElementById('online_today').innerText = online;
+            
+            // គណនាអ្នកអវត្តមាន ដោយយកចំនួនសរុប (១៧៧៩) ដក អ្នកមក និងអ្នករៀនអនឡាញ
             document.getElementById('absent_today').innerText = Math.max(0, total - present - online);
         }
         
