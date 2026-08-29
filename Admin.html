@@ -934,8 +934,11 @@
         }
         
         // Student List Functions
-        async function loadStudentList() {
-            var className = document.getElementById('student_class_filter').value;
+async function loadStudentList() {
+            // 🌟 បំពាក់ប្រព័ន្ធការពារ (Safe Check): បើរកមិនឃើញប្រអប់ វានឹងចាត់ទុកថាជា 'ALL'
+            var classFilter = document.getElementById('student_class_filter');
+            var className = classFilter ? classFilter.value : 'ALL';
+            
             const data = await callAPI('getStudentList');
             if (data && data.success) {
                 allStudents = data.students;
@@ -945,11 +948,14 @@
         
         function renderStudentTable(className) {
             var filtered = allStudents;
-            if (className !== 'ALL') {
+            // ត្រងយកតែសិស្សក្នុងថ្នាក់ បើមានការជ្រើសរើសជាក់លាក់
+            if (className && className !== 'ALL') {
                 filtered = filtered.filter(function(s) { return s.className === className; });
             }
             
             var tbody = document.getElementById('student_table_body');
+            if (!tbody) return; // ការពារកុំឲ្យគាំង បើរកតារាងមិនឃើញ
+            
             if (filtered.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">មិនមានសិស្ស</td></tr>';
                 return;
