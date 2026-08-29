@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Koulen&family=Siemreap&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Siemreap', sans-serif; 
+            font-size: 12pt; 
+            background: #f0f2f5; 
+            color: #333; 
+            overflow-x: hidden; 
+            touch-action: manipulation;
+            padding-bottom: 80px;
+        }
+        .app-container { width: 100%; max-width: 500px; margin: 0 auto; padding: 0 15px; }
+        
+        /* THIS IS THE TOP BANNER YOU WANT TO KEEP */
+        .top-header { 
+            background: linear-gradient(135deg, #0f0659 0%, #1a0f7a 100%);
+            border-bottom: 4px solid #0755f9; 
+            padding: 15px 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 0 -15px 15px -15px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            border-radius: 0 0 25px 25px; 
+        }
+        .header-logo { width: 50px; height: auto; margin-right: 15px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); background: white; }
+        .header-khmer { font-family: 'Koulen', sans-serif; font-size: 14pt; color: #ffffff; line-height: 1.2; margin: 0; text-align: center; }
+        .header-english { font-family: Arial, sans-serif; font-size: 10pt; color: #90caf9; margin: 0; text-align: center; }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            border-left: 4px solid #0f0659;
+        }
+        #dash_name { font-family: 'Koulen', sans-serif; font-size: 16pt; margin: 0; line-height: 1.2; color: #0f0659; }
+        .dash-id-label { font-size: 11pt; color: #666; margin: 5px 0 0 0; }
+        .dash-avatar { 
+            width: 50px; 
+            height: 50px; 
+            background: linear-gradient(135deg, #0f0659, #1a0f7a);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .qr-scan-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        .qr-scan-btn:active { transform: scale(0.96); }
+        .qr-scan-btn:hover { border-color: #0f0659; }
+        .qr-scan-btn .qr-icon { font-size: 32px; margin-bottom: 8px; }
+        .qr-title { font-weight: bold; font-size: 13pt; }
+        .qr-sub { color: #888; font-size: 9.5pt; line-height: 1.2; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .grid-item {
+            background: white;
+            padding: 15px 10px;
+            border-radius: 12px;
+            text-align: center;
+            color: #555;
+            font-size: 11pt;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .grid-item strong {
+            display: block;
+            font-size: 20pt;
+            color: #0f0659;
+            margin-top: 5px;
+        }
+        .grid-item .label { color: #888; font-size: 10pt; }
+        
+        .donut-container {
+            grid-column: span 2;
+            display: flex;
+            justify-content: center;
+            padding: 15px 0;
+            background: white;
+            border-radius: 12px;
+        }
+        .donut {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .donut-inner {
+            width: 100px;
+            height: 100px;
+            background: #f0f2f5;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .donut-percent { font-size: 22pt; color: #0f0659; }
+        .donut-label { font-size: 10pt; color: #888; }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+            box-shadow: 0 -2px 15px rgba(0,0,0,0.08);
+            z-index: 1000;
+            border-top: 1px solid #eee;
+        }
+        .nav-btn {
+            border: none;
+            background: transparent;
+            color: #888;
+            padding: 5px 15px;
+            font-family: 'Siemreap', sans-serif;
+            font-size: 7pt;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.2;
+            transition: all 0.3s ease;
+        }
+        .nav-btn i { font-size: 20px; margin-bottom: 3px; }
+        .nav-btn.active { color: #0f0659; }
+        .nav-btn.text-danger.active { color: #dc3545; }
+        
+        .view-section { display: none; animation: fadeIn 0.3s ease; }
+        .view-section.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        #checkin-status {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 5px;
+        }
+        
+        /* NEW REPORT LAYOUT STYLES */
+        .report-filter-bar {
+            background: #4a6fa5;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .report-filter-bar input { 
+                    border: none; 
+                    border-radius: 8px; 
+                    padding: 8px; 
+                    font-size: 10pt; 
+                    width: 100%; 
+                    color: #333; /* Forces text to be visible */
+                    background-color: #ffffff; /* Forces background to be white */
+                    color-scheme: light; /* Fixes browser dark mode overrides */
+        }
+        .report-filter-bar button {
+            background: white;
+            color: #4a6fa5;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 15px;
+            font-weight: bold;
+        }
+        
+        .new-report-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 6px solid #e0e0e0;
+        }
+        .new-report-card:nth-child(odd) { border-left-color: #0755f9; }
+        .new-report-card:nth-child(even) { border-left-color: #28a745; }
+        .notif-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 6px solid #e0e0e0; }
+        .notif-card.approved { border-left-color: #28a745; }
+        .notif-card.rejected { border-left-color: #dc3545; }
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid #0755f9;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #loading-overlay .main-text { font-size: 18pt; font-weight: bold; margin: 5px 0; }
+        #loading-overlay .sub-text { font-size: 12pt; color: #ccc; margin: 5px 0; }
+        #loading-overlay .btn-retry {
+            margin-top: 15px;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 13pt;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            width: 80%;
+            max-width: 320px;
+            font-family: 'Siemreap', sans-serif;
+        }
+        #loading-overlay .btn-orange { background: #FF6B00; color: white; }
+        #loading-overlay .btn-blue { background: #3b5998; color: white; margin-top: 10px; }
+        #loading-overlay .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            font-size: 24px;
+            padding: 10px 16px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Overlay for Scanner/Upload Option -->
+    <div id="loading-overlay">
+        <button class="close-btn" onclick="closeLoadingOverlay()">✕</button>
+        <div class="spinner" id="loading-spinner-icon" style="display:none;"></div>
+        <p class="main-text" id="loading-title">ជ្រើសរើសវិធីសាស្រ្ត (Choose Method)</p>
+        <p class="sub-text" id="loading-desc">សូមជ្រើសរើសការស្កេន ឬបញ្ចូលរូបភាព</p>
+        <button class="btn-retry btn-orange" onclick="openCameraDirectly()" id="btn-open-tab">
+            <i class="fas fa-camera"></i> បើកកាមេរ៉ា (Open Camera)
+        </button>
+        <button class="btn-retry btn-blue" onclick="useFileUpload()">
+            <i class="fas fa-upload"></i> ប្រើរូបភាពពីទូរស័ព្ទ (Upload Image)
+        </button>
+    </div>
+
+    <div class="app-container">
+        <!-- TOP HEADER (Preserved explicitly) -->
+        <div class="top-header" id="headerContainer">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgUpllrhieFhb8H0BmgCIrFPfq4WBfiXa6WGmFlofCYbYNcKQhrQD7nqDuRhOyAqdnJ4hK__IxZGOnhKFd3XhaadAdCsiGs3nXhNYzAaDnKi8DqjU64XWjRmnhJTDuxu44l-wZO0kvfpA8R_hGGhBQciubC0Diup8wO14cfoicv2AG5CgV63vIK2Nl-nW7s/s320/logo.png" class="header-logo" alt="Logo">
+            <div>
+                <h1 class="header-khmer" id="headerCampusKH">មជ្ឈមណ្ឌលគរុកោសល្យភូមិភាគ ខេត្តព្រៃវែង</h1>
+                <p class="header-english" id="headerCampusEN">Regional Teacher Training Center</p>
+            </div>
+        </div>
+
+        <!-- VIEW: HOME -->
+        <div id="view-home" class="view-section active">
+            <div class="dashboard-header">
+                <div>
+                    <h3 id="dash_name">...</h3>
+                    <p class="dash-id-label">អត្តលេខ: <strong id="dash_id"></strong></p>
+                    <p class="dash-id-label" style="font-size:10pt; color:#888;">
+                        <span id="dash_student_type">...</span> | <span id="dash_group">...</span>
+                    </p>
+                </div>
+                <div class="dash-avatar">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+            </div>
+
+            <!-- Removed the redundant campus name panel as requested in previous markings -->
+
+            <div id="checkin-status" class="text-center text-muted mb-2">
+                <i class="fas fa-info-circle"></i> សូមចុចប៊ូតុងខាងក្រោមដើម្បីចុះវត្តមាន
+            </div>
+            
+            <div class="d-flex gap-2 w-100 mb-3" id="btnStartScanContainer">
+                <button type="button" class="qr-scan-btn" onclick="startCamera('in-person')">
+                    <i class="fas fa-school qr-icon text-success"></i>
+                    <span class="qr-title text-success">រៀនផ្ទាល់</span>
+                    <span class="qr-sub">ត្រូវមានទីតាំងសាលា</span>
+                </button>
+                <button type="button" class="qr-scan-btn" onclick="startCamera('online')">
+                    <i class="fas fa-laptop-house qr-icon text-primary"></i>
+                    <span class="qr-title text-primary">រៀនតាមអនឡាញ</span>
+                    <span class="qr-sub">មិនគិតទីតាំងទេ</span>
+                </button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="grid-item">
+                    <span class="label"><i class="far fa-clock"></i> ម៉ោងបាត់បង់</span>
+                    <strong id="dash_hrs">0h 0m</strong>
+                </div>
+                <div class="grid-item">
+                    <span class="label"><i class="fas fa-list"></i> ចំនួនសុំច្បាប់</span>
+                    <strong id="dash_leaves">0</strong>
+                </div>
+                <div class="grid-item">
+                    <span class="label"><i class="fas fa-check-circle text-success"></i> វត្តមាន</span>
+                    <strong id="dash_present">0</strong>
+                </div>
+                <div class="grid-item">
+                    <span class="label"><i class="fas fa-times-circle text-danger"></i> អវត្តមាន</span>
+                    <strong id="dash_absent">0</strong>
+                </div>
+                
+                <div class="donut-container">
+                    <div class="donut" id="donut_chart" style="background: conic-gradient(#0f0659 0%, #e0e0e0 0%);">
+                        <div class="donut-inner">
+                            <span class="donut-percent" id="dash_percent">0%</span>
+                            <span class="donut-label">វត្តមាន</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: REPORT -->
+        <div id="view-report" class="view-section">
+            <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+                <h5 class="mb-0 fw-bold text-primary">
+                    <i class="fas fa-list-alt"></i> តារាងបញ្ជីវត្តមាន
+                </h5>
+                <span class="badge bg-primary" id="report_count">0 កំណត់ត្រា</span>
+            </div>
+            
+            <div class="report-filter-bar">
+                <input type="date" id="filter_from">
+                <input type="date" id="filter_to">
+                <button onclick="applyDateFilter()">ស្វែងរក</button>
+            </div>
+
+            <div id="report-list">
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-spinner fa-spin fs-3"></i>
+                    <p class="mt-2">កំពុងផ្ទុក...</p>
+                </div>
+            </div>
+        </div>
+
+
+<!-- VIEW: LEAVE REQUEST -->
+        <div id="view-leave" class="view-section">
+            <div class="glass-card">
+                <h5 class="fw-bold text-primary mb-3"><i class="fas fa-file-signature"></i> ដាក់ពាក្យសុំច្បាប់</h5>
+                
+                <div class="mb-3">
+                    <label class="form-label text-muted small">អត្តលេខ និងឈ្មោះ</label>
+                    <input type="text" id="leave_student_info" class="form-control bg-light" readonly>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-muted small">ថ្ងៃសុំច្បាប់៖</label>
+                    <input type="date" id="leave_date" class="form-control" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-muted small">មូលហេតុ៖</label>
+                    <textarea id="leave_reason" class="form-control" rows="3" placeholder="ឧ. ឈឺ, គ្រោះថ្នាក់..." required></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-muted small">ឯកសារបញ្ជាក់/រូបថត (Document/Photo)</label>
+                    <input type="file" id="leave_file" class="form-control" accept="image/*">
+                </div>
+                
+                <button class="btn btn-primary w-100" id="btnSubmitLeave" onclick="submitLeave()">
+                    <i class="fas fa-paper-plane"></i> បញ្ជូនសំណើ
+                </button>
+            </div>
+
+            
+        </div>
+
+
+<!-- VIEW: NOTIFICATION -->
+        <div id="view-notification" class="view-section">
+            <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+                <h5 class="mb-0 fw-bold text-primary">
+                    <i class="fas fa-bell"></i> ដំណឹងថ្មីៗ (Notifications)
+                </h5>
+            </div>
+            <div id="notification-list">
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-spinner fa-spin fs-3"></i>
+                    <p class="mt-2">កំពុងផ្ទុក...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- BOTTOM NAVIGATION -->
+    <div class="bottom-nav">
+        <button class="nav-btn active" id="navHome" onclick="switchView('home')">
+            <i class="fas fa-home"></i> ទំព័រដើម
+        </button>
+        <button class="nav-btn" id="navReport" onclick="switchView('report')">
+            <i class="fas fa-file-alt"></i> របាយការណ៍
+        </button>
+        <button class="nav-btn" id="navLeave" onclick="switchView('leave')">
+            <i class="fas fa-file-signature"></i> ពាក្យសុំច្បាប់
+        </button>
+        <button class="nav-btn" id="navNotification" onclick="switchView('notification')">
+            <div style="position:relative;">
+                <i class="fas fa-bell"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notif-badge" style="display:none; font-size:0.6rem;">0</span>
+            </div>
+            ដំណឹង
+        </button>
+        <button class="nav-btn text-danger" onclick="confirmLogout()">
+            <i class="fas fa-sign-out-alt"></i> ចាកចេញ
+        </button>
+    </div>
+
+    <input type="file" id="qr-file-input" accept="image/*" style="display:none" onchange="handleFileUpload(event)">
+
+    <script>
+
+        async function callAPI(action, data) {
+            data.action = action;
+            try {
+                const response = await fetch(BASE_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                return await response.json();
+            } catch (e) {
+                return { error: 'បញ្ហាភ្ជាប់អ៊ីនធឺណិត' };
+            }
+        }
+
+        const BASE_URL = "https://script.google.com/macros/s/AKfycbwNHlULVXlao5XGpQxq8UeGJ_CBo1rEGvP3ZqWfl3Qh9vDaMdfV7i59Id4RhkWFoczhzg/exec";
+        
+        var sessionUser = null;
+        var scannerWindow = null;
+        var checkInDone = false;
+        var currentCheckInMode = '';
+        var allDailyLogs = [];
+        var selectedCampus = null;
+
+        window.onload = function() {
+            try {
+                var savedSession = localStorage.getItem('sessionUser');
+                if (!savedSession) {
+                    window.location.href = 'Index.html';
+                    return;
+                }
+                
+                sessionUser = JSON.parse(savedSession);
+                if (sessionUser.role !== 'Student') {
+                    window.location.href = 'Index.html';
+                    return;
+                }
+                
+                var campusData = localStorage.getItem('selectedCampus');
+                if (campusData) {
+                    try {
+                        selectedCampus = JSON.parse(campusData);
+                        updateCampusHeader();
+                    } catch(e) {}
+                }
+                
+                initApp();
+
+                window.addEventListener('message', function(event) {
+                    if (event.data && event.data.type === 'QR_RESULT') {
+                        if (!checkInDone) {
+                            checkInDone = true;
+                            closeLoadingOverlay();
+                            submitCheckIn(event.data.data);
+                        }
+                    }
+                });
+            } catch (error) {
+                document.body.innerHTML = '<div style="padding:20px;color:red;text-align:center;"><h3>កំហុស</h3><p>' + error.message + '</p></div>';
+            }
+        };
+        
+        function updateCampusHeader() {
+            if (selectedCampus) {
+                document.getElementById('headerCampusKH').textContent = selectedCampus.nameKH || 'មជ្ឈមណ្ឌលគរុកោសល្យភូមិភាគ ខេត្តព្រៃវែង';
+                document.getElementById('headerCampusEN').textContent = selectedCampus.nameEN || 'Regional Teacher Training Center';
+            }
+        }
+
+        function initApp() {
+            document.getElementById('dash_name').innerText = sessionUser.name || 'User';
+            document.getElementById('dash_id').innerText = sessionUser.id || 'N/A';
+            document.getElementById('dash_student_type').innerText = sessionUser.studentType || 'ប្រភេទ';
+            document.getElementById('dash_group').innerText = sessionUser.group || 'ក្រុម';
+            document.getElementById('leave_student_info').value = sessionUser.id + " - " + sessionUser.name;
+            switchView('home');
+            // 🌟 បញ្ឆេះប្រព័ន្ធ Real-Time នៅពេលកម្មវិធីចាប់ផ្តើម
+            startRealtimeUpdates();
+        }
+
+        function submitLeave() {
+            var date = document.getElementById('leave_date').value;
+            var reason = document.getElementById('leave_reason').value;
+            var fileInput = document.getElementById('leave_file');
+            
+            if (!date || !reason) {
+                Swal.fire('បម្រាម', 'សូមបំពេញថ្ងៃខែ និងមូលហេតុ', 'warning');
+                return;
+            }
+
+            var btn = document.getElementById('btnSubmitLeave');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងបញ្ជូន...';
+
+            if (fileInput.files.length > 0) {
+                var file = fileInput.files[0];
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var base64 = e.target.result.split(',')[1];
+                    sendLeaveToBackend(date, reason, base64, file.type, file.name);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                sendLeaveToBackend(date, reason, null, null, null);
+            }
+        }
+
+       async function sendLeaveToBackend(date, reason, fileData, mimeType, filename) {
+                    const res = await callAPI('submitLeaveRequest', { studentId: sessionUser.id, leaveDate: date, reason: reason, fileData: fileData, mimeType: mimeType, filename: filename });
+                    var btn = document.getElementById('btnSubmitLeave');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> បញ្ជូនសំណើ';
+                    if (res.error) { Swal.fire('កំហុស', res.error, 'error'); } 
+                    else { 
+                        Swal.fire('ជោគជ័យ', res.success, 'success');
+                        document.getElementById('leave_reason').value = '';
+                        document.getElementById('leave_file').value = '';
+                    }
+    }
+
+        function logout() {
+            localStorage.removeItem('sessionUser');
+            if (scannerWindow && !scannerWindow.closed) scannerWindow.close();
+            window.top.location.href = BASE_URL + '?page=Index';
+        }
+
+        function switchView(viewName) {
+            document.querySelectorAll('.nav-btn').forEach(function(btn) { btn.classList.remove('active'); });
+            document.querySelectorAll('.view-section').forEach(function(v) { v.classList.remove('active'); });
+            
+            document.getElementById('view-' + viewName).classList.add('active');
+            document.getElementById('nav' + viewName.charAt(0).toUpperCase() + viewName.slice(1)).classList.add('active');
+            
+            // If they open the notification tab, mark everything as viewed to clear the badge
+            if (viewName === 'notification' && sessionUser) {
+                var currentNotifs = JSON.parse(localStorage.getItem('allNotifIds') || '[]');
+                localStorage.setItem('viewedNotifs', JSON.stringify(currentNotifs));
+                document.getElementById('notif-badge').style.display = 'none';
+                
+                // Remove the "ថ្មី (New)" badges from the rendered list visually
+                document.querySelectorAll('.new-notif-badge').forEach(b => b.style.display = 'none');
+            }
+            
+            if (viewName === 'home' || viewName === 'report' || viewName === 'notification') {
+                refreshStats(viewName === 'report');
+            }
+        }
+
+      function formatDisplayDate(dateStr) {
+            if (!dateStr) return "";
+            
+            // Bulletproof string splitter (Bypasses the JS timezone bug entirely)
+            var parts = String(dateStr).split('-');
+            if (parts.length >= 3) {
+                var year = parts[0];
+                var month = parseInt(parts[1], 10) - 1;
+                var day = parts[2].substring(0, 2); // Removes any attached time
+                var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                
+                if (months[month]) {
+                    return months[month] + " " + day + ", " + year;
+                }
+            }
+            
+            // Fallback just in case
+            var d = new Date(dateStr);
+            if(isNaN(d.getTime())) return dateStr;
+            var fallbackMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            return fallbackMonths[d.getMonth()] + " " + String(d.getDate()).padStart(2, '0') + ", " + d.getFullYear();
+        } 
+
+        function startCamera(mode) {
+            currentCheckInMode = mode;
+            document.getElementById('checkin-status').innerHTML = '';
+            checkInDone = false;
+            
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.getElementById('loading-spinner-icon').style.display = 'none';
+            document.getElementById('loading-title').textContent = 'ជ្រើសរើសវិធីសាស្រ្ត (Choose Method)';
+            document.getElementById('loading-desc').textContent = mode === 'online' ? 'រៀនតាមអនឡាញ (Online Check-in)' : 'រៀនផ្ទាល់ (In-Person Check-in)';
+            document.getElementById('btn-open-tab').style.display = 'block';
+        }
+
+        function openCameraDirectly() {
+            if (scannerWindow && !scannerWindow.closed) scannerWindow.close();
+            var scannerHTML = generateScannerHTML();
+            scannerWindow = window.open('', '_blank', 'width=400,height=700,menubar=no,toolbar=no,location=no,status=no');
+            if (scannerWindow) {
+                scannerWindow.document.write(scannerHTML);
+                scannerWindow.document.close();
+                document.getElementById('loading-overlay').style.display = 'none';
+            } else {
+                Swal.fire('Pop-up Blocked', 'Please allow pop-ups to open the camera.', 'warning');
+            }
+        }
+
+        function closeLoadingOverlay() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+
+        function useFileUpload() {
+            closeLoadingOverlay();
+            document.getElementById('qr-file-input').click();
+        }
+
+        function handleFileUpload(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            
+            var script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
+            document.head.appendChild(script);
+            
+            script.onload = function() {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var img = new Image();
+                    img.onload = function() {
+                        var canvas = document.createElement('canvas');
+                        var ctx = canvas.getContext('2d');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        var code = jsQR(
+                            ctx.getImageData(0, 0, canvas.width, canvas.height).data,
+                            canvas.width,
+                            canvas.height,
+                            { inversionAttempts: "dontInvert" }
+                        );
+                        if (code && code.data) {
+                            Swal.fire({ icon: 'success', title: 'បានរកឃើញ QR!', text: 'កំពុងផ្ទៀងផ្ទាត់...', timer: 1500, showConfirmButton: false });
+                            submitCheckIn(code.data);
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'មិនឃើញ QR Code', text: 'សូមប្រាកដថារូបភាពច្បាស់', confirmButtonText: 'យល់ព្រម' });
+                        }
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+            event.target.value = '';
+        }
+       async function submitCheckIn(scannedData) {
+            var status = document.getElementById('checkin-status');
+
+            if (!scannedData) return;
+
+            var parts = scannedData.split('|');
+            if (parts.length !== 2) {
+                Swal.fire({ icon: 'error', title: 'កាតមិនត្រឹមត្រូវ', text: 'ទម្រង់ QR Code មិនត្រឹមត្រូវ។', confirmButtonText: 'យល់ព្រម' });
+                return;
+            }
+
+            // ១. បំប្លែងលេខអត្តលេខពី QR Code ឲ្យទៅជាទម្រង់ ៤ ខ្ទង់
+            var scannedId = parts[0].trim();
+            if (/^\d+$/.test(scannedId)) {
+                scannedId = scannedId.padStart(4, '0');
+            }
+            
+            // ២. បំប្លែងលេខអត្តលេខរបស់សិស្ស (Session ID) ឲ្យទៅជាទម្រង់ ៤ ខ្ទង់
+            var currentUserId = String(sessionUser.id).trim();
+            if (/^\d+$/.test(currentUserId)) {
+                currentUserId = currentUserId.padStart(4, '0');
+            }
+
+            // ៣. ប្រៀបធៀបអត្តលេខ និងពាក្យសម្ងាត់ (Secret Word) ក្រោយពេលបំប្លែងរួច
+            if (scannedId !== currentUserId || parts[1].trim() !== sessionUser.secretWord) {
+                Swal.fire({ icon: 'error', title: 'កាតមិនត្រឹមត្រូវ', text: 'QR Code មិនត្រឹមត្រូវ ឬមិនមែនជារបស់អ្នក។', confirmButtonText: 'យល់ព្រម' });
+                return;
+            }
+
+            var campusId = sessionUser.campusId || '1';
+            
+            // ប្រសិនបើកាតត្រឹមត្រូវ បន្តការស្កេន
+            if (currentCheckInMode === 'online') {
+                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងចុះវត្តមានអនឡាញ...';
+                const res = await callAPI('submitAttendance', { studentId: sessionUser.id, checkInType: "រៀនអនឡាញ", lat: 0, lng: 0 });
+                handleCheckInResult(res, status);
+            } else {
+                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងផ្ទៀងផ្ទាត់ទីតាំង...';
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        async function(position) {
+                            const res = await callAPI('submitAttendanceWithCampus', {
+                                studentId: sessionUser.id,
+                                checkInType: "រៀនផ្ទាល់",
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude,
+                                campusId: campusId
+                            });
+                            handleCheckInResult(res, status);
+                        },
+                        async function(error) {
+                            await Swal.fire({ icon: 'warning', title: 'ទីតាំងមិនត្រូវបានអនុញ្ញាត', text: 'សូមបើក GPS ហើយព្យាយាមម្តងទៀត' });
+                            status.innerHTML = '';
+                        },
+                        { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
+                    );
+                } else {
+                    await Swal.fire('Error', 'GPS មិនដំណើរការលើឧបករណ៍នេះទេ', 'error');
+                }
+            }
+        }
+        // function submitCheckIn(scannedData) {
+        //     var status = document.getElementById('checkin-status');
+
+        //     if (!scannedData) return;
+
+        //     var parts = scannedData.split('|');
+        //     if (parts.length !== 2 || parts[0].trim() !== sessionUser.id.toString() || parts[1].trim() !== sessionUser.secretWord) {
+        //         Swal.fire({ icon: 'error', title: 'កាតមិនត្រឹមត្រូវ', text: 'QR Code មិនត្រឹមត្រូវ ឬមិនមែនជារបស់អ្នក។', confirmButtonText: 'យល់ព្រម' });
+        //         return;
+        //     }
+
+        //     var campusId = sessionUser.campusId || '1';
+            
+        //     if (currentCheckInMode === 'online') {
+        //         status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងចុះវត្តមានអនឡាញ...';
+        //         google.script.run
+        //             .withSuccessHandler(function(data) { handleCheckInResult(data, status); })
+        //             .withFailureHandler(function(error) { Swal.fire('កំហុស', error.message, 'error'); status.innerHTML = ''; })
+        //             .submitAttendance(sessionUser.id, "រៀនអនឡាញ", 0, 0); 
+        //     } else {
+        //         status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងផ្ទៀងផ្ទាត់ទីតាំង...';
+        //         if (navigator.geolocation) {
+        //             navigator.geolocation.getCurrentPosition(
+        //                 function(position) {
+        //                     google.script.run
+        //                         .withSuccessHandler(function(data) { handleCheckInResult(data, status); })
+        //                         .withFailureHandler(function(error) { Swal.fire('កំហុស', error.message, 'error'); status.innerHTML = ''; })
+        //                         .submitAttendanceWithCampus(sessionUser.id, "រៀនផ្ទាល់", position.coords.latitude, position.coords.longitude, campusId);
+        //                 },
+        //                 function(error) {
+        //                     Swal.fire({ icon: 'warning', title: 'ទីតាំងមិនត្រូវបានអនុញ្ញាត', text: 'សូមបើក GPS ហើយព្យាយាមម្តងទៀត' });
+        //                     status.innerHTML = '';
+        //                 }
+        //             );
+        //         } else {
+        //             Swal.fire('Error', 'GPS មិនដំណើរការលើឧបករណ៍នេះទេ', 'error');
+        //         }
+        //     }
+        // }
+
+        async function handleCheckInResult(data, statusElement) {
+            if (data.error) {
+                await Swal.fire({ icon: 'error', title: 'បរាជ័យ', text: data.error });
+                statusElement.innerHTML = '';
+            } else {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'ជោគជ័យ',
+                    text: data.alert,
+                    timer: 3500,
+                    showConfirmButton: true
+                });
+                statusElement.innerHTML = '<i class="fas fa-check-circle text-success"></i> ' + data.success;
+                statusElement.className = 'text-success fw-bold text-center mb-2';
+                
+                if (data.scansToday >= 4) {
+                    document.getElementById('btnStartScanContainer').style.display = 'none';
+                }
+                
+                refreshStats(false);
+            }
+        }
+
+
+async function refreshStats(renderRep) {
+           
+            
+                    const data = await callAPI('getStudentData', { studentId: sessionUser.id });
+                    if (data.success) {
+                        allDailyLogs = data.logs || [];
+                        
+                        document.getElementById('dash_hrs').innerText = data.stats.hours || '0h 0m';
+                        document.getElementById('dash_present').innerText = data.stats.present || 0;
+                        document.getElementById('dash_absent').innerText = data.stats.absent || 0;
+                        document.getElementById('dash_leaves').innerText = data.stats.leaves || 0;
+                        document.getElementById('dash_percent').innerText = data.stats.percentage + '%';
+                        document.getElementById('donut_chart').style.background = 'conic-gradient(#0f0659 0% ' + data.stats.percentage + '%, #e0e0e0 ' + data.stats.percentage + '% 100%)';
+                        
+                        // // ប្រព័ន្ធជូនដំណឹងសម្រាប់ ៤ ស្កេន
+                        // if (data.stats.todayStatus === "Permission") {
+                        //     document.getElementById('checkin-status').innerHTML = '<i class="fas fa-calendar-check text-primary"></i> អ្នកមានច្បាប់ឈប់សម្រាកសម្រាប់ថ្ងៃនេះ';
+                        //     document.getElementById('btnStartScanContainer').style.display = 'none';
+                        // } else if (data.stats.missingScanPrompt) {
+                        //     document.getElementById('checkin-status').innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i> ' + data.stats.missingScanPrompt;
+                        //     document.getElementById('btnStartScanContainer').style.display = 'flex';
+                        // } else if(allDailyLogs.length > 0 && allDailyLogs[0].date === (new Date().toISOString().split('T')[0]) && allDailyLogs[0].aOut !== '--:--') {
+                        //     document.getElementById('checkin-status').innerHTML = '<i class="fas fa-check-circle text-success"></i> អ្នកបានបញ្ជប់ការស្កេនទាំង ២វេនសម្រាប់ថ្ងៃនេះហើយ';
+                        //     document.getElementById('btnStartScanContainer').style.display = 'none';
+                        // } else {
+                        //     document.getElementById('checkin-status').innerHTML = '<i class="fas fa-info-circle text-muted"></i> សូមរង់ចាំម៉ោងស្កេនបន្ទាប់';
+                        //     document.getElementById('btnStartScanContainer').style.display = 'none';
+                        // }
+
+                        // ប្រព័ន្ធជូនដំណឹង និងបិទប៊ូតុងជាក់លាក់
+                        var sOffline = data.stats.scanSettings.offline;
+                        var sOnline = data.stats.scanSettings.online;
+                        
+                        var btnContainer = document.getElementById('btnStartScanContainer');
+                        if (btnContainer) {
+                            var btns = btnContainer.querySelectorAll('button');
+                            btns.forEach(function(btn) {
+                                var txt = btn.innerText || btn.textContent;
+                                // បិទ/បើក ប៊ូតុង រៀនផ្ទាល់
+                                if (txt.includes('ផ្ទាល់') || txt.includes('Offline')) {
+                                    btn.disabled = !sOffline; // ធ្វើឲ្យចុចលែងបាន
+                                    btn.style.opacity = sOffline ? "1" : "0.5"; // ធ្វើឲ្យពណ៌ស្រអាប់
+                                } 
+                                // បិទ/បើក ប៊ូតុង អនឡាញ
+                                if (txt.includes('អនឡាញ') || txt.includes('Online')) {
+                                    btn.disabled = !sOnline;
+                                    btn.style.opacity = sOnline ? "1" : "0.5";
+                                }
+                            });
+                        }
+
+                        if (!sOffline && !sOnline) {
+                            document.getElementById('checkin-status').innerHTML = '<i class="fas fa-lock text-danger"></i> ការស្កេនទាំងអស់ត្រូវបានបិទដោយ Admin';
+                        } 
+                        else if (data.stats.todayStatus === "Permission") {
+                            document.getElementById('checkin-status').innerHTML = '<i class="fas fa-calendar-check text-primary"></i> អ្នកមានច្បាប់ឈប់សម្រាកសម្រាប់ថ្ងៃនេះ';
+                            if(btnContainer) btnContainer.style.display = 'none';
+                        } 
+                        else if (data.stats.missingScanPrompt) {
+                            document.getElementById('checkin-status').innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i> ' + data.stats.missingScanPrompt;
+                            if(btnContainer) btnContainer.style.display = 'flex';
+                        } 
+                        else if(allDailyLogs.length > 0 && allDailyLogs[0].date === (new Date().toISOString().split('T')[0]) && allDailyLogs[0].aOut !== '--:--') {
+                            document.getElementById('checkin-status').innerHTML = '<i class="fas fa-check-circle text-success"></i> អ្នកបានបញ្ជប់ការស្កេនទាំង ៤ សម្រាប់ថ្ងៃនេះហើយ';
+                            if(btnContainer) btnContainer.style.display = 'none';
+                        } 
+                        else {
+                            document.getElementById('checkin-status').innerHTML = '<i class="fas fa-info-circle text-muted"></i> សូមរង់ចាំម៉ោងស្កេនបន្ទាប់';
+                            if(btnContainer) btnContainer.style.display = 'none';
+                        }
+
+
+                        if (renderRep){
+                          setDefaultDates();
+                          applyDateFilter();
+                        }
+
+                        var notifContainer = document.getElementById('notification-list');
+                        if (data.notifications && data.notifications.length > 0) {
+                            var alertedNotifs = JSON.parse(localStorage.getItem('alertedNotifs') || '[]');
+                            var viewedNotifs = JSON.parse(localStorage.getItem('viewedNotifs') || '[]');
+                            var unreadCount = 0; var allIds = []; var newApprovals = []; var newRejections = [];
+
+                            notifContainer.innerHTML = data.notifications.map(function(n) {
+                                allIds.push(n.id);
+                                var isUnread = !viewedNotifs.includes(n.id);
+                                if (isUnread) unreadCount++;
+                                if (!alertedNotifs.includes(n.id)) {
+                                    if (n.status === 'Approved') newApprovals.push(formatDisplayDate(n.date));
+                                    else if (n.status === 'Rejected') newRejections.push(formatDisplayDate(n.date));
+                                    alertedNotifs.push(n.id);
+                                }
+                                var title = n.status === 'Approved' ? 'សំណើសុំច្បាប់ត្រូវបានអនុម័ត' : 'សំណើសុំច្បាប់ត្រូវបានបដិសេធ';
+                                var colorClass = n.status === 'Approved' ? 'approved' : 'rejected';
+                                var icon = n.status === 'Approved' ? 'fa-check-circle text-success' : 'fa-times-circle text-danger';
+                                var newBadge = isUnread ? '<span class="badge bg-danger ms-2 new-notif-badge">ថ្មី (New)</span>' : '';
+                                
+                                return '<div class="notif-card ' + colorClass + '"><div class="d-flex justify-content-between"><div class="fw-bold" style="font-size:11pt;"><i class="fas ' + icon + '"></i> ' + title + newBadge + '</div><small class="text-muted" style="font-size:8pt;">' + n.reqTime + '</small></div><div class="mt-2 text-muted small">ថ្ងៃសុំច្បាប់៖ <span class="fw-bold">' + formatDisplayDate(n.date) + '</span></div><div class="text-muted small">មូលហេតុ៖ ' + n.reason + '</div></div>';
+                            }).join('');
+                            
+                            localStorage.setItem('allNotifIds', JSON.stringify(allIds));
+                            if (unreadCount > 0) {
+                                document.getElementById('notif-badge').innerText = unreadCount;
+                                document.getElementById('notif-badge').style.display = 'inline-block';
+                            } else { document.getElementById('notif-badge').style.display = 'none'; }
+                            
+                          if (newApprovals.length > 0 || newRejections.length > 0) {
+                                localStorage.setItem('alertedNotifs', JSON.stringify(alertedNotifs));
+                                
+                                // 🌟 បង្កើតទម្រង់ Toast (ផ្ទាំងលោតតូចនៅជ្រុងអេក្រង់) ជំនួសឲ្យ Popup ធំកាត់មុខ
+                                const Toast = Swal.mixin({
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 5000,
+                                    timerProgressBar: true,
+                                    didOpen: (toast) => {
+                                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                    }
+                                });
+
+                                if (newApprovals.length > 0) {
+                                    Toast.fire({ 
+                                        icon: 'success', 
+                                        title: 'ដំណឹងល្អ!', 
+                                        text: 'ពាក្យសុំច្បាប់ថ្ងៃទី ' + newApprovals.join(', ') + ' ត្រូវបានអនុម័ត។' 
+                                    });
+                                }
+                                
+                                if (newRejections.length > 0) {
+                                    setTimeout(function() { 
+                                        Toast.fire({ 
+                                            icon: 'error', 
+                                            title: 'សោកស្តាយ', 
+                                            text: 'ពាក្យសុំច្បាប់ថ្ងៃទី ' + newRejections.join(', ') + ' ត្រូវបានបដិសេធ។' 
+                                        }); 
+                                    }, newApprovals.length > 0 ? 5500 : 0);
+                                }
+                            }
+                        } else { notifContainer.innerHTML = '<div class="text-center text-muted py-4"><i class="fas fa-bell-slash fs-1"></i><p class="mt-2">មិនមានដំណឹងថ្មីៗទេ</p></div>'; }
+                    }
+        }
+
+function applyDateFilter() {
+            var inputs = document.querySelectorAll('#view-report input[type="date"]');
+            var fromDate = inputs.length > 0 ? inputs[0].value : '';
+            var toDate = inputs.length > 1 ? inputs[1].value : '';
+            var filtered = allDailyLogs;
+            if (fromDate && toDate) filtered = allDailyLogs.filter(function(l) { return l.date >= fromDate && l.date <= toDate; });
+
+            var countBadge = document.querySelector('#view-report .badge');
+            if (countBadge) countBadge.innerText = filtered.length + ' កំណត់ត្រា';
+            var container = document.getElementById('report_container'); 
+            if(!container) container = document.querySelector('#view-report > div:last-child');
+
+            if (filtered.length === 0) {
+                if(container) container.innerHTML = '<div class="text-center text-muted py-4">មិនមានកំណត់ត្រាទេ</div>';
+                return;
+            }
+
+            if(container) {
+                container.innerHTML = filtered.map(function(log) {
+                    var statusText = "វត្តមានពេញ (២ ពិន្ទុ)";
+                    var colorClass = "success"; 
+                    
+                    // កំណត់ស្ថានភាពឲ្យត្រូវ
+                   if (log.overallStatus === "Half") {
+                        statusText = "វត្តមានកន្លះថ្ងៃ (១ ពិន្ទុ)";
+                        colorClass = "info";
+                    } else if (log.overallStatus === "Partial") {
+                        
+                        // 🌟 ឆែកមើលថាតើរំលងផុតម៉ោង 5:00 PM ឬឆ្លងថ្ងៃហើយឬនៅ
+                        var now = new Date();
+                        var currentHr = now.getHours();
+                        var logDateObj = new Date(log.date);
+                        var isPast = (now.getTime() - logDateObj.getTime()) > (24 * 60 * 60 * 1000); 
+                        
+                        if (isPast || currentHr >= 17) {
+                            statusText = "វត្តមានមិនពេញលេញ (០.៥ ពិន្ទុ)";
+                            colorClass = "secondary"; 
+                        } else {
+                            statusText = "កំពុងរៀន (ស្កេនមិនទាន់គ្រប់)";
+                            colorClass = "primary"; 
+                        }
+                    } else if (log.overallStatus === "Permission") {
+                        statusText = "សុំច្បាប់ (Permission)";
+                        colorClass = "warning"; 
+                    } else if (log.overallStatus === "Absent") {
+                        statusText = "អវត្តមាន (០ ពិន្ទុ)";
+                        colorClass = "danger"; 
+                    }
+
+                    var timeBadges = "";
+                    if (log.overallStatus === "Permission") {
+                        timeBadges = `<span class="badge bg-warning text-dark w-100 mb-1" style="font-weight:normal; padding:6px 10px;"><i class="fas fa-calendar-check"></i> មានច្បាប់ឈប់សម្រាក (Approved)</span>`;
+                    } else if (log.overallStatus === "Absent") {
+                        timeBadges = `<span class="badge bg-danger w-100 mb-1" style="font-weight:normal; padding:6px 10px;"><i class="fas fa-times-circle"></i> មិនបានមកចូលរៀន</span>`;
+                    } else {
+                        // បង្ហាញម៉ោងទាំង៤ (បើសិនអត់ស្កេន ចេញសញ្ញា --:-- ពណ៌ក្រហម)
+                        var minUI = log.mIn === '--:--' ? '<span class="text-danger">--:--</span>' : log.mIn;
+                        var moutUI = log.mOut === '--:--' ? '<span class="text-danger">--:--</span>' : log.mOut;
+                        var ainUI = log.aIn === '--:--' ? '<span class="text-danger">--:--</span>' : log.aIn;
+                        var aoutUI = log.aOut === '--:--' ? '<span class="text-danger">--:--</span>' : log.aOut;
+
+                        timeBadges = `
+                            <div class="row g-1 w-100 mt-1 text-center">
+                                <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">ព្រឹកចូល: ${minUI}</span></div>
+                                <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">ព្រឹកចេញ: ${moutUI}</span></div>
+                                <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">រសៀលចូល: ${ainUI}</span></div>
+                                <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">រសៀលចេញ: ${aoutUI}</span></div>
+                            </div>
+                        `;
+                    }
+
+                    // បញ្ជូនអថេរម៉ោងទាំង៤ (mIn, mOut, aIn, aOut) ចូលទៅក្នុង Button
+                    return `
+                    <div class="card mb-3 shadow-sm" style="border:none; border-left: 6px solid var(--bs-${colorClass}); border-radius: 12px;">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div style="flex:1;">
+                                <div class="text-muted small">${statusText}</div>
+                                <h5 class="text-${colorClass} fw-bold mt-1 mb-2">${formatDisplayDate(log.date)}</h5>
+                                <div class="d-flex gap-2">
+                                    ${timeBadges}
+                                </div>
+                            </div>
+                            <button class="btn btn-light border p-2 ms-2" style="border-radius: 8px;" onclick="showLogDetail('${log.date}', '${log.mIn}', '${log.mOut}', '${log.aIn}', '${log.aOut}', '${log.overallStatus}')">
+                                <i class="fas fa-file-alt text-${colorClass} fs-4"></i>
+                            </button>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+        }
+
+        // កែប្រែ Popup ឲ្យទទួលទិន្នន័យ ៤ស្កេន
+        function showLogDetail(date, mIn, mOut, aIn, aOut, status) {
+            var statusKH = status === 'Permission' ? '<span class="text-warning fw-bold">សុំច្បាប់ (Permission)</span>' : 
+                           (status === 'Absent' ? '<span class="text-danger fw-bold">អវត្តមាន (០ ពិន្ទុ)</span>' : 
+                           (status === 'Half' ? '<span class="text-info fw-bold">វត្តមានកន្លះថ្ងៃ (១ ពិន្ទុ)</span>' : '<span class="text-success fw-bold">វត្តមានពេញ (២ ពិន្ទុ)</span>'));
+
+            var minUI = mIn === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${mIn}</span>`;
+            var moutUI = mOut === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${mOut}</span>`;
+            var ainUI = aIn === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${aIn}</span>`;
+            var aoutUI = aOut === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${aOut}</span>`;
+
+            Swal.fire({
+                title: '<span style="font-size: 18px;">ព័ត៌មានលម្អិត</span>',
+                html: `
+                    <div style="text-align: left; font-size: 11pt; padding: 10px; background: #f8f9fa; border-radius: 8px; margin-top: 10px;">
+                        <p class="mb-2"><i class="fas fa-calendar-alt text-secondary"></i> <strong>កាលបរិច្ឆេទ៖</strong> ${formatDisplayDate(date)}</p>
+                        <p class="mb-2"><i class="fas fa-info-circle text-secondary"></i> <strong>ស្ថានភាព៖</strong> ${statusKH}</p>
+                        <hr>
+                        <p class="mb-1"><strong><i class="fas fa-sun text-warning"></i> វេនព្រឹក (Morning)</strong></p>
+                        <p class="mb-1 ms-3">ចូល៖ ${minUI} <br> ចេញ៖ ${moutUI}</p>
+                        <p class="mb-1 mt-3"><strong><i class="fas fa-cloud-sun text-info"></i> វេនរសៀល (Afternoon)</strong></p>
+                        <p class="mb-0 ms-3">ចូល៖ ${ainUI} <br> ចេញ៖ ${aoutUI}</p>
+                    </div>
+                `,confirmButtonColor: '#0f0659',
+                confirmButtonText: 'បិទ (Close)'
+            });
+        }
+
+
+        function showDetailPopup(displayDate, inTime, outTime, statusWarning) {
+            var html = '<div style="font-size:13pt; color:#4a4a4a; text-align:center;">' +
+                       '<div style="font-size:15pt; color:#0f0659; font-weight:bold; margin-bottom:15px;">ថ្ងៃទី ' + displayDate + '</div>' +
+                       '<div style="margin-bottom:10px;">ចូល: <strong class="text-success">' + inTime + '</strong></div>' +
+                       '<div style="margin-bottom:10px;">ចេញ: <strong class="text-danger">' + outTime + '</strong></div>' +
+                       (statusWarning ? '<div style="color:red; margin-top:15px; font-size:12pt; font-weight:bold;">' + statusWarning + '</div>' : '') +
+                       '</div>';
+                       
+            Swal.fire({
+                title: 'ព័ត៌មានលម្អិត',
+                html: html,
+                icon: 'info',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#6e7881'
+            });
+        }
+
+        function renderReport(logs) {
+            var container = document.getElementById('report-list');
+            document.getElementById('report_count').innerText = logs.length + ' កំណត់ត្រា';
+            
+            if (!logs || logs.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted py-4"><i class="fas fa-inbox fs-1"></i><p class="mt-2">មិនមានទិន្នន័យ</p></div>';
+                return;
+            }
+
+            container.innerHTML = logs.map(function(log) {
+                var displayDate = formatDisplayDate(log.date);
+                var rawWarning = log.statusStr ? log.statusStr : "";
+                var displayWarningHTML = rawWarning ? '<div class="text-danger mt-1 fw-bold" style="font-size:9pt;">' + rawWarning + '</div>' : '';
+
+                return '<div class="new-report-card d-flex justify-content-between align-items-center">' +
+                    '<div>' +
+                        '<div class="text-muted" style="font-size:10pt;">Attending</div>' +
+                        '<div class="fw-bold text-primary mb-1" style="font-size:13pt;">' + displayDate + '</div>' +
+                        '<div class="d-flex gap-3 text-muted" style="font-size:10pt;">' +
+                            '<div><span class="text-success">ពិនិត្យចូល</span> ' + log.scanIn + '</div>' +
+                            '<div><span class="text-danger">ចាកចេញ</span> ' + log.scanOut + '</div>' +
+                        '</div>' +
+                        displayWarningHTML +
+                    '</div>' +
+                    '<button class="btn btn-light rounded-3 p-3 shadow-sm border" onclick="showDetailPopup(\'' + displayDate + '\', \'' + log.scanIn + '\', \'' + log.scanOut + '\', \'' + rawWarning + '\')">' +
+                        '<i class="fas fa-file-alt text-primary fs-4"></i>' +
+                    '</button>' +
+                '</div>';
+            }).join('');
+        }
+
+        function generateScannerHTML() {
+            return '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"><style>* { margin: 0; padding: 0; box-sizing: border-box; } body { background: #000; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: Arial, sans-serif; } video { width: 100%; height: 100%; object-fit: cover; } canvas { display: none; } .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; } .focus-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; height: 280px; border: 3px solid rgba(255,255,255,0.6); border-radius: 20px; box-shadow: 0 0 0 4000px rgba(0,0,0,0.5); pointer-events: none; } .scan-line { position: absolute; top: 10%; left: 10%; width: 80%; height: 2px; background: #00ff00; opacity: 0.7; animation: scan 2.5s infinite; pointer-events: none; } @keyframes scan { 0% { top: 10%; } 100% { top: 85%; } } .corner { position: absolute; width: 30px; height: 30px; border-color: #00ff00; border-style: solid; pointer-events: none; } .corner-tl { top: -2px; left: -2px; border-width: 4px 0 0 4px; border-radius: 4px 0 0 0; } .corner-tr { top: -2px; right: -2px; border-width: 4px 4px 0 0; border-radius: 0 4px 0 0; } .corner-bl { bottom: -2px; left: -2px; border-width: 0 0 4px 4px; border-radius: 0 0 0 4px; } .corner-br { bottom: -2px; right: -2px; border-width: 0 4px 4px 0; border-radius: 0 0 4px 0; } .cancel-btn { position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); border: none; padding: 16px 40px; border-radius: 30px; font-size: 16pt; font-weight: bold; cursor: pointer; pointer-events: auto; color: #333; box-shadow: 0 4px 20px rgba(0,0,0,0.3); transition: all 0.3s ease; } .cancel-btn:active { transform: translateX(-50%) scale(0.95); } .cancel-btn i { margin-right: 10px; } .hint { position: fixed; top: 40px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.8); font-size: 12pt; pointer-events: none; text-align: center; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 10px; }</style></head><body><video id="video" autoplay playsinline></video><canvas id="canvas"></canvas><div class="overlay"><div class="focus-box"><div class="scan-line"></div><div class="corner corner-tl"></div><div class="corner corner-tr"></div><div class="corner corner-bl"></div><div class="corner corner-br"></div></div></div><div class="hint"><i class="fas fa-qrcode"></i> ដាក់ QR Code ក្នុងស៊ុម</div><button class="cancel-btn" onclick="window.close()"><i class="fas fa-times"></i> បោះបង់</button><script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"><\/script><script>const video = document.getElementById("video"); const canvas = document.getElementById("canvas"); const ctx = canvas.getContext("2d"); let scanning = true; navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } } }).then(stream => { video.srcObject = stream; video.play(); requestAnimationFrame(scan); }).catch(e => { alert("មិនអាចបើកកាមេរ៉ាបានទេ\\nសូមអនុញ្ញាតកាមេរ៉ា"); window.close(); }); function scan() { if (!scanning) return; if (video.readyState === video.HAVE_ENOUGH_DATA) { canvas.width = video.videoWidth; canvas.height = video.videoHeight; ctx.drawImage(video, 0, 0, canvas.width, canvas.height); const code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height, { inversionAttempts: "dontInvert" }); if (code && code.data) { scanning = false; if (window.opener) { window.opener.postMessage({ type: "QR_RESULT", data: code.data }, "*"); } setTimeout(() => window.close(), 1000); return; } } requestAnimationFrame(scan); }<\/script></body></html>';
+        }
+
+
+        // មុខងារសម្រាប់កំណត់ថ្ងៃខែលំនាំដើម (ពីថ្ងៃទី១ ដល់ ថ្ងៃបច្ចុប្បន្ន)
+        function setDefaultDates() {
+            var dateInputs = document.querySelectorAll('#view-report input[type="date"]');
+            if (dateInputs.length >= 2) {
+                var now = new Date();
+                // កំណត់យកថ្ងៃទី១ នៃខែបច្ចុប្បន្ន
+                var firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+
+                // បំប្លែងទម្រង់ទៅជា YYYY-MM-DD ដើម្បីឲ្យប្រអប់ Date ស្គាល់
+                var formatDate = function(d) {
+                    var month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
+                    if (month.length < 2) month = '0' + month;
+                    if (day.length < 2) day = '0' + day;
+                    return [year, month, day].join('-');
+                };
+
+                // បញ្ចូលទិន្នន័យទៅក្នុងប្រអប់ ប្រសិនបើវានៅទទេរ
+                if (!dateInputs[0].value) dateInputs[0].value = formatDate(firstDay);
+                if (!dateInputs[1].value) dateInputs[1].value = formatDate(now);
+            }
+        }
+
+
+        // ==========================================
+        // ប្រព័ន្ធទាញយកទិន្នន័យ Real-Time (រៀងរាល់ ៣០វិនាទី)
+        // ==========================================
+        var realtimeTimer = null;
+
+        function startRealtimeUpdates() {
+            // បញ្ឈប់ Timer ចាស់សិន (ការពារកុំឲ្យរត់ជាន់គ្នា)
+            if (realtimeTimer) clearInterval(realtimeTimer);
+            
+            realtimeTimer = setInterval(function() {
+                if (sessionUser && sessionUser.id) {
+                    // ឆែកមើលថាតើសិស្សកំពុងបើកផ្ទាំង "របាយការណ៍" ដែរឬទេ
+                    var isReportActive = document.getElementById('view-report').classList.contains('active');
+                    
+                    // ហៅមុខងារ refreshStats ដោយស្ងាត់ៗ (ដោយមិនលោត Loading)
+                    refreshStats(isReportActive); 
+                }
+            }, 30000); // 30000 មីលីវិនាទី = ៣០ វិនាទី
+        }
+
+        // មុខងារសួរបញ្ជាក់មុនពេលចាកចេញ (Confirm Logout)
+        function confirmLogout() {
+            Swal.fire({
+                title: 'ចាកចេញពីប្រព័ន្ធ?',
+                text: 'តើអ្នកពិតជាចង់ចាកចេញពីគណនីនេះមែនទេ?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545', // ពណ៌ក្រហម (Danger)
+                cancelButtonColor: '#6c757d', // ពណ៌ប្រផេះ (Secondary)
+                confirmButtonText: '<i class="fas fa-sign-out-alt"></i> បាទ/ចាស ចាកចេញ',
+                cancelButtonText: 'បោះបង់ (Cancel)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    
+                    // ហៅមុខងារចាកចេញចាស់របស់អ្នកនៅទីនេះ
+                    // ប្រសិនបើកូដចាស់របស់អ្នកប្រើមុខងារឈ្មោះ logout() សូមហៅវាដូចខាងក្រោម៖
+                    logout(); 
+                    
+                    /* 
+                    ចំណាំ៖ បើកូដចាស់របស់អ្នកគ្រាន់តែលុប Session នោះអាចប្រើកូដនេះជំនួស៖
+                    localStorage.removeItem('sessionUser');
+                    sessionStorage.clear();
+                    window.top.location.reload(); 
+                    */
+                }
+            });
+        }
+    </script>
+</body>
+</html>
