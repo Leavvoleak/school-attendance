@@ -1476,16 +1476,17 @@ function renderPagination() {
             }
         }
 
-        function renderLeaveTable(requests) {
+function renderLeaveTable(requests) {
             var tbody = document.getElementById('leave_table_body');
             if (!tbody) return;
             
             if (!requests || requests.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4">មិនមានសំណើសុំច្បាប់ទេ</td></tr>';
+                // កែ colspan មក 7 វិញឲ្យត្រូវនឹងចំនួន Header របស់អ្នក
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">មិនមានសំណើសុំច្បាប់ទេ</td></tr>';
                 return;
             }
             
-            tbody.innerHTML = requests.map(function(r, index) {
+            tbody.innerHTML = requests.map(function(r) {
                 // កំណត់ពណ៌ស្ថានភាព
                 var statusBadge = '';
                 if (r.status === 'Pending' || r.status === '') statusBadge = '<span class="badge bg-warning text-dark">រង់ចាំ (Pending)</span>';
@@ -1498,7 +1499,7 @@ function renderPagination() {
                     ? `<a href="${r.docUrl}" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-file-earmark-text"></i> មើលឯកសារ</a>` 
                     : '<span class="text-muted">-</span>';
                 
-                // ប៊ូតុងអនុម័ត / បដិសេធ (បង្ហាញតែពេល Pending ប៉ុណ្ណោះ)
+                // ប៊ូតុងអនុម័ត / បដិសេធ
                 var actionButtons = '';
                 if (r.status === 'Pending' || r.status === '') {
                     actionButtons = `
@@ -1509,12 +1510,11 @@ function renderPagination() {
                     actionButtons = '<span class="text-muted"><i class="bi bi-check2-all"></i> រួចរាល់</span>';
                 }
                 
+                // បញ្ចេញទិន្នន័យ ៧ ក្រឡា (7 columns) ឲ្យត្រូវនឹង Header របស់អ្នក
                 return `<tr>
-                    <td class="text-center">${index + 1}</td>
-                    <td class="text-center fw-bold text-primary">${r.leaveDate}</td>
-                    <td class="text-center"><code>${r.studentId}</code></td>
-                    <td>${r.name}</td>
+                    <td><code>${r.studentId}</code> - ${r.name}</td>
                     <td class="text-center"><span class="badge bg-secondary">${r.className}</span></td>
+                    <td class="text-center fw-bold text-primary">${r.leaveDate}</td>
                     <td>${r.reason}</td>
                     <td class="text-center">${docLink}</td>
                     <td class="text-center">${statusBadge}</td>
