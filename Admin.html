@@ -249,6 +249,13 @@
     </style>
 </head>
 <body>
+
+    <!-- Dashboard Loading Overlay -->
+    <div id="dashboard_loading_overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div class="spinner-border text-primary" style="width: 4rem; height: 4rem; border-width: 0.3em;" role="status"></div>
+        <h5 class="mt-3 text-primary fw-bold">កំពុងរៀបចំទិន្នន័យផ្ទាំងគ្រប់គ្រង...</h5>
+    </div>
+    
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-brand">
@@ -737,17 +744,33 @@
         }
         
         // ------------------ (DASHBOARD FUNCTIONS) ------------------
+// ------------------ (DASHBOARD FUNCTIONS) ------------------
         async function loadAdminData() {
-            const data = await callAPI('getAdminDashboardData', { role: sessionUser.role, userId: sessionUser.id });
-            if (data && data.success) {
-                globalAdminLogs = data.logs;
-                totalStudentsFromServer = data.totalStudents || 0;
+            // បង្ហាញ Loading Overlay ពេលចាប់ផ្តើមទាញទិន្នន័យ
+            var overlay = document.getElementById('dashboard_loading_overlay');
+            if (overlay) overlay.style.display = 'flex';
+            
+            try {
+                const data = await callAPI('getAdminDashboardData', { role: sessionUser.role, userId: sessionUser.id });
                 
-                updateStats();
-                renderAdminTable();
-                populateFilters();
-            } else if (data && data.error) {
-                console.error('Error loading admin data:', data.error);
+                if (data && data.success) {
+                    globalAdminLogs = data.logs;
+                    totalStudentsFromServer = data.totalStudents || 0;
+                    
+                    updateStats();
+                    renderAdminTable();
+                    populateFilters();
+                } else if (data && data.error) {
+                    console.error('Error loading admin data:', data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                // លាក់ Loading Overlay វិញទោះបីជាជោគជ័យ ឬបរាជ័យក៏ដោយ 
+                // (ប្រើ setTimeout បន្តិចដើម្បីឲ្យទិន្នន័យរៀបចំខ្លួនចូលតារាងបានស្អាតសិន)
+                setTimeout(() => {
+                    if (overlay) overlay.style.display = 'none';
+                }, 300);
             }
         }
         
