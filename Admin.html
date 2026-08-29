@@ -739,7 +739,7 @@
             if (page === 'students') loadStudentList();
             if (page === 'qrcode') loadClassLists();
             if (page === 'reports') loadClassLists();
-            
+            if (page === 'leave') loadLeaveRequests(); // 👈 បន្ថែមបន្ទាត់នេះ
             document.getElementById('sidebar').classList.remove('open');
         }
         
@@ -1451,6 +1451,107 @@ function renderPagination() {
             }
         }
 
+// ------------------ (LEAVE REQUESTS FUNCTIONS) ------------------
+        async function loadLeaveRequests() {
+            var tbody = document.getElementById('leave_table_body');
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="text-center py-5">
+                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem; border-width: 0.25em;" role="status"></div>
+                            <div class="mt-3 text-dark fs-6">កំពុងផ្ទុកទិន្នន័យសុំច្បាប់...</div>
+                        </td>
+                    </tr>`;
+            }
+            
+            try {
+                const data = await callAPI('getAdminLeaveRequests');
+                if (data && data.success) {
+                    renderLeaveTable(data.requests);
+                } else {
+                    if (tbody) tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-4">${data.error || 'បរាជ័យក្នុងការទាញយកទិន្នន័យ'}</td></tr>`;
+                }
+            } catch (error) {
+                if (tbody) tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger py-4">បញ្ហាភ្ជាប់អ៊ីនធឺណិត</td></tr>';
+            }
+        }
+
+        function renderLeaveTable(requests) {
+            var tbody = document.getElementById('leave_table_body');
+            if (!tbody) return;
+            
+            if (!requests || requests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4">មិនមានសំណើសុំច្បាប់ទេ</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = requests.map(function(r, index) {
+                // កំណត់ពណ៌ស្ថានភាព
+                var statusBadge = '';
+                if (r.status === 'Pending' || r.status === '') statusBadge = '<span class="badge bg-warning text-dark">រង់ចាំ (Pending)</span>';
+                else if (r.status === 'Approved') statusBadge = '<span class="badge bg-success">អនុម័ត (Approved)</span>';
+                else if (r.status === 'Rejected') statusBadge = '<span class="badge bg-danger">បដិសេធ (Rejected)</span>';
+                else statusBadge = `<span class="badge bg-secondary">${r.status}</span>`;
+                
+                // ប៊ូតុងមើលឯកសារភ្ជាប់
+                var docLink = (r.docUrl && r.docUrl !== 'null' && r.docUrl !== '') 
+                    ? `<a href="${r.docUrl}" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-file-earmark-text"></i> មើលឯកសារ</a>` 
+                    : '<span class="text-muted">-</span>';
+                
+                // ប៊ូតុងអនុម័ត / បដិសេធ (បង្ហាញតែពេល Pending ប៉ុណ្ណោះ)
+                var actionButtons = '';
+                if (r.status === 'Pending' || r.status === '') {
+                    actionButtons = `
+                        <button class="btn btn-sm btn-success me-1 mb-1" onclick="processLeave(${r.row}, 'Approved', '${r.studentId}', '${r.leaveDate}')"><i class="bi bi-check-circle"></i></button>
+                        <button class="btn btn-sm btn-danger mb-1" onclick="processLeave(${r.row}, 'Rejected', '${r.studentId}', '${r.leaveDate}')"><i class="bi bi-x-circle"></i></button>
+                    `;
+                } else {
+                    actionButtons = '<span class="text-muted"><i class="bi bi-check2-all"></i> រួចរាល់</span>';
+                }
+                
+                return `<tr>
+                    <td class="text-center">${index + 1}</td>
+                    <td class="text-center fw-bold text-primary">${r.leaveDate}</td>
+                    <td class="text-center"><code>${r.studentId}</code></td>
+                    <td>${r.name}</td>
+                    <td class="text-center"><span class="badge bg-secondary">${r.className}</span></td>
+                    <td>${r.reason}</td>
+                    <td class="text-center">${docLink}</td>
+                    <td class="text-center">${statusBadge}</td>
+                    <td class="text-center">${actionButtons}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function processLeave(row, action, studentId, leaveDate) {
+            Swal.fire({
+                title: 'តើអ្នកប្រាកដទេ?',
+                text: action === 'Approved' ? 'អ្នកកំពុងអនុម័តការសុំច្បាប់នេះ!' : 'អ្នកកំពុងបដិសេធការសុំច្បាប់នេះ!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: action === 'Approved' ? '#28a745' : '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'យល់ព្រម',
+                cancelButtonText: 'បោះបង់'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'កំពុងដំណើរការ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+                    
+                    try {
+                        const data = await callAPI('handleLeaveRequest', { row: row, action: action, studentId: studentId, leaveDate: leaveDate });
+                        if (data && data.success) {
+                            Swal.fire('ជោគជ័យ!', data.success, 'success');
+                            loadLeaveRequests(); // ហៅទិន្នន័យមកគូរតារាងឡើងវិញ
+                        } else {
+                            Swal.fire('កំហុស!', data.error || 'មិនអាចដំណើរការបានទេ', 'error');
+                        }
+                    } catch (error) {
+                        Swal.fire('កំហុស!', 'បញ្ហាបណ្តាញអុីនធឺណិត', 'error');
+                    }
+                }
+            });
+        }
+    
     </script>
 </body>
 </html>
