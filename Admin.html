@@ -397,7 +397,7 @@
                 <div class="row g-3 mt-2">
                     <div class="col-md-3">
                         <label class="form-label">ថ្នាក់រៀន</label>
-                        <select id="qr_class" class="form-select" onchange="generateQR()">
+                        <select id="qr_class" class="form-select" onchange="loadQRStudents()">
                             <option value="">ជ្រើសរើសថ្នាក់...</option>
                         </select>
                     </div>
@@ -851,35 +851,68 @@
             }
         }
         
-        async function generateQR() {
+// ប្រកាសអថេរនេះនៅខាងលើ បើសិនជាអ្នកមិនទាន់មានវាទេ
+        var currentQRStudents = [];
+
+        // --- QR Functions ---
+        async function loadQRStudents() {
             var className = document.getElementById('qr_class').value;
+            var studentSelect = document.getElementById('qr_student');
+            
             if (!className) {
-                alert('សូមជ្រើសរើសថ្នាក់រៀន');
+                studentSelect.innerHTML = '<option value="ALL">ទាំងអស់ (All)</option>';
+                studentSelect.disabled = true;
                 return;
             }
+            studentSelect.disabled = true;
+            studentSelect.innerHTML = '<option value="ALL">កំពុងផ្ទុក...</option>';
             
+            // 🌟 ប្រើប្រាស់ callAPI (fetch) ជំនួស google.script.run
+            try {
+                const data = await callAPI('getStudentsByClass', { className: className });
+                
+                if (data && data.success) {
+                    currentQRStudents = data.students;
+                    studentSelect.innerHTML = '<option value="ALL">ទាំងអស់ (All)</option>';
+                    data.students.forEach(function(s) {
+                        studentSelect.innerHTML += '<option value="' + s.id + '">' + s.name + '</option>';
+                    });
+                    studentSelect.disabled = false;
+                } else {
+                    studentSelect.innerHTML = '<option value="ALL">បរាជ័យក្នុងការទាញយក</option>';
+                }
+            } catch (error) {
+                studentSelect.innerHTML = '<option value="ALL">កំហុសបណ្តាញ</option>';
+            }
+        }
+        
+        function generateQR() {
+            var className = document.getElementById('qr_class').value;
+            var studentId = document.getElementById('qr_student').value;
+            
+            if (!className) { alert('សូមជ្រើសរើសថ្នាក់រៀន'); return; }
+            
+            var studentsToRender = currentQRStudents;
+            if (studentId !== 'ALL') {
+                studentsToRender = currentQRStudents.filter(function(s) { return s.id === studentId; });
+            }
+            if (studentsToRender.length === 0) { alert('មិនមានទិន្នន័យសិស្ស'); return; }
+
             document.getElementById('qr_loading').style.display = 'block';
             document.getElementById('qr_container').innerHTML = '';
             
-            const data = await callAPI('getStudentsByClass', { className: className });
-            document.getElementById('qr_loading').style.display = 'none';
-            
-            if (data && data.success) {
-                renderQRCodes(data.students);
-            } else {
-                alert(data.error || 'មិនអាចបង្កើត QR Code បានទេ');
-            }
+            setTimeout(function() {
+                renderQRCodes(studentsToRender);
+                document.getElementById('qr_loading').style.display = 'none';
+            }, 100);
         }
         
         function renderQRCodes(students) {
             var container = document.getElementById('qr_container');
-            if(!container) return;
             container.innerHTML = '';
-            
             students.forEach(function(student) {
                 var div = document.createElement('div');
                 div.className = 'qr-item';
-                
                 var qrData = student.id + '|' + student.secretWord;
                 
                 var topText = document.createElement('div');
@@ -899,51 +932,34 @@
                 container.appendChild(div);
                 
                 new QRCode(document.getElementById('qr_' + student.id), {
-                    text: qrData,
-                    width: 150,
-                    height: 150,
-                    colorDark: '#0f0659',
-                    colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.H
+                    text: qrData, width: 150, height: 150, colorDark: '#0f0659', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H
                 });
             });
         }
         
         function printQR() {
             var container = document.getElementById('qr_container');
-            if (!container || container.children.length === 0) {
-                alert('សូមបង្កើត QR Code ជាមុន');
-                return;
-            }
+            if (container.children.length === 0) { alert('សូមបង្កើត QR Code ជាមុន'); return; }
             var printWindow = window.open('', '_blank');
-            printWindow.document.write('<html><head><title>QR Codes</title><style>' +
-                'body { font-family: "Siemreap", sans-serif; padding: 20px; }' +
-                '.qr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }' +
-                '.qr-item { text-align: center; border: 1px solid #ddd; padding: 10px; border-radius: 8px; }' +
-                '.qr-top { font-weight: bold; font-size: 14px; color: #0f0659; }' +
-                '.qr-bottom { font-size: 12px; margin-top: 5px; }' +
-                '@media print { .qr-grid { grid-template-columns: repeat(4, 1fr); } }' +
-                '</style></head><body><h3 style="text-align:center;">QR Code សម្រាប់សិស្ស</h3><div class="qr-grid">');
+            printWindow.document.write('<html><head><title>QR Codes</title><style>body { font-family: "Siemreap", sans-serif; padding: 20px; } .qr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; } .qr-item { text-align: center; border: 1px solid #ddd; padding: 10px; border-radius: 8px; } .qr-top { font-weight: bold; font-size: 14px; color: #0f0659; } .qr-bottom { font-size: 12px; margin-top: 5px; } @media print { .qr-grid { grid-template-columns: repeat(4, 1fr); } }</style></head><body><h3 style="text-align:center;">QR Code សម្រាប់សិស្ស</h3><div class="qr-grid">');
             
             var items = container.querySelectorAll('.qr-item');
             items.forEach(function(item) {
                 var canvas = item.querySelector('canvas');
+                var imgData = canvas ? canvas.toDataURL("image/png") : "";
                 var topText = item.querySelector('.qr-top-text').textContent;
                 var bottomText = item.querySelector('.qr-bottom-text').textContent;
                 printWindow.document.write(
-                    '<div class="qr-item">' +
-                    '<div class="qr-top">' + topText + '</div>' +
-                    (canvas ? canvas.outerHTML : '') +
-                    '<div class="qr-bottom">' + bottomText + '</div>' +
-                    '</div>'
+                    '<div class="qr-item"><div class="qr-top">' + topText + '</div>' +
+                    (imgData ? '<img src="' + imgData + '" style="max-width:150px; height:auto;">' : '') +
+                    '<div class="qr-bottom">' + bottomText + '</div></div>'
                 );
             });
             
             printWindow.document.write('</div></body></html>');
             printWindow.document.close();
-            setTimeout(() => { printWindow.print(); }, 500);
+            setTimeout(function() { printWindow.print(); }, 500);
         }
-        
         // Student List Functions
         async function loadStudentList() {
             var classFilter = document.getElementById('student_class_filter');
