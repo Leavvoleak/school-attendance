@@ -335,7 +335,7 @@
                 const response = await fetch(BASE_URL, {
                     method: 'POST',
                     body: JSON.stringify({ action: 'getCampuses' }),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     redirect: 'follow' // 🌟 ចំណុចសំខាន់៖ អនុញ្ញាតឲ្យ Browser លោតតាម Link របស់ Google
                 });
                 const data = await response.json();
