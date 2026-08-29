@@ -946,7 +946,14 @@
             setTimeout(function() { printWindow.print(); }, 500);
         }
         
-        // ------------------ (STUDENT LIST FUNCTIONS) ------------------
+
+    // ------------------ (STUDENT LIST FUNCTIONS) ------------------
+        
+        // អថេរសម្រាប់ Pagination និងផ្ទុកទិន្នន័យ
+        var currentPage = 1;
+        var rowsPerPage = 20; // កំណត់ចំនួនសិស្សក្នុងមួយទំព័រ (អ្នកអាចប្តូរលេខនេះបាន)
+        var currentFilteredStudents = []; // ទុកទិន្នន័យដែលបានត្រងរួច
+        
         async function loadStudentList() {
             var tbody = document.getElementById('student_table_body');
             if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><div class="spinner-border text-primary"></div><div class="mt-2">កំពុងផ្ទុកទិន្នន័យសិស្ស...</div></td></tr>';
@@ -983,7 +990,8 @@
             var acaVal = acaSelect ? acaSelect.value : 'all';
             var searchVal = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
-            var filteredStudents = globalStudents.filter(function(student) {
+            // ផ្ទុកទិន្នន័យទៅក្នុងអថេរ currentFilteredStudents ជំនួសឲ្យការគូរផ្ទាល់
+            currentFilteredStudents = globalStudents.filter(function(student) {
                 var sClass = String(student.className).trim();
                 var sAca = String(student.academicId).replace('.0', '').trim();
                 var selectedAca = String(acaVal).replace('.0', '').trim();
@@ -1000,10 +1008,12 @@
                 return matchClass && matchAca && matchSearch;
             });
 
-            renderStudentTable(filteredStudents); 
+            // ត្រឡប់ទៅទំព័រទី១ វិញរាល់ពេលមានការវាយស្វែងរក ឬរើសថ្នាក់ថ្មី
+            currentPage = 1; 
+            renderStudentTable(); 
         }
 
-        function renderStudentTable(studentArray) {
+        function renderStudentTable() {
             var tbody = document.getElementById('student_table_body');
             
             if (!tbody) {
@@ -1018,14 +1028,21 @@
             
             if (!tbody) return; 
 
-            if (!studentArray || studentArray.length === 0) {
+            if (!currentFilteredStudents || currentFilteredStudents.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">មិនមានសិស្សនៅក្នុងជម្រើសនេះទេ</td></tr>';
+                renderPagination(); // លុប Pagination ចោលបើគ្មានទិន្នន័យ
                 return;
             }
 
-            tbody.innerHTML = studentArray.map(function(s, index) {
+            // --- ចាប់ផ្តើម Logic Pagination ---
+            var startIndex = (currentPage - 1) * rowsPerPage;
+            var endIndex = startIndex + rowsPerPage;
+            var paginatedStudents = currentFilteredStudents.slice(startIndex, endIndex);
+
+            tbody.innerHTML = paginatedStudents.map(function(s, index) {
+                var actualIndex = startIndex + index + 1; // លេខរៀងពិតប្រាកដ
                 return `<tr>
-                    <td>${index + 1}</td>
+                    <td>${actualIndex}</td>
                     <td class="text-primary fw-bold">${s.id}</td>
                     <td>${s.name}</td>
                     <td>${s.gender || '-'}</td>
@@ -1033,18 +1050,84 @@
                     <td>${s.group || '-'}</td>
                 </tr>`;
             }).join('');
+            
+            // ហៅមុខងារគូរប៊ូតុងរុះទំព័រ
+            renderPagination();
+        }
+
+        // មុខងារសម្រាប់គូរប៊ូតុង Pagination (ថយក្រោយ 1 2 3 បន្ទាប់)
+        function renderPagination() {
+            var tableDiv = document.querySelector('#page-students .table-responsive');
+            if(!tableDiv) return;
+            
+            var paginationContainer = document.getElementById('student_pagination');
+            if (!paginationContainer) {
+                paginationContainer = document.createElement('div');
+                paginationContainer.id = 'student_pagination';
+                paginationContainer.className = 'd-flex flex-wrap justify-content-between align-items-center mt-3';
+                tableDiv.parentNode.insertBefore(paginationContainer, tableDiv.nextSibling);
+            }
+            
+            var totalItems = currentFilteredStudents.length;
+            var totalPages = Math.ceil(totalItems / rowsPerPage);
+            
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
+            }
+            
+            var startItem = ((currentPage - 1) * rowsPerPage) + 1;
+            var endItem = Math.min(currentPage * rowsPerPage, totalItems);
+            
+            var html = `<span class="text-muted small mb-2 mb-md-0">បង្ហាញ ${startItem} ដល់ ${endItem} នៃសិស្សសរុប ${totalItems} នាក់</span>`;
+            
+            html += `<nav><ul class="pagination pagination-sm mb-0">`;
+            
+            // ប៊ូតុង ថយក្រោយ
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">ថយក្រោយ</a>
+            </li>`;
+            
+            // លេខទំព័រ (បង្ហាញត្រឹម ៥ ទំព័រ ជុំវិញទំព័របច្ចុប្បន្ន)
+            var startPage = Math.max(1, currentPage - 2);
+            var endPage = Math.min(totalPages, currentPage + 2);
+            
+            for(var i = startPage; i <= endPage; i++) {
+                html += `<li class="page-item ${currentPage === i ? 'active' : ''}">
+                    <a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a>
+                </li>`;
+            }
+            
+            // ប៊ូតុង បន្ទាប់
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">បន្ទាប់</a>
+            </li>`;
+            
+            html += `</ul></nav>`;
+            paginationContainer.innerHTML = html;
+        }
+
+        // មុខងារសម្រាប់ផ្លាស់ប្តូរទំព័រ
+        function changePage(page) {
+            var totalPages = Math.ceil(currentFilteredStudents.length / rowsPerPage);
+            if(page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderStudentTable();
         }
         
         async function exportStudentList() {
-            if (globalStudents.length === 0) { alert('មិនមានទិន្នន័យសិស្ស'); return; }
-            const data = await callAPI('exportStudentList', { students: globalStudents });
+            // ត្រូវប្រាកដថា Export ទិន្នន័យសិស្សតាមអ្វីដែលបាន Filter មិនមែនតែទំព័រទី១ទេ
+            if (currentFilteredStudents.length === 0) { alert('មិនមានទិន្នន័យសិស្ស'); return; }
+            const data = await callAPI('exportStudentList', { students: currentFilteredStudents });
             if (data && data.success && data.url) {
                 window.open(data.url, '_blank');
             } else {
                 alert('បរាជ័យក្នុងការនាំចេញទិន្នន័យ');
             }
         }
-        
+
+
+    
         // ------------------ (REPORT FUNCTIONS) ------------------
         async function generateReport() {
             var className = document.getElementById('report_class').value;
@@ -1115,64 +1198,6 @@
         }
 
 
-    function renderPagination() {
-            var paginationContainer = document.getElementById('student_pagination_container');
-            if (!paginationContainer) return;
-            
-            var totalItems = currentFilteredStudents.length;
-            var totalPages = Math.ceil(totalItems / rowsPerPage);
-            
-            // បើគ្មានទិន្នន័យ ឬមានតែ ១ ទំព័រ មិនបាច់បង្ហាញ Pagination ទេ
-            if (totalPages <= 1) {
-                paginationContainer.innerHTML = '';
-                return;
-            }
-            
-            var startItem = ((currentPage - 1) * rowsPerPage) + 1;
-            var endItem = Math.min(currentPage * rowsPerPage, totalItems);
-            
-            // រៀបចំ Layout: ខាងឆ្វេងបង្ហាញចំនួនសិស្ស ខាងស្តាំបង្ហាញប៊ូតុងទំព័រ
-            var html = `<div class="d-flex flex-column flex-md-row justify-content-between align-items-center">`;
-            
-            // ផ្នែកខាងឆ្វេង
-            html += `<div class="text-muted small mb-2 mb-md-0">
-                        បង្ហាញ <strong>${startItem}</strong> ដល់ <strong>${endItem}</strong> នៃសិស្សសរុប <strong>${totalItems}</strong> នាក់
-                     </div>`;
-            
-            // ផ្នែកខាងស្តាំ (Bootstrap Pagination)
-            html += `<nav aria-label="Page navigation">
-                        <ul class="pagination pagination-sm mb-0">`;
-            
-            // ប៊ូតុង "ថយក្រោយ"
-            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})" aria-label="Previous">
-                            <span aria-hidden="true">&laquo; ថយក្រោយ</span>
-                        </a>
-                    </li>`;
-            
-            // បង្ហាញលេខទំព័រ (កំណត់ត្រឹម ៥ ទំព័រ ដើម្បីកុំឲ្យវែងពេក)
-            var startPage = Math.max(1, currentPage - 2);
-            var endPage = Math.min(totalPages, currentPage + 2);
-            
-            for (var i = startPage; i <= endPage; i++) {
-                html += `<li class="page-item ${currentPage === i ? 'active' : ''}">
-                            <a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a>
-                        </li>`;
-            }
-            
-            // ប៊ូតុង "បន្ទាប់"
-            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})" aria-label="Next">
-                            <span aria-hidden="true">បន្ទាប់ &raquo;</span>
-                        </a>
-                    </li>`;
-            
-            html += `   </ul>
-                      </nav>
-                    </div>`;
-                    
-            paginationContainer.innerHTML = html;
-        }
     </script>
 </body>
 </html>
