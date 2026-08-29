@@ -963,14 +963,41 @@
 
         
         // Student List Functions
+// អថេរសម្រាប់ផ្ទុកទិន្នន័យសិស្សទាំងអស់ពេលទាញមកពី Server លើកដំបូង
+        var globalStudents = [];
+        
         async function loadStudentList() {
-            var classFilter = document.getElementById('student_class_filter');
-            var className = classFilter ? classFilter.value : 'ALL';
+            var tbody = document.getElementById('student_table_body');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><div class="spinner-border text-primary"></div><div class="mt-2">កំពុងផ្ទុកទិន្នន័យសិស្ស...</div></td></tr>';
             
+            // ប្រើ callAPI ជំនួស google.script.run
             const data = await callAPI('getStudentList');
+            
             if (data && data.success) {
-                allStudents = data.students;
-                renderStudentTable(className);
+                globalStudents = data.students || [];
+                
+                // ១. បំពេញទិន្នន័យ "ថ្នាក់រៀន" ចូលក្នុង Dropdown
+                var classSelect = document.getElementById('student_filter_class');
+                if (classSelect && data.classes) {
+                    classSelect.innerHTML = '<option value="all">ទាំងអស់ (All Classes)</option>';
+                    data.classes.forEach(function(c) {
+                        classSelect.innerHTML += '<option value="' + c + '">' + c + '</option>';
+                    });
+                }
+                
+                // ២. បំពេញទិន្នន័យ "ឆ្នាំសិក្សា" ចូលក្នុង Dropdown
+                var acaSelect = document.getElementById('student_filter_academic');
+                if (acaSelect && data.academicYears) {
+                    acaSelect.innerHTML = '<option value="all">ទាំងអស់ (All Years)</option>';
+                    data.academicYears.forEach(function(a) {
+                        acaSelect.innerHTML += '<option value="' + a.id + '">' + a.year + '</option>';
+                    });
+                }
+                
+                // បន្ទាប់ពីទាញទិន្នន័យរួចរាល់ គូរតារាងដោយស្វ័យប្រវត្តិ
+                applyStudentFilter();
+            } else {
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">បរាជ័យក្នុងការទាញយកទិន្នន័យ</td></tr>';
             }
         }
         
