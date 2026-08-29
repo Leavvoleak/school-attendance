@@ -960,6 +960,8 @@
             printWindow.document.close();
             setTimeout(function() { printWindow.print(); }, 500);
         }
+
+        
         // Student List Functions
         async function loadStudentList() {
             var classFilter = document.getElementById('student_class_filter');
@@ -1098,6 +1100,37 @@
                     }
                 });
             }
+        }
+
+
+        // មុខងារត្រងទិន្នន័យ (Filter) របស់អ្នក (រក្សាទុកដដែល ១០០%)
+        function applyStudentFilter() {
+            var classSelect = document.getElementById('student_filter_class');
+            var acaSelect = document.getElementById('student_filter_academic');
+            var searchInput = document.getElementById('student_search_input');
+            
+            var classVal = classSelect ? classSelect.value : 'all';
+            var acaVal = acaSelect ? acaSelect.value : 'all';
+            var searchVal = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+            var filteredStudents = globalStudents.filter(function(student) {
+                var sClass = String(student.className).trim();
+                var sAca = String(student.academicId).replace('.0', '').trim();
+                var selectedAca = String(acaVal).replace('.0', '').trim();
+
+                var matchClass = (classVal === 'all' || sClass === classVal);
+                var matchAca = (acaVal === 'all' || sAca === selectedAca);
+                var matchSearch = true;
+                
+                if (searchVal !== '') {
+                    matchSearch = String(student.id).toLowerCase().includes(searchVal) || 
+                                  String(student.name).toLowerCase().includes(searchVal);
+                }
+                
+                return matchClass && matchAca && matchSearch;
+            });
+
+            renderStudentTable(filteredStudents); 
         }
     </script>
 </body>
