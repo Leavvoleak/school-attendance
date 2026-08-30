@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Koulen&family=Siemreap&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+<!-- Cropper.js CSS & JS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -316,9 +318,17 @@
                         <span id="dash_student_type">...</span> | <span id="dash_group">...</span>
                     </p>
                 </div>
-                <div class="dash-avatar">
+                <!-- <div class="dash-avatar">
                     <i class="fas fa-user-graduate"></i>
+                </div> -->
+                <div class="dash-avatar" onclick="triggerFileInput()" style="cursor: pointer; overflow: hidden; position: relative;" title="ចុចទីនេះដើម្បីប្តូររូបថត">
+                    <i class="fas fa-user-graduate" id="defaultAvatarIcon"></i>
+                    <img id="userProfileImg" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
                 </div>
+                
+                <!-- Input លាក់សម្រាប់ជ្រើសរើសរូបថត -->
+                <input type="file" id="profileImageInput" accept="image/jpeg, image/png" style="display:none" onchange="handleProfileImageSelect(event)">
+                
             </div>
 
             <!-- Removed the redundant campus name panel as requested in previous markings -->
@@ -471,6 +481,34 @@
 
     <input type="file" id="qr-file-input" accept="image/*" style="display:none" onchange="handleFileUpload(event)">
 
+
+
+    <!-- Profile Image Cropper Modal -->
+    <div class="modal fade" id="profileCropperModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="font-family: 'Koulen', sans-serif; color: #0f0659;">កែសម្រួលរូបថត</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div style="max-height: 400px; overflow: hidden; display: flex; justify-content: center; background: #eee;">
+                        <img id="imageToCrop" src="" style="max-width: 100%; display: block;">
+                    </div>
+                    <div class="d-flex justify-content-center mt-3 gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="cropper.rotate(-90)"><i class="fas fa-undo"></i> វិលឆ្វេង</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="cropper.rotate(90)"><i class="fas fa-redo"></i> វិលស្តាំ</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">បោះបង់</button>
+                    <button type="button" class="btn btn-primary" onclick="uploadCroppedImage()">
+                        <i class="fas fa-cloud-upload-alt"></i> បង្ហោះរូបថត
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
 
         async function callAPI(action, data) {
@@ -551,6 +589,13 @@
             switchView('home');
             // 🌟 បញ្ឆេះប្រព័ន្ធ Real-Time នៅពេលកម្មវិធីចាប់ផ្តើម
             startRealtimeUpdates();
+            // 🌟 បង្ហាញរូបថត Profile បើមាន
+            if (sessionUser.profileUrl && sessionUser.profileUrl !== "") {
+                document.getElementById('defaultAvatarIcon').style.display = 'none';
+                var profileImg = document.getElementById('userProfileImg');
+                profileImg.src = sessionUser.profileUrl;
+                profileImg.style.display = 'block';
+            }
         }
 
         function submitLeave() {
@@ -1381,6 +1426,74 @@ function applyDateFilter() {
                     */
                 }
             });
+        }
+
+
+
+        // --- PROFILE IMAGE FUNCTIONS ---
+        var cropper;
+        
+        function triggerFileInput() {
+            document.getElementById('profileImageInput').click();
+        }
+
+        function handleProfileImageSelect(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var img = document.getElementById('imageToCrop');
+                img.src = e.target.result;
+                
+                var modal = new bootstrap.Modal(document.getElementById('profileCropperModal'));
+                modal.show();
+                
+                document.getElementById('profileCropperModal').addEventListener('shown.bs.modal', function () {
+                    if (cropper) cropper.destroy();
+                    cropper = new Cropper(img, {
+                        aspectRatio: 1, // បង្ខំឲ្យកាត់ជារាងការ៉េ (ដើម្បីងាយស្រួលបង្ហាញជារង្វង់មូល)
+                        viewMode: 1,
+                        background: false
+                    });
+                }, { once: true });
+            };
+            reader.readAsDataURL(file);
+            event.target.value = ''; // Reset input
+        }
+
+        async function uploadCroppedImage() {
+            if (!cropper) return;
+            
+            var canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+            var base64Image = canvas.toDataURL('image/jpeg', 0.8);
+            
+            Swal.fire({ title: 'កំពុងបង្ហោះរូបថត...', text: 'សូមរង់ចាំបន្តិច', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+            
+            try {
+                const response = await callAPI('uploadProfileImage', { studentId: sessionUser.id, base64Data: base64Image });
+                
+                if (response && response.success) {
+                    Swal.fire('ជោគជ័យ!', 'រូបថតត្រូវបានផ្លាស់ប្តូរ។', 'success');
+                    
+                    // Update UI ភ្លាមៗ
+                    document.getElementById('defaultAvatarIcon').style.display = 'none';
+                    var profileImg = document.getElementById('userProfileImg');
+                    profileImg.src = response.url;
+                    profileImg.style.display = 'block';
+                    
+                    // Update ចូល LocalStorage
+                    sessionUser.profileUrl = response.url;
+                    localStorage.setItem('sessionUser', JSON.stringify(sessionUser));
+                    
+                    var modal = bootstrap.Modal.getInstance(document.getElementById('profileCropperModal'));
+                    modal.hide();
+                } else {
+                    Swal.fire('កំហុស!', response.error || 'មិនអាចបង្ហោះបានទេ', 'error');
+                }
+            } catch (err) {
+                Swal.fire('កំហុស!', 'បញ្ហាភ្ជាប់អ៊ីនធឺណិត', 'error');
+            }
         }
     </script>
 </body>
