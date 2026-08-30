@@ -965,7 +965,6 @@
  //        }
 
 async function refreshStats(renderRep) {
-            // 🌟 ១. បង្ហាញ Loading Spinner មុនពេលទាញទិន្នន័យពី Server
             var spinnerHtml = '<i class="fas fa-spinner fa-spin text-muted"></i>';
             document.getElementById('dash_hrs').innerHTML = spinnerHtml;
             document.getElementById('dash_present').innerHTML = spinnerHtml;
@@ -981,16 +980,14 @@ async function refreshStats(renderRep) {
                 statusEl.innerHTML = '<i class="fas fa-spinner fa-spin text-primary"></i> កំពុងរៀបចំទិន្នន័យ...';
                 statusEl.className = 'text-center text-primary fw-bold mb-2';
             }
-            if (btnContainer) btnContainer.style.display = 'none'; // លាក់ប៊ូតុងស្កេនសិនពេលកំពុង Load
+            if (btnContainer) btnContainer.style.display = 'none';
 
             try {
-                // 🌟 ២. ចាប់ផ្តើមទាញទិន្នន័យពី API
                 const data = await callAPI('getStudentData', { studentId: sessionUser.id });
                 
                 if (data && data.success) {
                     allDailyLogs = data.logs || [];
                     
-                    // 🌟 ៣. ដាក់ទិន្នន័យពិតចូលទៅក្នុងប្រអប់វិញ (ជំនួស Spinner)
                     document.getElementById('dash_hrs').innerText = data.stats.hours || '0h 0m';
                     document.getElementById('dash_present').innerText = data.stats.present || 0;
                     if (document.getElementById('dash_absent')) document.getElementById('dash_absent').innerText = data.stats.absent || 0;
@@ -999,6 +996,16 @@ async function refreshStats(renderRep) {
                     document.getElementById('dash_percent').innerText = data.stats.percentage + '%';
                     document.getElementById('donut_chart').style.background = 'conic-gradient(#0f0659 0% ' + data.stats.percentage + '%, #e0e0e0 ' + data.stats.percentage + '% 100%)';
                     
+                    // 🌟 ឆែកមើលថាតើសិស្សមានច្បាប់ក្នុង "ថ្ងៃនេះ" ដែរឬទេ (ផ្អែកលើថ្ងៃខែបច្ចុប្បន្ន YYYY-MM-DD)
+                    var todayDateStr = new Date().toISOString().split('T')[0];
+                    var hasPermissionToday = false;
+                    
+                    if (data.notifications && data.notifications.length > 0) {
+                        hasPermissionToday = data.notifications.some(function(n) {
+                            return n.status === 'Approved' && n.date === todayDateStr;
+                        });
+                    }
+
                     // ប្រព័ន្ធជូនដំណឹង និងបិទប៊ូតុងជាក់លាក់
                     var sOffline = data.stats.scanSettings.offline;
                     var sOnline = data.stats.scanSettings.online;
@@ -1007,10 +1014,14 @@ async function refreshStats(renderRep) {
                         var btns = btnContainer.querySelectorAll('button');
                         btns.forEach(function(btn) {
                             var txt = btn.innerText || btn.textContent;
+                            
+                            // 🌟 បិទប៊ូតុង "រៀនផ្ទាល់" ប្រសិនបើ Admin បិទ ឬ សិស្សមានច្បាប់ឈប់សម្រាកក្នុងថ្ងៃនេះ
                             if (txt.includes('ផ្ទាល់') || txt.includes('Offline')) {
-                                btn.disabled = !sOffline; 
-                                btn.style.opacity = sOffline ? "1" : "0.5"; 
+                                var disableOffline = !sOffline || hasPermissionToday;
+                                btn.disabled = disableOffline; 
+                                btn.style.opacity = disableOffline ? "0.5" : "1"; 
                             } 
+                            // ប៊ូតុង "អនឡាញ" ដំណើរការធម្មតាតាមការកំណត់របស់ Admin
                             if (txt.includes('អនឡាញ') || txt.includes('Online')) {
                                 btn.disabled = !sOnline;
                                 btn.style.opacity = sOnline ? "1" : "0.5";
@@ -1024,17 +1035,17 @@ async function refreshStats(renderRep) {
                         statusEl.innerHTML = '<i class="fas fa-lock text-danger"></i> ការស្កេនទាំងអស់ត្រូវបានបិទដោយ Admin';
                         statusEl.className = 'text-center text-danger fw-bold mb-2';
                     } 
-                    else if (todayStatStr.includes("permission") || todayStatStr.includes("approved") || todayStatStr.includes("អនុម័តច្បាប់")) {
+                    else if (hasPermissionToday || todayStatStr.includes("permission") || todayStatStr.includes("approved") || todayStatStr.includes("អនុម័តច្បាប់")) {
                         statusEl.innerHTML = '<i class="fas fa-calendar-check text-warning"></i> អ្នកមានច្បាប់ឈប់សម្រាកសម្រាប់ថ្ងៃនេះ';
                         statusEl.className = 'text-warning fw-bold text-center mb-2';
-                        if(btnContainer) btnContainer.style.display = 'none';
+                        if(btnContainer) btnContainer.style.display = 'flex';
                     } 
                     else if (data.stats.missingScanPrompt) {
                         statusEl.innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i> ' + data.stats.missingScanPrompt;
                         statusEl.className = 'text-warning fw-bold text-center mb-2';
                         if(btnContainer) btnContainer.style.display = 'flex';
                     } 
-                    else if(allDailyLogs.length > 0 && allDailyLogs[0].date === (new Date().toISOString().split('T')[0]) && allDailyLogs[0].aOut !== '--:--') {
+                    else if(allDailyLogs.length > 0 && allDailyLogs[0].date === todayDateStr && allDailyLogs[0].aOut !== '--:--') {
                         statusEl.innerHTML = '<i class="fas fa-check-circle text-success"></i> អ្នកបានបញ្ជប់ការស្កេនទាំង ៤ សម្រាប់ថ្ងៃនេះហើយ';
                         statusEl.className = 'text-success fw-bold text-center mb-2';
                         if(btnContainer) btnContainer.style.display = 'none';
