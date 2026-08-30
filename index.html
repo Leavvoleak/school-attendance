@@ -601,7 +601,7 @@ async function loadCampuses() {
                 if (result.role === 'Student') {
                     window.location.href = result.requiresPasswordChange ? 'ChangePassword.html' : 'StudentIndex.html';
                 } else {
-                    window.location.href = 'Admin.html';
+                    window.location.href = 'admin.html';
                 }
             } else {
                 showError(result.error || 'ពាក្យសម្ងាត់ ឬអត្តលេខមិនត្រឹមត្រូវ');
