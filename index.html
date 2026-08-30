@@ -455,7 +455,7 @@
         };
 
 
-        async function loadCampuses() {
+async function loadCampuses() {
             var select = document.getElementById('campusSelect');
             select.innerHTML = '<option value="">កំពុងទាញយកទិន្នន័យ...</option>';
             
@@ -475,6 +475,7 @@
                     
                     if (data.error) {
                         select.innerHTML = '<option value="">កំហុស: ' + data.error + '</option>';
+                        if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
                         return;
                     }
                     
@@ -489,17 +490,24 @@
                             option.dataset.nameEN = campus.nameEN;
                             select.appendChild(option);
                         });
+                        
+                        // 🌟 បង្កើតបញ្ជី Custom Dropdown បន្ទាប់ពីទាញទិន្នន័យចូល Select ដើមចប់
+                        if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
+                        
                     } else {
                         select.innerHTML = '<option value="">គ្មានទិន្នន័យសាលាទេ</option>';
+                        if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
                     }
                 } catch(e) {
                     console.error("ទិន្នន័យឆ្លើយតបមិនមែនជា JSON ទេ:", text);
                     select.innerHTML = '<option value="">Error: ទិន្នន័យពី Server ខុស (ភ្លេច Deploy ថ្មី)</option>';
+                    if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
                 }
                 
             } catch (error) {
                 console.error("Network/CORS Error:", error);
                 select.innerHTML = '<option value="">Error: មិនអាចភ្ជាប់ទៅកាន់ម៉ាស៊ីនមេ</option>';
+                if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
             }
         }
         // function loadCampuses() {
