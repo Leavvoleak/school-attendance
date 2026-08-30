@@ -1611,6 +1611,34 @@ function renderLeaveTable(requests) {
             overlay.style.display = 'none'; // លាក់ Popup វិញ
             iframe.src = ''; // លុប URL ចេញដើម្បីកុំឲ្យវាដំណើរការចោលពីក្រោយ
         }
+
+        // មុខងារសួរបញ្ជាក់មុនពេលចាកចេញ (Confirm Logout)
+        function confirmLogout() {
+            Swal.fire({
+                title: 'ចាកចេញពីប្រព័ន្ធ?',
+                text: 'តើអ្នកពិតជាចង់ចាកចេញពីគណនីនេះមែនទេ?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545', // ពណ៌ក្រហម (Danger)
+                cancelButtonColor: '#6c757d', // ពណ៌ប្រផេះ (Secondary)
+                confirmButtonText: '<i class="fas fa-sign-out-alt"></i> បាទ/ចាស ចាកចេញ',
+                cancelButtonText: 'បោះបង់ (Cancel)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    
+                    // ហៅមុខងារចាកចេញចាស់របស់អ្នកនៅទីនេះ
+                    // ប្រសិនបើកូដចាស់របស់អ្នកប្រើមុខងារឈ្មោះ logout() សូមហៅវាដូចខាងក្រោម៖
+                    logout(); 
+                    
+                    /* 
+                    ចំណាំ៖ បើកូដចាស់របស់អ្នកគ្រាន់តែលុប Session នោះអាចប្រើកូដនេះជំនួស៖
+                    localStorage.removeItem('sessionUser');
+                    sessionStorage.clear();
+                    window.top.location.reload(); 
+                    */
+                }
+            });
+        }
     </script>
 </body>
 </html>
