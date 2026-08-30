@@ -225,7 +225,7 @@
         }
 
 
-                    /* Custom Glass Dropdown Styles */
+                    /*  Custom Glass Dropdown Styles 
             .glass-dropdown {
                 position: relative;
                 width: 100%;
@@ -255,7 +255,7 @@
                 top: 110%;
                 left: 0;
                 right: 0;
-                /* ពណ៌ផ្ទៃខាងក្រោយរាងស្វាយក្រាស់បន្តិច ដើម្បីងាយស្រួលអានអក្សរ */
+                /* ពណ៌ផ្ទៃខាងក្រោយរាងស្វាយក្រាស់បន្តិច ដើម្បីងាយស្រួលអានអក្សរ 
                 background: rgba(85, 60, 140, 0.95); 
                 backdrop-filter: blur(15px);
                 border: 1px solid rgba(255, 255, 255, 0.2);
@@ -292,14 +292,47 @@
             .glass-dropdown-item:hover {
                 background: rgba(255, 255, 255, 0.2);
             }
-            /* Scrollbar Customization សម្រាប់បញ្ជី Dropdown */
+            /* Scrollbar Customization សម្រាប់បញ្ជី Dropdown 
             .glass-dropdown-list::-webkit-scrollbar {
                 width: 6px;
             }
             .glass-dropdown-list::-webkit-scrollbar-thumb {
                 background: rgba(255, 255, 255, 0.3);
                 border-radius: 10px;
-            }
+            } */
+
+.glass-dropdown { position: relative; width: 100%; font-family: 'Siemreap', sans-serif; }
+.glass-dropdown-select {
+    width: 100%; padding: 12px 15px; background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px;
+    color: white; font-size: 15px; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: all 0.3s ease;
+}
+.glass-dropdown-select:hover, .glass-dropdown.active .glass-dropdown-select {
+    background: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+.glass-dropdown-list {
+    position: absolute; top: 110%; left: 0; right: 0;
+    background: rgba(85, 60, 140, 0.95); backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3); list-style: none;
+    padding: 8px 0; margin: 0; opacity: 0; visibility: hidden;
+    transform: translateY(-10px); transition: all 0.3s ease;
+    z-index: 1000; max-height: 250px; overflow-y: auto;
+}
+.glass-dropdown.active .glass-dropdown-list {
+    opacity: 1; visibility: visible; transform: translateY(0);
+}
+.glass-dropdown-item {
+    padding: 12px 15px; color: white; cursor: pointer;
+    font-size: 14px; line-height: 1.5; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.glass-dropdown-item:last-child { border-bottom: none; }
+.glass-dropdown-item:hover { background: rgba(255, 255, 255, 0.2); }
+.glass-dropdown-list::-webkit-scrollbar { width: 6px; }
+.glass-dropdown-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -313,27 +346,23 @@
         </div>
         
         <form id="loginForm" onsubmit="login(event)">
-            <div class="form-group">
+            <div class="form-group campus-selector">
                 <label><i class="bi bi-building"></i> ជ្រើសរើសសាលា / Campus</label>
                 
-                <!-- Custom Glass Dropdown -->
-                <div class="glass-dropdown" id="campusDropdown">
-                    <div class="glass-dropdown-select">
-                        <span class="selected-text">ជ្រើសរើសសាលា...</span>
+                <!-- 🌟 Custom Glass Dropdown -->
+                <div class="glass-dropdown" id="customCampusDropdown">
+                    <div class="glass-dropdown-select" id="customSelectBox">
+                        <span class="selected-text" id="customCampusText">កំពុងផ្ទុក...</span>
                         <i class="bi bi-chevron-down"></i>
                     </div>
-                    <ul class="glass-dropdown-list">
-                        <li class="glass-dropdown-item" data-value="">ជ្រើសរើសសាលា...</li>
-                        <li class="glass-dropdown-item" data-value="1">មជ្ឈមណ្ឌលគរុកោសល្យភូមិភាគ ខេត្តព្រៃវែង</li>
-                        <li class="glass-dropdown-item" data-value="2">សាលាគរុកោសល្យ និងវិក្រឹតការហ៊ុនសែន ខេត្តព្រៃវែង</li>
+                    <ul class="glass-dropdown-list" id="customCampusList">
+                        <!-- បញ្ជីសាលានឹងត្រូវបញ្ចូលទីនេះដោយស្វ័យប្រវត្តិ (JS) -->
                     </ul>
                 </div>
                 
-                <!-- Hidden Select សម្រាប់ទុកបញ្ជូនទិន្នន័យ (តម្លៃ) ទៅ Backend -->
-                <select id="campusSelect" name="campus" style="display: none;" onchange="updateCampusHeader()">
-                    <option value="">ជ្រើសរើសសាលា...</option>
-                    <!-- <option value="1">មជ្ឈមណ្ឌលគរុកោសល្យភូមិភាគ ខេត្តព្រៃវែង</option>
-                    <option value="2">សាលាគរុកោសល្យ និងវិក្រឹតការហ៊ុនសែន ខេត្តព្រៃវែង</option> -->
+                <!-- 🌟 Select ដើម (ត្រូវលាក់កុំឲ្យឃើញ) -->
+                <select id="campusSelect" class="form-control-glass" onchange="updateCampusHeader()" style="display: none;">
+                    <option value="">កំពុងផ្ទុក...</option>
                 </select>
             </div>
             
@@ -401,41 +430,6 @@
             return deviceId;
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-    const dropdown = document.getElementById('campusDropdown');
-    
-    if(dropdown) {
-        const selectBox = dropdown.querySelector('.glass-dropdown-select');
-        const selectedText = dropdown.querySelector('.selected-text');
-        const listItems = dropdown.querySelectorAll('.glass-dropdown-item');
-        const hiddenSelect = document.getElementById('campusSelect'); // Hidden input ដែលផ្ទុកតម្លៃលេខ
-
-        // បិទបើកបញ្ជីពេលចុច
-        selectBox.addEventListener('click', function(e) {
-            e.stopPropagation();
-            dropdown.classList.toggle('active');
-        });
-
-        // ពេលចុចជ្រើសរើសជម្រើសណាមួយ
-        listItems.forEach(item => {
-            item.addEventListener('click', function() {
-                // ដូរអក្សរនៅលើប្រអប់
-                selectedText.textContent = this.textContent;
-                // ដាក់តម្លៃលេខ (ឧ. 1 ឬ 2) ចូលទៅក្នុង Hidden Select
-                hiddenSelect.value = this.getAttribute('data-value'); 
-                // បិទបញ្ជីវិញ
-                dropdown.classList.remove('active');
-            });
-        });
-
-        // បិទបញ្ជីពេលចុចនៅកន្លែងផ្សេង
-        document.addEventListener('click', function() {
-            dropdown.classList.remove('active');
-        });
-    }
-});
-        
-        
         window.onload = function() {
             var savedSession = localStorage.getItem('sessionUser');
             if (savedSession) {
@@ -647,6 +641,60 @@
             document.getElementById('errorText').innerText = message;
             document.getElementById('errorMessage').style.display = 'block';
         }
+
+        // ១. មុខងារសម្រាប់ទាញទិន្នន័យពី Select ចាស់ មកបង្កើតជា Custom Dropdown ថ្មី
+function buildCustomDropdown() {
+    const selectEl = document.getElementById('campusSelect');
+    const customList = document.getElementById('customCampusList');
+    const customText = document.getElementById('customCampusText');
+    
+    // សម្អាតបញ្ជីចាស់ចោលសិន
+    customList.innerHTML = '';
+    
+    // បង្កើតបញ្ជីថ្មីផ្អែកលើ Option ដែលទាញបានពី Server
+    Array.from(selectEl.options).forEach(option => {
+        const li = document.createElement('li');
+        li.className = 'glass-dropdown-item';
+        li.textContent = option.text;
+        li.setAttribute('data-value', option.value);
+        
+        // ពេលសិស្សចុចលើសាលាណាមួយ
+        li.addEventListener('click', function() {
+            customText.textContent = this.textContent;
+            selectEl.value = this.getAttribute('data-value'); // បោះតម្លៃលេខចូល Select ចាស់
+            
+            // 🌟 បញ្ជាឲ្យ onchange="updateCampusHeader()" ដំណើរការ
+            selectEl.dispatchEvent(new Event('change'));
+            
+            document.getElementById('customCampusDropdown').classList.remove('active');
+        });
+        
+        customList.appendChild(li);
+    });
+    
+    // បង្ហាញឈ្មោះសាលាដំបូងគេ (បើមាន)
+    if(selectEl.options.length > 0) {
+        customText.textContent = selectEl.options[selectEl.selectedIndex].text;
+    }
+}
+
+// ២. បញ្ជាឲ្យប្រអប់អាចលោតចុះឡើងពេលចុច
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdown = document.getElementById('customCampusDropdown');
+    const selectBox = document.getElementById('customSelectBox');
+    
+    if(selectBox) {
+        selectBox.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.classList.toggle('active');
+        });
+    }
+    
+    // ចុចក្រៅប្រអប់ ឲ្យវាលាក់ទៅវិញ
+    document.addEventListener('click', function() {
+        if(dropdown) dropdown.classList.remove('active');
+    });
+});
     </script>
 </body>
 </html>
