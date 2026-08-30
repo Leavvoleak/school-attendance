@@ -964,135 +964,161 @@
  //                    }
  //        }
 
-        async function refreshStats(renderRep) {
-            const data = await callAPI('getStudentData', { studentId: sessionUser.id });
-            if (data.success) {
-                allDailyLogs = data.logs || [];
+async function refreshStats(renderRep) {
+            // 🌟 ១. បង្ហាញ Loading Spinner មុនពេលទាញទិន្នន័យពី Server
+            var spinnerHtml = '<i class="fas fa-spinner fa-spin text-muted"></i>';
+            document.getElementById('dash_hrs').innerHTML = spinnerHtml;
+            document.getElementById('dash_present').innerHTML = spinnerHtml;
+            if (document.getElementById('dash_absent')) document.getElementById('dash_absent').innerHTML = spinnerHtml;
+            if (document.getElementById('dash_leaves')) document.getElementById('dash_leaves').innerHTML = spinnerHtml;
+            if (document.getElementById('dash_total')) document.getElementById('dash_total').innerHTML = spinnerHtml;
+            document.getElementById('dash_percent').innerHTML = spinnerHtml;
+            
+            var statusEl = document.getElementById('checkin-status');
+            var btnContainer = document.getElementById('btnStartScanContainer');
+            
+            if (statusEl) {
+                statusEl.innerHTML = '<i class="fas fa-spinner fa-spin text-primary"></i> កំពុងរៀបចំទិន្នន័យ...';
+                statusEl.className = 'text-center text-primary fw-bold mb-2';
+            }
+            if (btnContainer) btnContainer.style.display = 'none'; // លាក់ប៊ូតុងស្កេនសិនពេលកំពុង Load
+
+            try {
+                // 🌟 ២. ចាប់ផ្តើមទាញទិន្នន័យពី API
+                const data = await callAPI('getStudentData', { studentId: sessionUser.id });
                 
-                document.getElementById('dash_hrs').innerText = data.stats.hours || '0h 0m';
-                document.getElementById('dash_present').innerText = data.stats.present || 0;
-                document.getElementById('dash_absent').innerText = data.stats.absent || 0;
-                document.getElementById('dash_leaves').innerText = data.stats.leaves || 0;
-                document.getElementById('dash_percent').innerText = data.stats.percentage + '%';
-                document.getElementById('donut_chart').style.background = 'conic-gradient(#0f0659 0% ' + data.stats.percentage + '%, #e0e0e0 ' + data.stats.percentage + '% 100%)';
-                
-                // ប្រព័ន្ធជូនដំណឹង និងបិទប៊ូតុងជាក់លាក់
-                var sOffline = data.stats.scanSettings.offline;
-                var sOnline = data.stats.scanSettings.online;
-                
-                var btnContainer = document.getElementById('btnStartScanContainer');
-                if (btnContainer) {
-                    var btns = btnContainer.querySelectorAll('button');
-                    btns.forEach(function(btn) {
-                        var txt = btn.innerText || btn.textContent;
-                        // បិទ/បើក ប៊ូតុង រៀនផ្ទាល់
-                        if (txt.includes('ផ្ទាល់') || txt.includes('Offline')) {
-                            btn.disabled = !sOffline; // ធ្វើឲ្យចុចលែងបាន
-                            btn.style.opacity = sOffline ? "1" : "0.5"; // ធ្វើឲ្យពណ៌ស្រអាប់
-                        } 
-                        // បិទ/បើក ប៊ូតុង អនឡាញ
-                        if (txt.includes('អនឡាញ') || txt.includes('Online')) {
-                            btn.disabled = !sOnline;
-                            btn.style.opacity = sOnline ? "1" : "0.5";
-                        }
-                    });
-                }
-
-                // បំប្លែងស្ថានភាពថ្ងៃនេះជាអក្សរតូចដើម្បីងាយស្រួលឆែករកពាក្យ
-                var todayStatStr = String(data.stats.todayStatus).toLowerCase();
-
-                if (!sOffline && !sOnline) {
-                    document.getElementById('checkin-status').innerHTML = '<i class="fas fa-lock text-danger"></i> ការស្កេនទាំងអស់ត្រូវបានបិទដោយ Admin';
-                } 
-                // 🌟 កែប្រែលក្ខខណ្ឌនៅទីនេះ ដើម្បីឲ្យវាស្គាល់ទាំងពាក្យ Permission, Approved និង អនុម័តច្បាប់
-                else if (todayStatStr.includes("permission") || todayStatStr.includes("approved") || todayStatStr.includes("អនុម័តច្បាប់")) {
-                    document.getElementById('checkin-status').innerHTML = '<i class="fas fa-calendar-check text-primary"></i> អ្នកមានច្បាប់ឈប់សម្រាកសម្រាប់ថ្ងៃនេះ';
-                    if(btnContainer) btnContainer.style.display = 'none';
-                } 
-                else if (data.stats.missingScanPrompt) {
-                    document.getElementById('checkin-status').innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i> ' + data.stats.missingScanPrompt;
-                    if(btnContainer) btnContainer.style.display = 'flex';
-                } 
-                else if(allDailyLogs.length > 0 && allDailyLogs[0].date === (new Date().toISOString().split('T')[0]) && allDailyLogs[0].aOut !== '--:--') {
-                    document.getElementById('checkin-status').innerHTML = '<i class="fas fa-check-circle text-success"></i> អ្នកបានបញ្ជប់ការស្កេនទាំង ៤ សម្រាប់ថ្ងៃនេះហើយ';
-                    if(btnContainer) btnContainer.style.display = 'none';
-                } 
-                else {
-                    document.getElementById('checkin-status').innerHTML = '<i class="fas fa-info-circle text-muted"></i> សូមរង់ចាំម៉ោងស្កេនបន្ទាប់';
-                    if(btnContainer) btnContainer.style.display = 'none';
-                }
-
-                if (renderRep){
-                    setDefaultDates();
-                    applyDateFilter();
-                }
-
-                var notifContainer = document.getElementById('notification-list');
-                if (data.notifications && data.notifications.length > 0) {
-                    var alertedNotifs = JSON.parse(localStorage.getItem('alertedNotifs') || '[]');
-                    var viewedNotifs = JSON.parse(localStorage.getItem('viewedNotifs') || '[]');
-                    var unreadCount = 0; var allIds = []; var newApprovals = []; var newRejections = [];
-
-                    notifContainer.innerHTML = data.notifications.map(function(n) {
-                        allIds.push(n.id);
-                        var isUnread = !viewedNotifs.includes(n.id);
-                        if (isUnread) unreadCount++;
-                        if (!alertedNotifs.includes(n.id)) {
-                            if (n.status === 'Approved') newApprovals.push(formatDisplayDate(n.date));
-                            else if (n.status === 'Rejected') newRejections.push(formatDisplayDate(n.date));
-                            alertedNotifs.push(n.id);
-                        }
-                        var title = n.status === 'Approved' ? 'សំណើសុំច្បាប់ត្រូវបានអនុម័ត' : 'សំណើសុំច្បាប់ត្រូវបានបដិសេធ';
-                        var colorClass = n.status === 'Approved' ? 'approved' : 'rejected';
-                        var icon = n.status === 'Approved' ? 'fa-check-circle text-success' : 'fa-times-circle text-danger';
-                        var newBadge = isUnread ? '<span class="badge bg-danger ms-2 new-notif-badge">ថ្មី (New)</span>' : '';
-                        
-                        return '<div class="notif-card ' + colorClass + '"><div class="d-flex justify-content-between"><div class="fw-bold" style="font-size:11pt;"><i class="fas ' + icon + '"></i> ' + title + newBadge + '</div><small class="text-muted" style="font-size:8pt;">' + n.reqTime + '</small></div><div class="mt-2 text-muted small">ថ្ងៃសុំច្បាប់៖ <span class="fw-bold">' + formatDisplayDate(n.date) + '</span></div><div class="text-muted small">មូលហេតុ៖ ' + n.reason + '</div></div>';
-                    }).join('');
+                if (data && data.success) {
+                    allDailyLogs = data.logs || [];
                     
-                    localStorage.setItem('allNotifIds', JSON.stringify(allIds));
-                    if (unreadCount > 0) {
-                        document.getElementById('notif-badge').innerText = unreadCount;
-                        document.getElementById('notif-badge').style.display = 'inline-block';
-                    } else { document.getElementById('notif-badge').style.display = 'none'; }
+                    // 🌟 ៣. ដាក់ទិន្នន័យពិតចូលទៅក្នុងប្រអប់វិញ (ជំនួស Spinner)
+                    document.getElementById('dash_hrs').innerText = data.stats.hours || '0h 0m';
+                    document.getElementById('dash_present').innerText = data.stats.present || 0;
+                    if (document.getElementById('dash_absent')) document.getElementById('dash_absent').innerText = data.stats.absent || 0;
+                    if (document.getElementById('dash_leaves')) document.getElementById('dash_leaves').innerText = data.stats.leaves || 0;
+                    if (document.getElementById('dash_total')) document.getElementById('dash_total').innerText = data.stats.members || 0;
+                    document.getElementById('dash_percent').innerText = data.stats.percentage + '%';
+                    document.getElementById('donut_chart').style.background = 'conic-gradient(#0f0659 0% ' + data.stats.percentage + '%, #e0e0e0 ' + data.stats.percentage + '% 100%)';
                     
-                    if (newApprovals.length > 0 || newRejections.length > 0) {
-                        localStorage.setItem('alertedNotifs', JSON.stringify(alertedNotifs));
-                        
-                        // 🌟 បង្កើតទម្រង់ Toast (ផ្ទាំងលោតតូចនៅជ្រុងអេក្រង់) ជំនួសឲ្យ Popup ធំកាត់មុខ
-                        const Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            timerProgressBar: true,
-                            didOpen: (toast) => {
-                                toast.addEventListener('mouseenter', Swal.stopTimer)
-                                toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    // ប្រព័ន្ធជូនដំណឹង និងបិទប៊ូតុងជាក់លាក់
+                    var sOffline = data.stats.scanSettings.offline;
+                    var sOnline = data.stats.scanSettings.online;
+                    
+                    if (btnContainer) {
+                        var btns = btnContainer.querySelectorAll('button');
+                        btns.forEach(function(btn) {
+                            var txt = btn.innerText || btn.textContent;
+                            if (txt.includes('ផ្ទាល់') || txt.includes('Offline')) {
+                                btn.disabled = !sOffline; 
+                                btn.style.opacity = sOffline ? "1" : "0.5"; 
+                            } 
+                            if (txt.includes('អនឡាញ') || txt.includes('Online')) {
+                                btn.disabled = !sOnline;
+                                btn.style.opacity = sOnline ? "1" : "0.5";
                             }
                         });
+                    }
 
-                        if (newApprovals.length > 0) {
-                            Toast.fire({ 
-                                icon: 'success', 
-                                title: 'ដំណឹងល្អ!', 
-                                text: 'ពាក្យសុំច្បាប់ថ្ងៃទី ' + newApprovals.join(', ') + ' ត្រូវបានអនុម័ត។' 
-                            });
-                        }
-                        
-                        if (newRejections.length > 0) {
-                            setTimeout(function() { 
-                                Toast.fire({ 
-                                    icon: 'error', 
-                                    title: 'សោកស្តាយ', 
-                                    text: 'ពាក្យសុំច្បាប់ថ្ងៃទី ' + newRejections.join(', ') + ' ត្រូវបានបដិសេធ។' 
-                                }); 
-                            }, newApprovals.length > 0 ? 5500 : 0);
+                    var todayStatStr = String(data.stats.todayStatus).toLowerCase();
+
+                    if (!sOffline && !sOnline) {
+                        statusEl.innerHTML = '<i class="fas fa-lock text-danger"></i> ការស្កេនទាំងអស់ត្រូវបានបិទដោយ Admin';
+                        statusEl.className = 'text-center text-danger fw-bold mb-2';
+                    } 
+                    else if (todayStatStr.includes("permission") || todayStatStr.includes("approved") || todayStatStr.includes("អនុម័តច្បាប់")) {
+                        statusEl.innerHTML = '<i class="fas fa-calendar-check text-warning"></i> អ្នកមានច្បាប់ឈប់សម្រាកសម្រាប់ថ្ងៃនេះ';
+                        statusEl.className = 'text-warning fw-bold text-center mb-2';
+                        if(btnContainer) btnContainer.style.display = 'none';
+                    } 
+                    else if (data.stats.missingScanPrompt) {
+                        statusEl.innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i> ' + data.stats.missingScanPrompt;
+                        statusEl.className = 'text-warning fw-bold text-center mb-2';
+                        if(btnContainer) btnContainer.style.display = 'flex';
+                    } 
+                    else if(allDailyLogs.length > 0 && allDailyLogs[0].date === (new Date().toISOString().split('T')[0]) && allDailyLogs[0].aOut !== '--:--') {
+                        statusEl.innerHTML = '<i class="fas fa-check-circle text-success"></i> អ្នកបានបញ្ជប់ការស្កេនទាំង ៤ សម្រាប់ថ្ងៃនេះហើយ';
+                        statusEl.className = 'text-success fw-bold text-center mb-2';
+                        if(btnContainer) btnContainer.style.display = 'none';
+                    } 
+                    else {
+                        statusEl.innerHTML = '<i class="fas fa-info-circle text-muted"></i> សូមរង់ចាំម៉ោងស្កេនបន្ទាប់';
+                        statusEl.className = 'text-center text-muted mb-2';
+                        if(btnContainer) btnContainer.style.display = 'none';
+                    }
+
+                    if (renderRep){
+                        if (typeof setDefaultDates === 'function') setDefaultDates();
+                        if (typeof applyDateFilter === 'function') applyDateFilter();
+                    }
+
+                    var notifContainer = document.getElementById('notification-list');
+                    if (notifContainer) {
+                        if (data.notifications && data.notifications.length > 0) {
+                            var alertedNotifs = JSON.parse(localStorage.getItem('alertedNotifs') || '[]');
+                            var viewedNotifs = JSON.parse(localStorage.getItem('viewedNotifs') || '[]');
+                            var unreadCount = 0; var allIds = []; var newApprovals = []; var newRejections = [];
+
+                            notifContainer.innerHTML = data.notifications.map(function(n) {
+                                allIds.push(n.id);
+                                var isUnread = !viewedNotifs.includes(n.id);
+                                if (isUnread) unreadCount++;
+                                if (!alertedNotifs.includes(n.id)) {
+                                    if (n.status === 'Approved') newApprovals.push(formatDisplayDate(n.date));
+                                    else if (n.status === 'Rejected') newRejections.push(formatDisplayDate(n.date));
+                                    alertedNotifs.push(n.id);
+                                }
+                                var title = n.status === 'Approved' ? 'សំណើសុំច្បាប់ត្រូវបានអនុម័ត' : 'សំណើសុំច្បាប់ត្រូវបានបដិសេធ';
+                                var colorClass = n.status === 'Approved' ? 'approved' : 'rejected';
+                                var icon = n.status === 'Approved' ? 'fa-check-circle text-success' : 'fa-times-circle text-danger';
+                                var newBadge = isUnread ? '<span class="badge bg-danger ms-2 new-notif-badge">ថ្មី (New)</span>' : '';
+                                
+                                return '<div class="notif-card ' + colorClass + '"><div class="d-flex justify-content-between"><div class="fw-bold" style="font-size:11pt;"><i class="fas ' + icon + '"></i> ' + title + newBadge + '</div><small class="text-muted" style="font-size:8pt;">' + n.reqTime + '</small></div><div class="mt-2 text-muted small">ថ្ងៃសុំច្បាប់៖ <span class="fw-bold">' + formatDisplayDate(n.date) + '</span></div><div class="text-muted small">មូលហេតុ៖ ' + n.reason + '</div></div>';
+                            }).join('');
+                            
+                            localStorage.setItem('allNotifIds', JSON.stringify(allIds));
+                            var badgeEl = document.getElementById('notif-badge');
+                            if (badgeEl) {
+                                if (unreadCount > 0) {
+                                    badgeEl.innerText = unreadCount;
+                                    badgeEl.style.display = 'inline-block';
+                                } else { 
+                                    badgeEl.style.display = 'none'; 
+                                }
+                            }
+                            
+                            if (newApprovals.length > 0 || newRejections.length > 0) {
+                                localStorage.setItem('alertedNotifs', JSON.stringify(alertedNotifs));
+                                
+                                const Toast = Swal.mixin({
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 5000,
+                                    timerProgressBar: true,
+                                    didOpen: (toast) => {
+                                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                    }
+                                });
+
+                                if (newApprovals.length > 0) {
+                                    Toast.fire({ icon: 'success', title: 'ដំណឹងល្អ!', text: 'ពាក្យសុំច្បាប់ថ្ងៃទី ' + newApprovals.join(', ') + ' ត្រូវបានអនុម័ត។' });
+                                }
+                                if (newRejections.length > 0) {
+                                    setTimeout(function() { 
+                                        Toast.fire({ icon: 'error', title: 'សោកស្តាយ', text: 'ពាក្យសុំច្បាប់ថ្ងៃទី ' + newRejections.join(', ') + ' ត្រូវបានបដិសេធ។' }); 
+                                    }, newApprovals.length > 0 ? 5500 : 0);
+                                }
+                            }
+                        } else { 
+                            notifContainer.innerHTML = '<div class="text-center text-muted py-4"><i class="fas fa-bell-slash fs-1"></i><p class="mt-2">មិនមានដំណឹងថ្មីៗទេ</p></div>'; 
                         }
                     }
-                } else { 
-                    notifContainer.innerHTML = '<div class="text-center text-muted py-4"><i class="fas fa-bell-slash fs-1"></i><p class="mt-2">មិនមានដំណឹងថ្មីៗទេ</p></div>'; 
+                } else {
+                    if (statusEl) statusEl.innerHTML = '<i class="fas fa-exclamation-circle text-danger"></i> បរាជ័យក្នុងការទាញយកទិន្នន័យ';
                 }
+            } catch (error) {
+                console.error("Error loading dashboard data:", error);
+                if (statusEl) statusEl.innerHTML = '<i class="fas fa-wifi text-danger"></i> មានបញ្ហាភ្ជាប់អ៊ីនធឺណិត';
             }
         }
 function applyDateFilter() {
