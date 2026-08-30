@@ -437,12 +437,12 @@
                     var session = JSON.parse(savedSession);
                     if (session.role === 'Student') {
                         if (session.requiresPasswordChange) {
-                            window.location.href = 'ChangePassword.html';
+                            window.location.href = 'changepassword.html';
                         } else {
-                           window.location.href = 'StudentIndex.html';
+                           window.location.href = 'studentindex.html';
                         }
                     } else {
-                        window.location.href = 'AdminIndex.html';
+                        window.location.href = 'admin.html';
                     }
                     return;
                 } catch(e) {
@@ -599,7 +599,7 @@ async function loadCampuses() {
                 localStorage.setItem('selectedCampus', JSON.stringify(selectedCampus));
                 
                 if (result.role === 'Student') {
-                    window.location.href = result.requiresPasswordChange ? 'ChangePassword.html' : 'StudentIndex.html';
+                    window.location.href = result.requiresPasswordChange ? 'changepassword.html' : 'studentindex.html';
                 } else {
                     window.location.href = 'admin.html';
                 }
