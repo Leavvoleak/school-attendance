@@ -1171,11 +1171,12 @@
             }
         }
 
-        function renderExcelTable(data) {
+function renderExcelTable(data) {
             const subjHeader = document.getElementById('subjectHeader');
             const weekHeader = document.getElementById('weekHeader');
             const monthHeader = document.getElementById('monthHeader');
             const dateHeader = document.getElementById('dateHeader');
+            const totalPresentHeader = document.getElementById('totalPresentHeader');
             const tbody = document.getElementById('excelTbody');
 
             // Reset headers
@@ -1183,32 +1184,69 @@
             weekHeader.innerHTML = '';
             monthHeader.innerHTML = '';
             dateHeader.innerHTML = '';
+            totalPresentHeader.innerHTML = '';
             
             if (!data.students || data.students.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="100%" class="text-center text-muted py-4">មិនមានទិន្នន័យក្នុងថ្នាក់នេះទេ</td></tr>';
                 return;
             }
 
-            // 1. Subject Header
+            // 1. ក្បាលមុខវិជ្ជា (Subject Header)
             data.subjects.forEach(subj => {
                 subjHeader.innerHTML += `<th colspan="${subj.columns + 2}" class="col-separator text-center px-2 py-1" style="font-size: 12px; background: rgba(0,0,0,0.6) !important;">${subj.title}</th>`;
             });
-            subjHeader.innerHTML += `<th rowspan="4" class="align-middle bg-primary text-white">សរុបរួម</th><th rowspan="4" class="align-middle bg-success text-white">សរុប %</th>`;
+            subjHeader.innerHTML += `<th rowspan="5" class="align-middle bg-primary text-white">សរុបរួម</th><th rowspan="5" class="align-middle bg-success text-white">សរុប %</th>`;
 
-            // 2. Week/Month/Date Headers
+            // 2. ក្បាលសប្ដាហ៍ ខែ និងថ្ងៃ (Week/Month/Date Headers)
             let dateIndex = 0;
             data.subjects.forEach((subj, idx) => {
+                // 🌟 ការគណនាភាគរយនៃសប្ដាហ៍សរុប (១៥ សប្ដាហ៍) 🌟
+                let weeksTaught = subj.columns; 
+                let progressPercent = ((weeksTaught * 100) / 15).toFixed(2); // ឧទាហរណ៍: (9 * 100) / 15 = 60.00
+                
                 for (let i = 0; i < subj.columns; i++) {
                     let dt = data.dates[dateIndex];
-                    weekHeader.innerHTML += `<th>1</th>`;
+                    
+                    // បន្ថែមអក្សរតូច "15week=>" នៅលើជួរឈរទី១ នៃមុខវិជ្ជាទី១
+                    let weekText = (idx === 0 && i === 0) ? '<span class="text-warning" style="font-size:8pt; position:absolute; left:-40px;">15wk=></span> 1' : '1';
+                    
+                    weekHeader.innerHTML += `<th style="position:relative;">${weekText}</th>`;
                     monthHeader.innerHTML += `<th>${dt.m}</th>`;
                     dateHeader.innerHTML += `<th>${dt.d}</th>`;
                     dateIndex++;
                 }
-                weekHeader.innerHTML += `<th rowspan="3" class="align-middle text-warning" style="background: rgba(0,0,0,0.6) !important;">សរុប</th><th rowspan="3" class="align-middle col-separator text-success" style="background: rgba(0,0,0,0.6) !important;">%</th>`;
+                
+                // 🌟 បង្ហាញចំនួនសប្ដាហ៍ (ឧ. 9) និង ភាគរយ (ឧ. 60.00) ត្រង់កន្លែងដែលអ្នកគូសរង្វង់ 🌟
+                weekHeader.innerHTML += `
+                    <th rowspan="3" class="align-middle text-warning fw-bold" style="background: rgba(0,0,0,0.6) !important; font-size: 14pt;">
+                        ${weeksTaught}
+                    </th>
+                    <th rowspan="3" class="align-middle col-separator text-success fw-bold" style="background: rgba(0,0,0,0.6) !important; font-size: 14pt;">
+                        ${progressPercent}
+                    </th>`;
             });
 
-            // 3. Body
+            // 3. កន្លែងធីក ✓ : គណនាជួរ "ចំនួននិស្សិតសរុបដែលមករៀន"
+            let colTotals = new Array(data.dates.length).fill(0);
+            data.students.forEach(s => {
+                s.marks.forEach((m, i) => {
+                    if (m === '1' || m === '✓') colTotals[i] += 1;
+                });
+            });
+
+            totalPresentHeader.innerHTML = `<th colspan="4" class="text-end fw-bold pe-3" style="background: #e9ecef !important; color: #0f0659;">ចំនួននិស្សិតសរុបដែលមករៀន</th>`;
+            let markIndex2 = 0;
+            data.subjects.forEach((subj, subIdx) => {
+                for (let i = 0; i < subj.columns; i++) {
+                    let total = colTotals[markIndex2];
+                    let txtColor = total > 0 ? 'text-success' : 'text-danger';
+                    totalPresentHeader.innerHTML += `<th class="fw-bold ${txtColor}" style="background: #e9ecef !important;">${total}</th>`;
+                    markIndex2++;
+                }
+                totalPresentHeader.innerHTML += `<th style="background: #e9ecef !important;"></th><th class="col-separator" style="background: #e9ecef !important;"></th>`;
+            });
+
+            // 4. ទិន្នន័យសិស្សម្នាក់ៗ (Body)
             tbody.innerHTML = data.students.map((s, idx) => {
                 let row = `<tr>
                     <td class="text-dark">${idx + 1}</td>
