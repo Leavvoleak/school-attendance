@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Koulen&family=Siemreap&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Siemreap', sans-serif; 
+            font-size: 12pt; 
+            background: #f0f2f5; 
+            color: #333;
+        }
+        .status-green { color: #198754 !important; }
+        .status-orange { color: #fd7e14 !important; }
+        .status-red { color: #dc3545 !important; }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 270px;
+            background: linear-gradient(180deg, #0f0659 0%, #1a0f7a 100%);
+            padding: 20px 0;
+            color: white;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .sidebar-brand {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-brand h3 {
+            font-family: 'Koulen', sans-serif;
+            font-size: 18px;
+            margin: 0;
+        }
+        
+        .sidebar-brand small {
+            opacity: 0.6;
+            font-size: 11px;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 11pt;
+        }
+        
+        .sidebar-menu li:hover {
+            background: rgba(255,255,255,0.1);
+            border-left-color: #0755f9;
+        }
+        
+        .sidebar-menu li.active {
+            background: rgba(255,255,255,0.15);
+            border-left-color: #0755f9;
+        }
+        
+        .sidebar-menu li i {
+            font-size: 18px;
+            width: 24px;
+        }
+        
+        .main-content {
+            margin-left: 270px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .top-bar {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .page-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .glass-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 1px solid rgba(255,255,255,0.5);
+            margin-bottom: 20px;
+        }
+        
+        .qr-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .qr-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+            border: 1px solid #eee;
+        }
+        
+        .qr-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+        
+        .qr-item canvas, .qr-item img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .qr-top-text {
+            font-family: 'Koulen', sans-serif;
+            font-size: 14px;
+            color: #0f0659;
+            margin-bottom: 5px;
+        }
+        
+        .qr-bottom-text {
+            font-size: 11px;
+            color: #333;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+        
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #0f0659;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .stats-number {
+            font-size: 28pt;
+            font-weight: bold;
+            color: #0f0659;
+        }
+        
+        .badge-present { background: #28a745; color: white; }
+        .badge-absent { background: #dc3545; color: white; }
+        .badge-online { background: #17a2b8; color: white; }
+        
+        .report-table .progress {
+            height: 20px;
+            border-radius: 10px;
+        }
+        .report-table .progress-bar {
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        /* Excel-like Matrix Table Styles */
+        .attendance-matrix th {
+            background: #0f0659 !important;
+            color: white !important;
+            vertical-align: middle;
+            border: 1px solid rgba(255,255,255,0.2);
+            white-space: nowrap;
+        }
+        .attendance-matrix td {
+            vertical-align: middle;
+            border: 1px solid #dee2e6;
+            white-space: nowrap;
+        }
+        .col-separator { border-right: 2px solid #0dcaf0 !important; }
+        .present-val { color: #198754; font-weight: bold; }
+        .absent-val { color: #dc3545; font-weight: bold; }
+        .permission-val { color: #0dcaf0; font-weight: bold; }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .stats-number {
+                font-size: 20pt;
+            }
+        }
+
+        .sidebar-bottom-section { 
+            margin-bottom: 20px; 
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+        
+        .admin-profile-info {
+            margin-top: 15px; 
+            padding-top: 10px;
+        }
+        
+        .form-switch {
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Dashboard Loading Overlay -->
+    <div id="dashboard_loading_overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div class="spinner-border text-primary" style="width: 4rem; height: 4rem; border-width: 0.3em;" role="status"></div>
+        <h5 class="mt-3 text-primary fw-bold">កំពុងរៀបចំទិន្នន័យផ្ទាំងគ្រប់គ្រង...</h5>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h3><i class="bi bi-mortarboard-fill"></i> ប្រព័ន្ធវត្តមាន RTTC</h3>
+            <small>Attendance Management</small>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="active" data-page="dashboard" onclick="showPage('dashboard')">
+                <i class="bi bi-speedometer2"></i> ផ្ទាំងគ្រប់គ្រង
+            </li>
+            <li data-page="qrcode" onclick="showPage('qrcode')" id="menu-qrcode">
+                <i class="bi bi-qr-code"></i> បង្កើត QR Code
+            </li>
+            <li data-page="students" onclick="showPage('students')">
+                <i class="bi bi-people-fill"></i> បញ្ជីសិស្ស
+            </li>
+            <li data-page="reports" onclick="showPage('reports')">
+                <i class="bi bi-file-bar-graph"></i> របាយការណ៍
+            </li>
+            <li data-page="attendance-list" onclick="showPage('attendance-list')">
+                <i class="bi bi-calendar3"></i> បញ្ជីវត្តមាន
+            </li>
+            <li data-page="leave" onclick="showPage('leave')" id="menu-leave">
+                <i class="bi bi-envelope-paper"></i> សុំច្បាប់ 
+                <span class="badge bg-danger rounded-pill ms-2" id="leave_badge" style="display:none;">0</span>
+            </li>
+            <li data-page="sync" onclick="showPage('sync')">
+                <i class="bi bi-cloud-arrow-up"></i> បញ្ជូនវត្តមានទៅប្រព័ន្ធពិន្ទុ
+            </li>
+        </ul>
+        
+       <!-- Admin Scan Controls -->
+        <div class="px-3 py-3 mt-4" style="border-top: 1px solid rgba(255, 255, 255, 0.1);" id="scan-control-section">
+            <div class="text-white-50 small fw-bold mb-3">
+                <i class="fas fa-sliders-h me-1"></i> គ្រប់គ្រងការស្កេន
+            </div>
+                <input class="form-check-input" type="checkbox" id="adminScanOffline" onchange="toggleScanType('offline', this)" style="cursor: pointer;"/>
+                <label class="form-check-label text-white" for="adminScanOffline" style="font-size: 13px; cursor: pointer;">
+                    អនុញ្ញាត <b class="text-info">រៀនផ្ទាល់</b> (Campus)
+                </label></br>
+                <input class="form-check-input" type="checkbox" id="adminScanOnline" onchange="toggleScanType('online', this)" style="cursor: pointer;"/>
+                <label class="form-check-label text-white" for="adminScanOnline" style="font-size: 13px; cursor: pointer;">
+                    អនុញ្ញាត <b class="text-info">រៀនអនឡាញ</b> (Online)
+                </label>
+        </div>
+
+         <div class="px-3 py-3 mt-auto" style="border-top: 1px solid rgba(255, 255, 255, 0.1); background: rgba(0,0,0,0.1);">
+            <div><i class="bi bi-person-circle"></i> <span id="admin_name">User</span></div>
+            <small style="opacity:0.6;"><span id="admin_role_display"></span></small>
+            <button class="btn btn-danger btn-sm w-100 mt-2" onclick="confirmLogout()">
+                <i class="bi bi-box-arrow-right"></i> ចាកចេញ
+            </button>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <div>
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <i class="bi bi-list"></i>
+                </button>
+                <span id="page_title" style="font-weight:bold;">ផ្ទាំងគ្រប់គ្រង</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span id="current_time" style="font-size:12px; color:#666;"></span>
+            </div>
+        </div>
+        
+        <!-- Dashboard Page -->
+        <div id="page-dashboard" class="page-content active">
+            <div class="row g-3 mb-4" id="stats_container">
+                <div class="col-md-3 col-6">
+                    <div class="glass-card text-center">
+                        <div class="stats-number text-primary" id="total_students">0</div>
+                        <div class="text-muted small">សិស្សសរុប</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="glass-card text-center">
+                        <div class="stats-number text-success" id="present_today">0</div>
+                        <div class="text-muted small">ចូលរៀនថ្ងៃនេះ</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="glass-card text-center">
+                        <div class="stats-number text-warning" id="absent_today">0</div>
+                        <div class="text-muted small">អវត្តមានថ្ងៃនេះ</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="glass-card text-center">
+                        <div class="stats-number text-info" id="online_today">0</div>
+                        <div class="text-muted small">រៀនអនឡាញ</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-card">
+                <div class="d-flex gap-2 mb-3 flex-wrap">
+                    <select id="filter_class" class="form-select form-select-sm w-auto" onchange="renderAdminTable()">
+                        <option value="ALL">ទាំងអស់</option>
+                    </select>
+                    <input type="date" id="filter_date" class="form-control form-control-sm w-auto" onchange="renderAdminTable()">
+                    <input type="text" id="filter_search" class="form-control form-control-sm w-auto" placeholder="ស្វែងរក..." oninput="renderAdminTable()" style="min-width:150px;">
+                    <button class="btn btn-secondary btn-sm" onclick="resetFilters()"><i class="bi bi-eraser"></i></button>
+                    <button class="btn btn-success btn-sm" onclick="exportData()"><i class="bi bi-file-excel"></i> នាំចេញ</button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead style="background:#0f0659; color:white;">
+                            <tr>
+                                <th>#</th>
+                                <th>ថ្ងៃខែ</th>
+                                <th>ម៉ោង</th>
+                                <th>អត្តលេខ</th>
+                                <th>ឈ្មោះ</th>
+                                <th>ថ្នាក់</th>
+                                <th>ប្រភេទ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin_table_body">
+                            <tr><td colspan="7" class="text-center py-4">កំពុងផ្ទុក...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- QR Code Page -->
+        <div id="page-qrcode" class="page-content">
+            <div class="glass-card">
+                <h4><i class="bi bi-qr-code"></i> បង្កើត QR Code សម្រាប់សិស្ស</h4>
+                <p class="text-muted small">QR Code មានព័ត៌មាន: អត្តលេខ | Secret Word</p>
+                <div class="row g-3 mt-2">
+                    <div class="col-md-3">
+                        <label class="form-label">ថ្នាក់រៀន</label>
+                        <select id="qr_class" class="form-select" onchange="loadQRStudents()">
+                            <option value="">ជ្រើសរើសថ្នាក់...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">សិស្ស</label>
+                        <select id="qr_student" class="form-select" disabled>
+                            <option value="ALL">ទាំងអស់ (All)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button class="btn btn-primary w-100" onclick="generateQR()">
+                            <i class="bi bi-qr-code"></i> បង្កើត QR Code
+                        </button>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button class="btn btn-success w-100" onclick="printQR()">
+                            <i class="bi bi-printer"></i> បោះពុម្ព
+                        </button>
+                    </div>
+                </div>
+                <div id="qr_container" class="qr-container mt-3"></div>
+                <div id="qr_loading" class="text-center py-4" style="display:none;">
+                    <div class="spinner-border text-primary"></div>
+                    <div>កំពុងបង្កើត QR Code...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Student List Page -->
+        <div id="page-students" class="page-content">
+            <div class="glass-card">
+                <h4><i class="bi bi-people-fill"></i> បញ្ជីសិស្ស</h4>
+                <div class="row mb-4 align-items-end">
+                    <div class="col-md-3 mb-2 mb-md-0">
+                        <label class="form-label text-muted small fw-bold">ថ្នាក់រៀន</label>
+                        <select class="form-select" id="student_filter_class" onchange="applyStudentFilter()">
+                            <option value="all">ទាំងអស់ (All Classes)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2 mb-md-0">
+                        <label class="form-label text-muted small fw-bold">ឆ្នាំសិក្សា</label>
+                        <select class="form-select" id="student_filter_academic" onchange="applyStudentFilter()">
+                            <option value="all">ទាំងអស់ (All Years)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-2 mb-md-0">
+                        <label class="form-label text-muted small fw-bold">ស្វែងរកសិស្ស</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0 ps-0" id="student_search_input" placeholder="ស្វែងរក អត្តលេខ ឬ ឈ្មោះសិស្ស..." onkeyup="applyStudentFilter()">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-success w-100" onclick="exportStudentList()">
+                            <i class="fas fa-file-excel"></i> នាំចេញ
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive mt-3">
+                    <table class="table table-striped table-hover table-bordered align-middle">
+                        <thead style="background:#0f0659; color:white;">
+                            <tr>
+                                <th>#</th>
+                                <th>អត្តលេខ</th>
+                                <th>ឈ្មោះ</th>
+                                <th>ភេទ</th>
+                                <th>ថ្នាក់</th>
+                                <th>ក្រុម</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student_table_body">
+                            <tr><td colspan="6" class="text-center py-4">កំពុងផ្ទុក...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="student_pagination_container" class="mt-3"></div>
+            </div>
+        </div>
+        
+        <!-- Reports Page -->
+        <div id="page-reports" class="page-content">
+            <div class="glass-card">
+                <h4><i class="bi bi-file-bar-graph"></i> របាយការណ៍</h4>
+                <div class="row g-3 mt-2">
+                    <div class="col-md-3">
+                        <label class="form-label">ថ្នាក់រៀន</label>
+                        <select id="report_class" class="form-select">
+                            <option value="ALL">ទាំងអស់</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">ពីថ្ងៃ</label>
+                        <input type="date" id="report_from" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">ដល់ថ្ងៃ</label>
+                        <input type="date" id="report_to" class="form-control">
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button class="btn btn-primary w-100" onclick="generateReport()">
+                            <i class="bi bi-file-earmark-bar-graph"></i> បង្កើតរបាយការណ៍
+                        </button>
+                    </div>
+                </div>
+                <div id="report_container" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- NEW: Attendance List Page (Excel-like Matrix View) -->
+        <div id="page-attendance-list" class="page-content">
+            <div class="glass-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0"><i class="bi bi-calendar-check"></i> បញ្ជីសម្រង់វត្តមានប្រចាំឆមាស</h4>
+                    <button class="btn btn-success btn-sm" onclick="exportAttendanceMatrix()"><i class="bi bi-file-excel"></i> នាំចេញ (Export)</button>
+                </div>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small">ថ្នាក់រៀន (Class)</label>
+                        <select class="form-select form-select-sm" id="att_matrix_class" onchange="loadComplexAttendance()">
+                            <option value="ALL">ជ្រើសរើស...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive" style="max-height: 600px; overflow: auto; border-radius: 8px; border: 1px solid #dee2e6;">
+                    <table class="table attendance-matrix table-hover align-middle text-center mb-0" id="excelTable" style="min-width: 1500px; font-size: 13px;">
+                        <thead class="table-dark" style="position: sticky; top: 0; z-index: 10;">
+                            <tr id="subjectHeader">
+                                <th rowspan="4" class="align-middle" style="width: 50px;">ល.រ</th>
+                                <th rowspan="4" class="align-middle" style="width: 80px;">អត្តលេខ</th>
+                                <th rowspan="4" class="align-middle text-start" style="width: 150px;">ឈ្មោះនិស្សិត</th>
+                                <th rowspan="4" class="align-middle" style="width: 60px;">ភេទ</th>
+                            </tr>
+                            <tr id="weekHeader" class="bg-secondary bg-opacity-25 text-info text-opacity-75"></tr>
+                            <tr id="monthHeader" class="bg-secondary bg-opacity-50"></tr>
+                            <tr id="dateHeader" class="text-warning"></tr>
+                        </thead>
+                        <tbody id="excelTbody">
+                            <tr><td colspan="100%" class="text-center text-muted py-4">សូមជ្រើសរើសថ្នាក់ដើម្បីទាញយកទិន្នន័យ</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leave Requests Page -->
+        <div id="page-leave" class="page-content">
+            <div class="glass-card">
+                <h4><i class="bi bi-envelope-paper"></i> ការស្នើសុំច្បាប់</h4>
+                <div class="table-responsive mt-3">
+                    <table class="table table-striped">
+                        <thead style="background:#0f0659; color:white;">
+                            <tr>
+                                <th>សិស្ស (Student)</th>
+                                <th>ថ្នាក់ (Class)</th>
+                                <th>ថ្ងៃសុំ (Date)</th>
+                                <th>មូលហេតុ (Reason)</th>
+                                <th>ឯកសារ (Doc)</th>
+                                <th>ស្ថានភាព (Status)</th>
+                                <th>សកម្មភាព (Action)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leave_table_body">
+                            <tr><td colspan="7" class="text-center py-4">កំពុងផ្ទុក...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sync System Menu Page -->
+        <div id="page-sync" class="page-content">
+            <div class="glass-card text-center py-5">
+                <i class="bi bi-tools display-1 text-muted"></i>
+                <h4 class="mt-3">មុខងារកំពុងអភិវឌ្ឍ</h4>
+                <p class="text-muted">មុខងារបញ្ជូនវត្តមានទៅប្រព័ន្ធគ្រប់គ្រងពិន្ទុ នឹងមានក្នុងពេលឆាប់ៗនេះ។</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Viewer Popup Overlay -->
+    <div id="doc_popup_overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div style="background: white; width: 95%; max-width: 900px; height: 85vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="padding: 15px 20px; background: #0f0659; color: white; display: flex; justify-content: space-between; align-items: center;">
+                <h5 style="margin: 0; font-family: 'Siemreap', sans-serif;"><i class="bi bi-file-earmark-text"></i> ឯកសារភ្ជាប់សុំច្បាប់</h5>
+                <button onclick="closeDocPopup()" style="background: none; border: none; color: white; font-size: 28px; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+            <div style="flex: 1; padding: 10px; background: #f0f2f5;">
+                <iframe id="doc_popup_iframe" src="" style="width: 100%; height: 100%; border: none; border-radius: 8px;"></iframe>
+            </div>
+        </div>
+    </div>
+    
+<script>
+        // 🌟 ដាក់ Link Web App ថ្មីរបស់អ្នកនៅទីនេះ
+        const BASE_URL = "https://script.google.com/macros/s/AKfycbzsrivSdBSb4s3zDaBhEZL-3R8g8ZJrnXGNweJQh8YGIAOyGohJAPzfOWoONj0LZhkg/exec";
+        
+        var sessionUser = null;
+        var globalAdminLogs = [];
+        var allStudents = [];
+        var QR_TOP_TEXT = 'BA+1';
+        
+        var totalStudentsFromServer = 0; 
+        var currentQRStudents = [];      
+        var globalStudents = [];         
+        
+        async function callAPI(action, data = {}) {
+            data.action = action;
+            try {
+                const response = await fetch(BASE_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    redirect: 'follow'
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                return { error: 'បញ្ហាភ្ជាប់អ៊ីនធឺណិត' };
+            }
+        }
+        
+        window.onload = function() {
+            var savedSession = localStorage.getItem('sessionUser');
+            if (!savedSession) {
+                window.location.href = 'Index.html';
+                return;
+            }
+            
+            sessionUser = JSON.parse(savedSession);
+            
+            if (sessionUser.role === 'Student') {
+                window.location.href = 'StudentIndex.html';
+                return;
+            }
+            
+            if(document.getElementById('adminNameDisplay')) {
+                document.getElementById('adminNameDisplay').textContent = sessionUser.name;
+            }
+
+            if (sessionUser.role === 'Teacher') {
+                var menuQrCode = document.getElementById('menu-qrcode');
+                var menuLeave = document.getElementById('menu-leave');
+                var scanControl = document.getElementById('scan-control-section');
+                
+                if (menuQrCode) menuQrCode.style.display = 'none';
+                if (menuLeave) menuLeave.style.display = 'none';
+                if (scanControl) scanControl.style.display = 'none';
+                
+                var roleLabel = document.getElementById('adminRoleDisplay');
+                if (roleLabel) roleLabel.textContent = 'គ្រូបង្រៀន';
+            } else {
+                loadScanSettings(); 
+            }
+            initApp();
+            updateClock();
+            setInterval(updateClock, 1000);
+        };
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+        
+        function updateClock() {
+            var now = new Date();
+            document.getElementById('current_time').innerHTML = 
+                now.toLocaleDateString('km-KH') + ' ' + now.toLocaleTimeString('km-KH');
+        }
+        
+        function initApp() {
+            document.getElementById('admin_name').innerText = sessionUser.name;
+            document.getElementById('admin_role_display').innerText = 
+                sessionUser.role === 'Admin' ? 'អេដមីន' : 'គ្រូបង្រៀន';
+            loadAdminData();
+            loadClassLists();
+        }
+        
+        function logout() {
+            localStorage.removeItem('sessionUser');
+            window.location.href = 'Index.html';
+        }
+        
+        function showPage(page) {
+            document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar-menu li').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('page-' + page).classList.add('active');
+            var navItem = document.querySelector('[data-page="' + page + '"]');
+            if(navItem) navItem.classList.add('active');
+            
+            var titles = {
+                'dashboard': 'ផ្ទាំងគ្រប់គ្រង',
+                'qrcode': 'បង្កើត QR Code',
+                'students': 'បញ្ជីសិស្ស',
+                'reports': 'របាយការណ៍',
+                'attendance-list': 'បញ្ជីវត្តមាន'
+            };
+            document.getElementById('page_title').innerText = titles[page] || page;
+            
+            if (page === 'students') loadStudentList();
+            if (page === 'qrcode') loadClassLists();
+            if (page === 'reports') loadClassLists();
+            if (page === 'attendance-list') loadComplexAttendance();
+            if (page === 'leave') loadLeaveRequests();
+            document.getElementById('sidebar').classList.remove('open');
+        }
+        
+        // ------------------ (DASHBOARD FUNCTIONS) ------------------
+        async function loadAdminData() {
+            var overlay = document.getElementById('dashboard_loading_overlay');
+            if (overlay) overlay.style.display = 'flex';
+            
+            try {
+                const data = await callAPI('getAdminDashboardData', { role: sessionUser.role, userId: sessionUser.id });
+                
+                if (data && data.success) {
+                    globalAdminLogs = data.logs;
+                    totalStudentsFromServer = data.totalStudents || 0;
+                    
+                    updateStats();
+                    renderAdminTable();
+                    populateFilters();
+                } else if (data && data.error) {
+                    console.error('Error loading admin data:', data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                setTimeout(() => {
+                    if (overlay) overlay.style.display = 'none';
+                }, 300);
+            }
+        }
+        
+        function updateStats() {
+            var today = new Date().toISOString().split('T')[0];
+            var todayLogs = globalAdminLogs.filter(function(log) {
+                try {
+                    return new Date(log.date).toISOString().split('T')[0] === today;
+                } catch(e) { return false; }
+            });
+            
+            var present = todayLogs.filter(function(l) { return l.type.includes('រៀនក្នុងថ្នាក់'); }).length;
+            var online = todayLogs.filter(function(l) { return l.type.includes('អនឡាញ'); }).length;
+            var total = totalStudentsFromServer;
+            
+            document.getElementById('total_students').innerText = total;
+            document.getElementById('present_today').innerText = present;
+            document.getElementById('online_today').innerText = online;
+            document.getElementById('absent_today').innerText = Math.max(0, total - present - online);
+        }
+        
+        function renderAdminTable() {
+            var filterClass = document.getElementById('filter_class').value;
+            var filterDate = document.getElementById('filter_date').value;
+            var searchTerm = document.getElementById('filter_search').value.toLowerCase();
+            
+            var filtered = globalAdminLogs.filter(function(log) {
+                var logDate = "";
+                try { logDate = new Date(log.date).toISOString().split('T')[0]; } catch(e) {}
+                
+                var classMatch = filterClass === 'ALL' || log.className === filterClass;
+                var dateMatch = filterDate === '' || logDate === filterDate;
+                var searchMatch = searchTerm === '' || 
+                    log.name.toLowerCase().includes(searchTerm) || 
+                    log.studentId.toLowerCase().includes(searchTerm);
+                    
+                return classMatch && dateMatch && searchMatch;
+            });
+            
+            var tbody = document.getElementById('admin_table_body');
+            if(!tbody) return;
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">មិនមានទិន្នន័យ</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filtered.slice(0, 100).map(function(log, i) {
+                var typeBadge = log.type.includes('ក្នុងថ្នាក់') ? '<span class="badge badge-present">ក្នុងថ្នាក់</span>' : '<span class="badge badge-online">អនឡាញ</span>';
+                return '<tr>' +
+                    '<td>' + (i + 1) + '</td>' +
+                    '<td>' + (log.date || 'N/A') + '</td>' +
+                    '<td class="text-success fw-bold">' + (log.time || 'N/A') + '</td>' +
+                    '<td><code>' + log.studentId + '</code></td>' +
+                    '<td>' + log.name + '</td>' +
+                    '<td><span class="badge bg-secondary">' + (log.className || 'N/A') + '</span></td>' +
+                    '<td>' + typeBadge + '</td>' +
+                '</tr>';
+            }).join('');
+        }
+        
+        function populateFilters() {
+            var classes = [...new Set(globalAdminLogs.map(function(l) { return l.className; }).filter(Boolean))];
+            var select = document.getElementById('filter_class');
+            if(!select) return;
+            
+            classes.forEach(function(c) {
+                if(!select.querySelector(`option[value="${c}"]`)) {
+                    select.innerHTML += '<option value="' + c + '">' + c + '</option>';
+                }
+            });
+        }
+        
+        function resetFilters() {
+            document.getElementById('filter_class').value = 'ALL';
+            document.getElementById('filter_date').value = '';
+            document.getElementById('filter_search').value = '';
+            renderAdminTable();
+        }
+        
+        async function exportData() {
+            const data = await callAPI('exportAttendanceData', { logs: globalAdminLogs });
+            if (data && data.success && data.url) {
+                window.open(data.url, '_blank');
+            } else {
+                alert("បរាជ័យក្នុងការនាំចេញទិន្នន័យ");
+            }
+        }
+        
+        // ------------------ (QR CODE FUNCTIONS) ------------------
+        async function loadQRStudents() {
+            var className = document.getElementById('qr_class').value;
+            var studentSelect = document.getElementById('qr_student');
+            
+            studentSelect.innerHTML = '<option value="ALL">-- ទាំងអស់ --</option>';
+            if (!className) {
+                studentSelect.disabled = true;
+                return;
+            }
+            
+            studentSelect.disabled = true;
+            studentSelect.innerHTML = '<option value="ALL">កំពុងផ្ទុក...</option>';
+            
+            try {
+                const data = await callAPI('getStudentsByClass', { className: className });
+                if (data && data.success) {
+                    currentQRStudents = data.students;
+                    studentSelect.innerHTML = '<option value="ALL">-- ទាំងអស់ --</option>';
+                    data.students.forEach(function(s) {
+                        studentSelect.innerHTML += '<option value="' + s.id + '">' + s.id + ' - ' + s.name + '</option>';
+                    });
+                    studentSelect.disabled = false;
+                } else {
+                    studentSelect.innerHTML = '<option value="ALL">បរាជ័យក្នុងការទាញយក</option>';
+                }
+            } catch (error) {
+                studentSelect.innerHTML = '<option value="ALL">កំហុសបណ្តាញ</option>';
+            }
+        }
+        
+        function generateQR() {
+            var className = document.getElementById('qr_class').value;
+            var studentId = document.getElementById('qr_student').value;
+            
+            if (!className) { alert('សូមជ្រើសរើសថ្នាក់រៀនជាមុនសិន!'); return; }
+            
+            var studentsToRender = currentQRStudents;
+            if (studentId !== 'ALL') {
+                studentsToRender = currentQRStudents.filter(function(s) { return s.id === studentId; });
+            }
+            if (studentsToRender.length === 0) { alert('មិនមានទិន្នន័យសិស្ស'); return; }
+
+            document.getElementById('qr_loading').style.display = 'block';
+            document.getElementById('qr_container').innerHTML = '';
+            
+            setTimeout(function() {
+                renderQRCodes(studentsToRender);
+                document.getElementById('qr_loading').style.display = 'none';
+            }, 100);
+        }
+        
+        function renderQRCodes(students) {
+            var container = document.getElementById('qr_container');
+            if(!container) return;
+            container.innerHTML = '';
+            
+            students.forEach(function(student) {
+                var div = document.createElement('div');
+                div.className = 'qr-item';
+                
+                var qrData = student.id + '|' + student.secretWord;
+                var topText = document.createElement('div');
+                topText.className = 'qr-top-text';
+                topText.textContent = QR_TOP_TEXT;
+                
+                var qrDiv = document.createElement('div');
+                qrDiv.id = 'qr_' + student.id;
+                
+                var bottomText = document.createElement('div');
+                bottomText.className = 'qr-bottom-text';
+                bottomText.textContent = student.name;
+                
+                div.appendChild(topText);
+                div.appendChild(qrDiv);
+                div.appendChild(bottomText);
+                container.appendChild(div);
+                
+                new QRCode(document.getElementById('qr_' + student.id), {
+                    text: qrData, width: 150, height: 150, colorDark: '#0f0659', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H
+                });
+            });
+        }
+        
+        function printQR() {
+            var container = document.getElementById('qr_container');
+            if (!container || container.children.length === 0) { alert('សូមបង្កើត QR Code ជាមុន'); return; }
+            
+            var printWindow = window.open('', '_blank');
+            printWindow.document.write('<html><head><title>QR Codes</title><style>body { font-family: "Siemreap", sans-serif; padding: 20px; } .qr-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; } .qr-item { text-align: center; border: 1px solid #ddd; padding: 10px; border-radius: 8px; } .qr-top { font-weight: bold; font-size: 14px; color: #0f0659; } .qr-bottom { font-size: 12px; margin-top: 5px; } @media print { .qr-grid { grid-template-columns: repeat(4, 1fr); } }</style></head><body><h3 style="text-align:center;">QR Code សម្រាប់សិស្ស</h3><div class="qr-grid">');
+            
+            container.querySelectorAll('.qr-item').forEach(function(item) {
+                var canvas = item.querySelector('canvas');
+                var imgData = canvas ? canvas.toDataURL("image/png") : "";
+                var topText = item.querySelector('.qr-top-text').textContent;
+                var bottomText = item.querySelector('.qr-bottom-text').textContent;
+                printWindow.document.write(
+                    '<div class="qr-item"><div class="qr-top">' + topText + '</div>' +
+                    (imgData ? '<img src="' + imgData + '" style="max-width:150px; height:auto;">' : '') +
+                    '<div class="qr-bottom">' + bottomText + '</div></div>'
+                );
+            });
+            
+            printWindow.document.write('</div></body></html>');
+            printWindow.document.close();
+            setTimeout(function() { printWindow.print(); }, 500);
+        }
+        
+        // ------------------ (STUDENT LIST FUNCTIONS) ------------------
+        var currentPage = 1;
+        var rowsPerPage = 20; 
+        var currentFilteredStudents = []; 
+        
+        async function loadStudentList() {
+            var tbody = document.getElementById('student_table_body');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><div class="spinner-border text-primary"></div><div class="mt-2">កំពុងផ្ទុកទិន្នន័យសិស្ស...</div></td></tr>';
+            
+            const data = await callAPI('getStudentList');
+            
+            if (data && data.success) {
+                globalStudents = data.students || [];
+                
+                var classSelect = document.getElementById('student_filter_class');
+                if (classSelect && data.classes) {
+                    classSelect.innerHTML = '<option value="all">ទាំងអស់ (All Classes)</option>';
+                    data.classes.forEach(function(c) { classSelect.innerHTML += '<option value="' + c + '">' + c + '</option>'; });
+                }
+                
+                var acaSelect = document.getElementById('student_filter_academic');
+                if (acaSelect && data.academicYears) {
+                    acaSelect.innerHTML = '<option value="all">ទាំងអស់ (All Years)</option>';
+                    data.academicYears.forEach(function(a) { acaSelect.innerHTML += '<option value="' + a.id + '">' + a.year + '</option>'; });
+                }
+                
+                applyStudentFilter();
+            } else {
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">បរាជ័យក្នុងការទាញយកទិន្នន័យ</td></tr>';
+            }
+        }
+
+        function applyStudentFilter() {
+            var classSelect = document.getElementById('student_filter_class');
+            var acaSelect = document.getElementById('student_filter_academic');
+            var searchInput = document.getElementById('student_search_input');
+            
+            var classVal = classSelect ? classSelect.value : 'all';
+            var acaVal = acaSelect ? acaSelect.value : 'all';
+            var searchVal = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+            currentFilteredStudents = globalStudents.filter(function(student) {
+                var sClass = String(student.className).trim();
+                var sAca = String(student.academicId).replace('.0', '').trim();
+                var selectedAca = String(acaVal).replace('.0', '').trim();
+
+                var matchClass = (classVal === 'all' || sClass === classVal);
+                var matchAca = (acaVal === 'all' || sAca === selectedAca);
+                var matchSearch = true;
+                
+                if (searchVal !== '') {
+                    matchSearch = String(student.id).toLowerCase().includes(searchVal) || 
+                                  String(student.name).toLowerCase().includes(searchVal);
+                }
+                
+                return matchClass && matchAca && matchSearch;
+            });
+
+            currentPage = 1; 
+            renderStudentTable(); 
+        }
+
+        function renderStudentTable() {
+            var tbody = document.getElementById('student_table_body');
+            if (!tbody) return; 
+
+            if (!currentFilteredStudents || currentFilteredStudents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">មិនមានសិស្សនៅក្នុងជម្រើសនេះទេ</td></tr>';
+                renderPagination(); 
+                return;
+            }
+
+            var startIndex = (currentPage - 1) * rowsPerPage;
+            var endIndex = startIndex + rowsPerPage;
+            var paginatedStudents = currentFilteredStudents.slice(startIndex, endIndex);
+
+            tbody.innerHTML = paginatedStudents.map(function(s, index) {
+                var actualIndex = startIndex + index + 1;
+                return `<tr>
+                    <td>${actualIndex}</td>
+                    <td class="text-primary fw-bold">${s.id}</td>
+                    <td>${s.name}</td>
+                    <td>${s.gender || '-'}</td>
+                    <td><span class="badge bg-secondary">${s.className}</span></td>
+                    <td>${s.group || '-'}</td>
+                </tr>`;
+            }).join('');
+            
+            renderPagination();
+        }
+
+        function renderPagination() {
+            var paginationContainer = document.getElementById('student_pagination_container');
+            if (!paginationContainer) return;
+            
+            var totalItems = currentFilteredStudents.length;
+            var totalPages = Math.ceil(totalItems / rowsPerPage);
+            
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
+            }
+            
+            var startItem = ((currentPage - 1) * rowsPerPage) + 1;
+            var endItem = Math.min(currentPage * rowsPerPage, totalItems);
+            
+            var html = `<div class="d-flex flex-column flex-md-row justify-content-between align-items-center">`;
+            html += `<div class="text-muted small mb-2 mb-md-0">
+                        បង្ហាញ <strong>${startItem}</strong> ដល់ <strong>${endItem}</strong> នៃសិស្សសរុប <strong>${totalItems}</strong> នាក់
+                     </div>`;
+            html += `<nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm mb-0">`;
+            
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})" aria-label="Previous">
+                            <span aria-hidden="true">&laquo; ថយក្រោយ</span>
+                        </a>
+                    </li>`;
+            
+            var startPage = Math.max(1, currentPage - 2);
+            var endPage = Math.min(totalPages, currentPage + 2);
+            
+            for (var i = startPage; i <= endPage; i++) {
+                html += `<li class="page-item ${currentPage === i ? 'active' : ''}">
+                            <a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a>
+                        </li>`;
+            }
+            
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})" aria-label="Next">
+                            <span aria-hidden="true">បន្ទាប់ &raquo;</span>
+                        </a>
+                    </li>`;
+            
+            html += `   </ul>
+                      </nav>
+                    </div>`;
+                    
+            paginationContainer.innerHTML = html;
+        }
+
+        function changePage(page) {
+            var totalPages = Math.ceil(currentFilteredStudents.length / rowsPerPage);
+            if(page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderStudentTable();
+        }
+        
+        async function exportStudentList() {
+            if (currentFilteredStudents.length === 0) { alert('មិនមានទិន្នន័យសិស្ស'); return; }
+            const data = await callAPI('exportStudentList', { students: currentFilteredStudents });
+            if (data && data.success && data.url) {
+                window.open(data.url, '_blank');
+            } else {
+                alert('បរាជ័យក្នុងការនាំចេញទិន្នន័យ');
+            }
+        }
+
+        // ------------------ (REPORT FUNCTIONS) ------------------
+        async function generateReport() {
+            var className = document.getElementById('report_class').value;
+            var fromDate = document.getElementById('report_from').value;
+            var toDate = document.getElementById('report_to').value;
+            
+            if (!fromDate || !toDate) { alert('សូមជ្រើសរើសកាលបរិច្ឆេទ'); return; }
+            
+            var container = document.getElementById('report_container');
+            if (container) container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div><p>កំពុងទាញយកទិន្នន័យរបាយការណ៍...</p></div>';
+            
+            const data = await callAPI('generateAttendanceReport', { className: className, fromDate: fromDate, toDate: toDate });
+            if (data && data.success) {
+                displayReport(data.report, className, fromDate, toDate);
+            } else {
+                alert(data.error || 'មិនអាចបង្កើតរបាយការណ៍បានទេ');
+                if (container) container.innerHTML = '';
+            }
+        }
+        
+        function displayReport(report, className, fromDate, toDate) {
+            var container = document.getElementById('report_container');
+            if (!container) return;
+            
+            if (report.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">មិនមានទិន្នន័យក្នុងរយៈពេលនេះទេ</div>';
+                return;
+            }
+            
+            container.innerHTML = `<div class="card">
+                <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-file-bar-graph"></i> របាយការណ៍ចូលរៀន</h5>
+                <small>ថ្នាក់: ${className === 'ALL' ? 'ទាំងអស់' : className} | ពី: ${fromDate} ដល់: ${toDate}</small>
+                </div>
+                <div class="card-body report-table">
+                <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered align-middle">
+                <thead><tr><th>អត្តលេខ</th><th>ឈ្មោះ</th><th>ចំនួនថ្ងៃ</th><th>មានវត្តមាន</th><th>អវត្តមាន</th><th>ភាគរយ</th></tr></thead>
+                <tbody>` +
+                report.map(function(r) {
+                    var color = r.percentage >= 80 ? 'success' : r.percentage >= 50 ? 'warning' : 'danger';
+                    return `<tr><td><code>${r.id}</code></td><td>${r.name}</td><td>${r.total}</td><td class="text-success">${r.present}</td><td class="text-danger">${r.absent}</td>
+                        <td><div class="progress"><div class="progress-bar bg-${color}" style="width: ${r.percentage}%">${r.percentage}%</div></div></td></tr>`;
+                }).join('') +
+                `</tbody></table></div>
+                <button class="btn btn-success mt-3" onclick="alert('Export function')"><i class="bi bi-file-excel"></i> នាំចេញ</button>
+                </div></div>`;
+        }
+
+        // ------------------ (COMPLEX ATTENDANCE MATRIX) ------------------
+        async function loadClassLists() {
+            const data = await callAPI('getClassList');
+            if (data && data.success) {
+                ['qr_class', 'student_filter_class', 'report_class', 'att_matrix_class'].forEach(function(id) {
+                    var select = document.getElementById(id);
+                    if (select) {
+                        var firstOpt = select.options.length > 0 ? select.options[0].outerHTML : '<option value="">ជ្រើសរើស...</option>';
+                        select.innerHTML = firstOpt;
+                        data.classes.forEach(function(c) {
+                            select.innerHTML += '<option value="' + c + '">' + c + '</option>';
+                        });
+                    }
+                });
+            }
+        }
+
+        async function loadComplexAttendance() {
+            var className = document.getElementById('att_matrix_class').value;
+            var tbody = document.getElementById('excelTbody');
+            
+            if(!className || className === "ALL") {
+                tbody.innerHTML = '<tr><td colspan="100%" class="text-center text-muted py-4">សូមជ្រើសរើសថ្នាក់ដើម្បីទាញយកទិន្នន័យ</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = `<tr><td colspan="100%" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <div class="mt-3 text-dark fw-bold">កំពុងទាញយកទិន្នន័យ... សូមរង់ចាំ</div>
+            </td></tr>`;
+            
+            try {
+                const response = await callAPI('getComplexAttendanceMatrix', { className: className });
+                if (response && response.success) {
+                    renderExcelTable(response);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="100%" class="text-center text-danger py-4">បរាជ័យ៖ ${response.error || 'Unknown Error'}</td></tr>`;
+                }
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="100%" class="text-center text-danger py-4">បញ្ហាបណ្តាញទាក់ទង។ សូមសាកល្បងម្តងទៀត។</td></tr>';
+            }
+        }
+
+        function renderExcelTable(data) {
+            const subjHeader = document.getElementById('subjectHeader');
+            const weekHeader = document.getElementById('weekHeader');
+            const monthHeader = document.getElementById('monthHeader');
+            const dateHeader = document.getElementById('dateHeader');
+            const tbody = document.getElementById('excelTbody');
+
+            // Reset headers
+            while (subjHeader.children.length > 4) subjHeader.removeChild(subjHeader.lastChild);
+            weekHeader.innerHTML = '';
+            monthHeader.innerHTML = '';
+            dateHeader.innerHTML = '';
+            
+            if (!data.students || data.students.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="100%" class="text-center text-muted py-4">មិនមានទិន្នន័យក្នុងថ្នាក់នេះទេ</td></tr>';
+                return;
+            }
+
+            // 1. Subject Header
+            data.subjects.forEach(subj => {
+                subjHeader.innerHTML += `<th colspan="${subj.columns + 2}" class="col-separator text-center px-2 py-1" style="font-size: 12px; background: rgba(0,0,0,0.6) !important;">${subj.title}</th>`;
+            });
+            subjHeader.innerHTML += `<th rowspan="4" class="align-middle bg-primary text-white">សរុបរួម</th><th rowspan="4" class="align-middle bg-success text-white">សរុប %</th>`;
+
+            // 2. Week/Month/Date Headers
+            let dateIndex = 0;
+            data.subjects.forEach((subj, idx) => {
+                for (let i = 0; i < subj.columns; i++) {
+                    let dt = data.dates[dateIndex];
+                    weekHeader.innerHTML += `<th>1</th>`;
+                    monthHeader.innerHTML += `<th>${dt.m}</th>`;
+                    dateHeader.innerHTML += `<th>${dt.d}</th>`;
+                    dateIndex++;
+                }
+                weekHeader.innerHTML += `<th rowspan="3" class="align-middle text-warning" style="background: rgba(0,0,0,0.6) !important;">សរុប</th><th rowspan="3" class="align-middle col-separator text-success" style="background: rgba(0,0,0,0.6) !important;">%</th>`;
+            });
+
+            // 3. Body
+            tbody.innerHTML = data.students.map((s, idx) => {
+                let row = `<tr>
+                    <td class="text-dark">${idx + 1}</td>
+                    <td class="text-dark"><code>${s.id}</code></td>
+                    <td class="text-start text-dark fw-bold">${s.name}</td>
+                    <td class="text-dark">${s.gender}</td>`;
+                    
+                let markIndex = 0;
+                let totalAll = 0;
+
+                data.subjects.forEach((subj, subIdx) => {
+                    for (let i = 0; i < subj.columns; i++) {
+                        let mark = s.marks[markIndex] || '';
+                        let colorClass = "text-dark";
+                        if (mark === '1') colorClass = "present-val";
+                        else if (mark === '0') colorClass = "absent-val";
+                        else if (mark === 'P' || mark === 'ច') colorClass = "permission-val";
+                        
+                        row += `<td class="${colorClass}">${mark}</td>`;
+                        markIndex++;
+                    }
+                    totalAll += s.totals[subIdx];
+                    row += `<td class="fw-bold text-dark" style="background: rgba(0,0,0,0.02);">${s.totals[subIdx]}</td><td class="col-separator fw-bold text-warning" style="background: rgba(0,0,0,0.02);">${s.percentages[subIdx]}%</td>`;
+                });
+
+                let avgPercent = (s.percentages.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / data.subjects.length).toFixed(2);
+                if (avgPercent.endsWith('.00')) avgPercent = parseInt(avgPercent);
+                
+                row += `<td class="fw-bold text-primary" style="background: rgba(0,0,0,0.05);">${totalAll}</td><td class="fw-bold text-success" style="background: rgba(0,0,0,0.05);">${avgPercent}%</td></tr>`;
+                
+                return row;
+            }).join('');
+        }
+
+        async function exportAttendanceMatrix() {
+            var className = document.getElementById('att_matrix_class').value;
+            // អាចសរសេរភ្ជាប់មុខងារ export ទម្រង់ Excel ចេញពី Code.gs ដូចដែលធ្លាប់បានធ្វើ
+            Swal.fire('ផ្តល់ដំណឹង', 'មុខងារ Export ទម្រង់ Excel ថ្មីនេះកំពុងរៀបចំ', 'info');
+        }
+
+        // ------------------ (ADMIN SCAN TOGGLES) ------------------
+        async function loadScanSettings() {
+            const settings = await callAPI('getScanSettings');
+            if (settings) {
+                var tOffline = document.getElementById('adminScanOffline');
+                var tOnline = document.getElementById('adminScanOnline');
+                if (tOffline) tOffline.checked = settings.offline;
+                if (tOnline) tOnline.checked = settings.online;
+            }
+        }
+
+        async function toggleScanType(type, cb) {
+            var isEnabled = cb.checked;
+            cb.disabled = true; 
+            
+            try {
+                const res = await callAPI('setScanSetting', { type: type, isEnabled: isEnabled });
+                cb.disabled = false;
+                
+                if (res && res.success) {
+                    Swal.fire({
+                        icon: 'success', title: 'ជោគជ័យ', text: 'ការកំណត់ត្រូវបានកែប្រែ!',
+                        timer: 1500, showConfirmButton: false
+                    });
+                } else {
+                    cb.checked = !isEnabled;
+                    Swal.fire('កំហុស', res.error || 'មិនអាចកែប្រែបានទេ', 'error');
+                }
+            } catch (err) {
+                cb.disabled = false; 
+                cb.checked = !isEnabled;
+                Swal.fire('កំហុស', 'មានបញ្ហាបណ្តាញ មិនអាចកែប្រែបានទេ', 'error');
+            }
+        }
+
+        // ------------------ (LEAVE REQUESTS FUNCTIONS) ------------------
+        async function loadLeaveRequests() {
+            var tbody = document.getElementById('leave_table_body');
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem; border-width: 0.25em;" role="status"></div>
+                            <div class="mt-3 text-dark fs-6">កំពុងផ្ទុកទិន្នន័យសុំច្បាប់...</div>
+                        </td>
+                    </tr>`;
+            }
+            
+            try {
+                const data = await callAPI('getAdminLeaveRequests');
+                if (data && data.success) {
+                    renderLeaveTable(data.requests);
+                } else {
+                    if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4">${data.error || 'បរាជ័យក្នុងការទាញយកទិន្នន័យ'}</td></tr>`;
+                }
+            } catch (error) {
+                if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-4">បញ្ហាភ្ជាប់អ៊ីនធឺណិត</td></tr>';
+            }
+        }
+
+        function renderLeaveTable(requests) {
+            var tbody = document.getElementById('leave_table_body');
+            if (!tbody) return;
+            
+            if (!requests || requests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">មិនមានសំណើសុំច្បាប់ទេ</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = requests.map(function(r) {
+                var statusBadge = '';
+                if (r.status === 'Pending' || r.status === '') statusBadge = '<span class="badge bg-warning text-dark">រង់ចាំ (Pending)</span>';
+                else if (r.status === 'Approved') statusBadge = '<span class="badge bg-success">អនុម័ត (Approved)</span>';
+                else if (r.status === 'Rejected') statusBadge = '<span class="badge bg-danger">បដិសេធ (Rejected)</span>';
+                else statusBadge = `<span class="badge bg-secondary">${r.status}</span>`;
+                
+                var docLink = (r.docUrl && r.docUrl !== 'null' && r.docUrl !== '') 
+                    ? `<button onclick="viewDocument('${r.docUrl}')" class="btn btn-sm btn-outline-info"><i class="bi bi-file-earmark-text"></i> មើលឯកសារ</button>` 
+                    : '<span class="text-muted">-</span>';
+                
+                var actionButtons = '';
+                if (r.status === 'Pending' || r.status === '') {
+                    actionButtons = `
+                        <button class="btn btn-sm btn-success me-1 mb-1" onclick="processLeave(${r.row}, 'Approved', '${r.studentId}', '${r.leaveDate}')"><i class="bi bi-check-circle"></i></button>
+                        <button class="btn btn-sm btn-danger mb-1" onclick="processLeave(${r.row}, 'Rejected', '${r.studentId}', '${r.leaveDate}')"><i class="bi bi-x-circle"></i></button>
+                    `;
+                } else {
+                    actionButtons = '<span class="text-muted"><i class="bi bi-check2-all"></i> រួចរាល់</span>';
+                }
+                
+                return `<tr>
+                    <td><code>${r.studentId}</code> - ${r.name}</td>
+                    <td class="text-center"><span class="badge bg-secondary">${r.className}</span></td>
+                    <td class="text-center fw-bold text-primary">${r.leaveDate}</td>
+                    <td>${r.reason}</td>
+                    <td class="text-center">${docLink}</td>
+                    <td class="text-center">${statusBadge}</td>
+                    <td class="text-center">${actionButtons}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function processLeave(row, action, studentId, leaveDate) {
+            Swal.fire({
+                title: 'តើអ្នកប្រាកដទេ?',
+                text: action === 'Approved' ? 'អ្នកកំពុងអនុម័តការសុំច្បាប់នេះ!' : 'អ្នកកំពុងបដិសេធការសុំច្បាប់នេះ!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: action === 'Approved' ? '#28a745' : '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'យល់ព្រម',
+                cancelButtonText: 'បោះបង់'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'កំពុងដំណើរការ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+                    
+                    try {
+                        const data = await callAPI('Approved', { row: row, action: action, studentId: studentId, leaveDate: leaveDate });
+                        if (data && data.success) {
+                            Swal.fire('ជោគជ័យ!', data.success, 'success');
+                            loadLeaveRequests(); 
+                        } else {
+                            Swal.fire('កំហុស!', data.error || 'មិនអាចដំណើរការបានទេ', 'error');
+                        }
+                    } catch (error) {
+                        Swal.fire('កំហុស!', 'បញ្ហាបណ្តាញអុីនធឺណិត', 'error');
+                    }
+                }
+            });
+        }
+
+        function viewDocument(url) {
+            var overlay = document.getElementById('doc_popup_overlay');
+            var iframe = document.getElementById('doc_popup_iframe');
+            
+            if (url.includes('drive.google.com') && url.includes('/view')) {
+                url = url.replace('/view', '/preview');
+            }
+            
+            iframe.src = url;
+            overlay.style.display = 'flex'; 
+        }
+
+        function closeDocPopup() {
+            var overlay = document.getElementById('doc_popup_overlay');
+            var iframe = document.getElementById('doc_popup_iframe');
+            
+            overlay.style.display = 'none'; 
+            iframe.src = ''; 
+        }
+
+        function confirmLogout() {
+            Swal.fire({
+                title: 'ចាកចេញពីប្រព័ន្ធ?',
+                text: 'តើអ្នកពិតជាចង់ចាកចេញពីគណនីនេះមែនទេ?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-sign-out-alt"></i> បាទ/ចាស ចាកចេញ',
+                cancelButtonText: 'បោះបង់ (Cancel)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    logout(); 
+                }
+            });
+        }
+    </script>
+</body>
+</html>
