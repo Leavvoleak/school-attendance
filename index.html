@@ -510,33 +510,7 @@ async function loadCampuses() {
                 if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
             }
         }
-        // function loadCampuses() {
-        //     google.script.run
-        //         .withSuccessHandler(function(data) {
-        //             var select = document.getElementById('campusSelect');
-        //             select.innerHTML = '<option value="">ជ្រើសរើសសាលា...</option>';
-                    
-        //             if (data.success && data.campuses && data.campuses.length > 0) {
-        //                 campuses = data.campuses;
-        //                 data.campuses.forEach(function(campus) {
-        //                     var option = document.createElement('option');
-        //                     option.value = campus.id;
-        //                     option.textContent = campus.nameKH + ' (' + campus.nameEN + ')';
-        //                     option.dataset.nameKH = campus.nameKH;
-        //                     option.dataset.nameEN = campus.nameEN;
-        //                     select.appendChild(option);
-        //                 });
-        //             } else {
-        //                 select.innerHTML = '<option value="">គ្មានសាលា</option>';
-        //             }
-        //         })
-        //         .withFailureHandler(function(error) {
-        //             var select = document.getElementById('campusSelect');
-        //             select.innerHTML = '<option value="">កំហុសក្នុងការផ្ទុក</option>';
-        //         })
-        //         .getCampuses();
-        // }
-        
+     
         function updateCampusHeader() {
             var select = document.getElementById('campusSelect');
             var selectedOption = select.options[select.selectedIndex];
