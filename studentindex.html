@@ -197,7 +197,7 @@
                 </button>
                 <button type="button" class="qr-scan-btn" onclick="startCamera('online')" id="btnOnline" disabled style="opacity: 0.5;">
                     <i class="fas fa-spinner fa-spin qr-icon text-muted" id="iconOnline"></i>
-                    <span class="qr-title text-primary">ស្កេនរៀនតាមអនឡាញ</span>
+                    <span class="qr-title text-primary">ស្កេនរៀនអនឡាញ</span>
                     <span class="qr-sub" id="subOnline">កំពុងត្រួតពិនិត្យ...</span>
                 </button>
             </div>
@@ -529,9 +529,9 @@ async function refreshStats(renderRep) {
 
                         if (btnInPerson && btnOnline) {
                             // ស្តារ Icon និង អក្សរ
-                            iconInPerson.className = "bi bi-qr-code text-success";
+                            iconInPerson.className = "fas fa-qrcode text-success";
                             subInPerson.innerText = "ត្រូវមកសាលារៀន";
-                            iconOnline.className = "bi bi-qr-code text-primary";
+                            iconOnline.className = "fas fa-qrcode text-primary";
                             subOnline.innerText = "មិនគិតទីតាំងទេ";
 
                             // បើក/បិទ ប៊ូតុងរៀនផ្ទាល់
