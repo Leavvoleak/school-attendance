@@ -192,12 +192,12 @@
            <div class="d-flex gap-2 w-100 mb-3" id="btnStartScanContainer">
                 <button type="button" class="qr-scan-btn" onclick="startCamera('in-person')" id="btnInPerson" disabled style="opacity: 0.5;">
                     <i class="fas fa-spinner fa-spin qr-icon text-muted" id="iconInPerson"></i>
-                    <span class="qr-title text-success">រៀនផ្ទាល់</span>
+                    <span class="qr-title text-success">ស្កេនរៀនផ្ទាល់</span>
                     <span class="qr-sub" id="subInPerson">កំពុងត្រួតពិនិត្យ...</span>
                 </button>
                 <button type="button" class="qr-scan-btn" onclick="startCamera('online')" id="btnOnline" disabled style="opacity: 0.5;">
                     <i class="fas fa-spinner fa-spin qr-icon text-muted" id="iconOnline"></i>
-                    <span class="qr-title text-primary">រៀនតាមអនឡាញ</span>
+                    <span class="qr-title text-primary">ស្កេនរៀនតាមអនឡាញ</span>
                     <span class="qr-sub" id="subOnline">កំពុងត្រួតពិនិត្យ...</span>
                 </button>
             </div>
@@ -249,7 +249,7 @@
             <div id="report-list">
                 <div class="text-center text-muted py-4">
                     <i class="fas fa-spinner fa-spin fs-3"></i>
-                    <p class="mt-2">កំពុងផ្ទុក...</p>
+                    <p class="mt-2">កំពុងផ្ទុកទិន្នន័យ...</p>
                 </div>
             </div>
         </div>
@@ -529,9 +529,9 @@ async function refreshStats(renderRep) {
 
                         if (btnInPerson && btnOnline) {
                             // ស្តារ Icon និង អក្សរ
-                            iconInPerson.className = "fas fa-school qr-icon text-success";
-                            subInPerson.innerText = "ត្រូវមានទីតាំងសាលា";
-                            iconOnline.className = "fas fa-laptop-house qr-icon text-primary";
+                            iconInPerson.className = "bi bi-qr-code text-success";
+                            subInPerson.innerText = "ត្រូវមកសាលារៀន";
+                            iconOnline.className = "bi bi-qr-code text-primary";
                             subOnline.innerText = "មិនគិតទីតាំងទេ";
 
                             // បើក/បិទ ប៊ូតុងរៀនផ្ទាល់
@@ -562,7 +562,7 @@ async function refreshStats(renderRep) {
                         if(btnContainer) btnContainer.style.display = 'flex';
                     } 
                     else if(allDailyLogs.length > 0 && allDailyLogs[0].date === todayDateStr && allDailyLogs[0].aOut !== '--:--') {
-                        statusEl.innerHTML = '<i class="fas fa-check-circle text-success"></i> អ្នកបានបញ្ជប់ការស្កេនទាំង ៤ សម្រាប់ថ្ងៃនេះហើយ';
+                        statusEl.innerHTML = '<i class="fas fa-check-circle text-success"></i> អ្នកបានបញ្ជប់ការស្កេនសម្រាប់ថ្ងៃនេះហើយ';
                         statusEl.className = 'text-success fw-bold text-center mb-2';
                         if(btnContainer) btnContainer.style.display = 'none';
                     } 
