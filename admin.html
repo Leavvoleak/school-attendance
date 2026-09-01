@@ -618,14 +618,14 @@
         window.onload = function() {
             var savedSession = localStorage.getItem('sessionUser');
             if (!savedSession) {
-                window.location.href = 'Index.html';
+                window.location.href = 'index.html';
                 return;
             }
             
             sessionUser = JSON.parse(savedSession);
             
             if (sessionUser.role === 'Student') {
-                window.location.href = 'StudentIndex.html';
+                window.location.href = 'studentindex.html';
                 return;
             }
             
@@ -672,7 +672,7 @@
         
         function logout() {
             localStorage.removeItem('sessionUser');
-            window.location.href = 'Index.html';
+            window.location.href = 'index.html';
         }
         
         function showPage(page) {
