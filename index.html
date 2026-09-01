@@ -535,7 +535,8 @@ async function loadCampuses() {
             element.classList.add('active');
             document.getElementById('role').value = element.dataset.role;
         }
-        // 🌟 មុខងារបង្កើត Hardware Device Fingerprint ដែលមិនប្រែប្រួលតាម Browser Profiles
+    
+// 🌟 មុខងារបង្កើត Hardware Device Fingerprint (មានប្រព័ន្ធការពារពេលអត់ HTTPS)
         async function getDeviceFingerprint() {
             let components = [];
             
@@ -551,7 +552,7 @@ async function loadCampuses() {
             components.push(navigator.platform || 'unk_plat');
             components.push(Intl.DateTimeFormat().resolvedOptions().timeZone || 'unk_tz');
             
-            // 4. Canvas Fingerprint (ចាប់ GPU/Graphics Driver Signature របស់ម៉ាស៊ីន)
+            // 4. Canvas Fingerprint
             try {
                 const canvas = document.createElement('canvas');
                 canvas.width = 200;
@@ -569,15 +570,35 @@ async function loadCampuses() {
             } catch(e) {
                 components.push('canvas_err');
             }
-        
-            // បំប្លែងទិន្នន័យ Hardware ទាំងអស់ទៅជា Hash Code (SHA-256)
+
             const rawString = components.join('###');
-            const msgBuffer = new TextEncoder().encode(rawString);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            
-            return 'hw_' + hashHex.substring(0, 24); // ឧទាហរណ៍: hw_8f4b23c91a0e5d...
+
+            // 🌟 ដំណោះស្រាយ: ប្រើ Hash ធម្មតាបើ Safari បិទមុខងារ crypto ព្រោះអត់ប្រើ HTTPS
+            if (!window.crypto || !window.crypto.subtle) {
+                let hash = 0;
+                for (let i = 0; i < rawString.length; i++) {
+                    let char = rawString.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash; // Convert to 32bit integer
+                }
+                return 'hw_fb_' + Math.abs(hash).toString(16) + '_' + rawString.length;
+            }
+
+            // ប្រើកូដនីយកម្មកម្រិតខ្ពស់បើមាន HTTPS
+            try {
+                const msgBuffer = new TextEncoder().encode(rawString);
+                const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                return 'hw_' + hashHex.substring(0, 24);
+            } catch(e) {
+                let fallbackHash = 0;
+                for (let i = 0; i < rawString.length; i++) {
+                    fallbackHash = ((fallbackHash << 5) - fallbackHash) + rawString.charCodeAt(i);
+                    fallbackHash = fallbackHash & fallbackHash;
+                }
+                return 'hw_fb_' + Math.abs(fallbackHash).toString(16) + '_' + rawString.length;
+            }
         }
     async function login(event) {
             event.preventDefault();
