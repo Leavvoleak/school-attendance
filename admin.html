@@ -517,18 +517,20 @@
                     </div>
                 </div>
 
-                <div class="table-responsive" style="max-height: 600px; overflow: auto; border-radius: 8px; border: 1px solid #dee2e6;">
+            <div class="table-responsive" style="max-height: 600px; overflow: auto; border-radius: 8px; border: 1px solid #dee2e6;">
                     <table class="table attendance-matrix table-hover align-middle text-center mb-0" id="excelTable" style="min-width: 1500px; font-size: 13px;">
                         <thead class="table-dark" style="position: sticky; top: 0; z-index: 10;">
                             <tr id="subjectHeader">
-                                <th rowspan="4" class="align-middle" style="width: 50px;">ល.រ</th>
-                                <th rowspan="4" class="align-middle" style="width: 80px;">អត្តលេខ</th>
-                                <th rowspan="4" class="align-middle text-start" style="width: 150px;">ឈ្មោះនិស្សិត</th>
-                                <th rowspan="4" class="align-middle" style="width: 60px;">ភេទ</th>
+                                <th rowspan="5" class="align-middle" style="width: 50px;">ល.រ</th>
+                                <th rowspan="5" class="align-middle" style="width: 80px;">អត្តលេខ</th>
+                                <th rowspan="5" class="align-middle text-start" style="width: 150px;">ឈ្មោះនិស្សិត</th>
+                                <th rowspan="5" class="align-middle" style="width: 60px;">ភេទ</th>
                             </tr>
                             <tr id="weekHeader" class="bg-secondary bg-opacity-25 text-info text-opacity-75"></tr>
                             <tr id="monthHeader" class="bg-secondary bg-opacity-50"></tr>
                             <tr id="dateHeader" class="text-warning"></tr>
+                            <!-- ជួរនេះសំខាន់ណាស់ សម្រាប់បង្ហាញសរុបអ្នកមករៀន -->
+                            <tr id="totalPresentHeader"></tr> 
                         </thead>
                         <tbody id="excelTbody">
                             <tr><td colspan="100%" class="text-center text-muted py-4">សូមជ្រើសរើសថ្នាក់ដើម្បីទាញយកទិន្នន័យ</td></tr>
@@ -1145,7 +1147,7 @@
             }
         }
 
-        async function loadComplexAttendance() {
+async function loadComplexAttendance() {
             var className = document.getElementById('att_matrix_class').value;
             var tbody = document.getElementById('excelTbody');
             
@@ -1164,19 +1166,26 @@
                 if (response && response.success) {
                     renderExcelTable(response);
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="100%" class="text-center text-danger py-4">បរាជ័យ៖ ${response.error || 'Unknown Error'}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="100%" class="text-center text-danger py-4">បរាជ័យពី Server៖ ${response.error || 'Unknown Error'}</td></tr>`;
                 }
             } catch (err) {
-                tbody.innerHTML = '<tr><td colspan="100%" class="text-center text-danger py-4">បញ្ហាបណ្តាញទាក់ទង។ សូមសាកល្បងម្តងទៀត។</td></tr>';
+                // 🌟 កន្លែងនេះនឹងលោតប្រាប់ចំៗបើមាន Error លើ Frontend (JavaScript)
+                console.error("Frontend Crash:", err);
+                tbody.innerHTML = `<tr><td colspan="100%" class="text-center text-danger py-4"><b>កំហុសនៅលើអេក្រង់ (Frontend Error):</b> <br>${err.message}</td></tr>`;
             }
         }
-function renderExcelTable(data) {
+
+        function renderExcelTable(data) {
             const subjHeader = document.getElementById('subjectHeader');
             const weekHeader = document.getElementById('weekHeader');
             const monthHeader = document.getElementById('monthHeader');
             const dateHeader = document.getElementById('dateHeader');
             const totalPresentHeader = document.getElementById('totalPresentHeader');
             const tbody = document.getElementById('excelTbody');
+
+            if (!subjHeader || !weekHeader || !monthHeader || !dateHeader || !totalPresentHeader || !tbody) {
+                throw new Error("រកមិនឃើញ ID របស់ក្បាលតារាងនៅក្នុង HTML ទេ។ សូមពិនិត្យ HTML ឡើងវិញ!");
+            }
 
             // Reset headers
             while (subjHeader.children.length > 4) subjHeader.removeChild(subjHeader.lastChild);
@@ -1186,17 +1195,17 @@ function renderExcelTable(data) {
             totalPresentHeader.innerHTML = '';
             
             if (!data.students || data.students.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="100%" class="text-center text-muted py-4">មិនមានទិន្នន័យក្នុងថ្នាក់នេះទេ</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="100%" class="text-center text-muted py-4">មិនមានទិន្នន័យសិស្សក្នុងថ្នាក់នេះទេ</td></tr>';
                 return;
             }
 
-            // 1. ក្បាលមុខវិជ្ជា (Subject Header)
+            // 1. ក្បាលមុខវិជ្ជា
             data.subjects.forEach(subj => {
                 subjHeader.innerHTML += `<th colspan="${subj.columns + 2}" class="col-separator text-center px-2 py-1" style="font-size: 12px; background: rgba(0,0,0,0.6) !important;">${subj.title}</th>`;
             });
             subjHeader.innerHTML += `<th rowspan="5" class="align-middle bg-primary text-white">សរុបរួម</th><th rowspan="5" class="align-middle bg-success text-white">សរុប %</th>`;
 
-            // 2. ក្បាលសប្ដាហ៍ ខែ និងថ្ងៃ (Week/Month/Date Headers)
+            // 2. ក្បាលសប្ដាហ៍ ខែ ថ្ងៃ និង ភាគរយ
             let dateIndex = 0;
             data.subjects.forEach((subj, idx) => {
                 let weeksTaught = subj.columns; 
@@ -1204,6 +1213,8 @@ function renderExcelTable(data) {
                 
                 for (let i = 0; i < subj.columns; i++) {
                     let dt = data.dates[dateIndex];
+                    if (!dt) { dateIndex++; continue; } // ការពារ Error បើគ្មានកាលបរិច្ឆេទ
+                    
                     let weekText = (idx === 0 && i === 0) ? '<span class="text-warning" style="font-size:8pt; position:absolute; left:-40px;">15wk=></span> 1' : '1';
                     
                     weekHeader.innerHTML += `<th style="position:relative;">${weekText}</th>`;
@@ -1213,19 +1224,15 @@ function renderExcelTable(data) {
                 }
                 
                 weekHeader.innerHTML += `
-                    <th rowspan="3" class="align-middle text-warning fw-bold" style="background: rgba(0,0,0,0.6) !important; font-size: 14pt;">
-                        ${weeksTaught}
-                    </th>
-                    <th rowspan="3" class="align-middle col-separator text-success fw-bold" style="background: rgba(0,0,0,0.6) !important; font-size: 14pt;">
-                        ${progressPercent}
-                    </th>`;
+                    <th rowspan="3" class="align-middle text-warning fw-bold" style="background: rgba(0,0,0,0.6) !important; font-size: 14pt;">${weeksTaught}</th>
+                    <th rowspan="3" class="align-middle col-separator text-success fw-bold" style="background: rgba(0,0,0,0.6) !important; font-size: 14pt;">${progressPercent}</th>`;
             });
 
-            // 3. គណនាជួរ "ចំនួននិស្សិតសរុបដែលមករៀន"
+            // 3. គណនាជួរអ្នកមករៀន
             let colTotals = new Array(data.dates.length).fill(0);
             data.students.forEach(s => {
                 s.marks.forEach((m, i) => {
-                    if (m === '1') colTotals[i] += 1;
+                    if (m === '1' || m === '✓') colTotals[i] += 1;
                 });
             });
 
@@ -1233,7 +1240,7 @@ function renderExcelTable(data) {
             let markIndex2 = 0;
             data.subjects.forEach((subj, subIdx) => {
                 for (let i = 0; i < subj.columns; i++) {
-                    let total = colTotals[markIndex2];
+                    let total = colTotals[markIndex2] || 0;
                     let txtColor = total > 0 ? 'text-success' : 'text-danger';
                     totalPresentHeader.innerHTML += `<th class="fw-bold ${txtColor}" style="background: #e9ecef !important;">${total}</th>`;
                     markIndex2++;
@@ -1241,7 +1248,7 @@ function renderExcelTable(data) {
                 totalPresentHeader.innerHTML += `<th style="background: #e9ecef !important;"></th><th class="col-separator" style="background: #e9ecef !important;"></th>`;
             });
 
-            // 4. ទិន្នន័យសិស្សម្នាក់ៗ (Body)
+            // 4. ទិន្នន័យសិស្ស
             tbody.innerHTML = data.students.map((s, idx) => {
                 let row = `<tr>
                     <td class="text-dark">${idx + 1}</td>
@@ -1263,19 +1270,20 @@ function renderExcelTable(data) {
                         row += `<td class="${colorClass}">${mark}</td>`;
                         markIndex++;
                     }
-                    totalAll += s.totals[subIdx];
-                    row += `<td class="fw-bold text-dark" style="background: rgba(0,0,0,0.02);">${s.totals[subIdx]}</td><td class="col-separator fw-bold text-warning" style="background: rgba(0,0,0,0.02);">${s.percentages[subIdx]}%</td>`;
+                    totalAll += s.totals[subIdx] || 0;
+                    let safePercent = s.percentages[subIdx] || "0.00";
+                    row += `<td class="fw-bold text-dark" style="background: rgba(0,0,0,0.02);">${s.totals[subIdx] || 0}</td><td class="col-separator fw-bold text-warning" style="background: rgba(0,0,0,0.02);">${safePercent}%</td>`;
                 });
 
-                let avgPercent = (s.percentages.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / data.subjects.length).toFixed(2);
-                if (avgPercent.endsWith('.00')) avgPercent = parseInt(avgPercent);
+                let totalPercents = s.percentages.reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+                let avgPercent = data.subjects.length > 0 ? (totalPercents / data.subjects.length).toFixed(2) : "0.00";
+                if (String(avgPercent).endsWith('.00')) avgPercent = parseInt(avgPercent);
                 
                 row += `<td class="fw-bold text-primary" style="background: rgba(0,0,0,0.05);">${totalAll}</td><td class="fw-bold text-success" style="background: rgba(0,0,0,0.05);">${avgPercent}%</td></tr>`;
                 
                 return row;
             }).join('');
         }
-
         // មុខងារហៅទៅកាន់ Backend ដើម្បី Export ទិន្នន័យ
         async function exportAttendanceMatrix() {
             var className = document.getElementById('att_matrix_class').value;
