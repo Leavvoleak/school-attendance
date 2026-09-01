@@ -144,7 +144,7 @@
             <i class="fas fa-camera"></i> បើកកាមេរ៉ា (Open Camera)
         </button>
         <button class="btn-retry btn-blue" onclick="useFileUpload()">
-            <i class="fas fa-upload"></i> ប្រើរូបភាពពីទូរស័ព្ទ (Upload Image)
+            <i class="fas fa-upload"></i> ប្រើរូបភាពពីឧបករណ៍ (Upload Image)
         </button>
     </div>
 
@@ -825,7 +825,7 @@ async function refreshStats(renderRep) {
             document.getElementById('loading-overlay').style.display = 'flex';
             document.getElementById('loading-spinner-icon').style.display = 'none';
             document.getElementById('loading-title').textContent = 'ជ្រើសរើសវិធីសាស្រ្ត';
-            document.getElementById('loading-desc').textContent = mode === 'online' ? 'រៀនតាមអនឡាញ (Online Check-in)' : 'រៀនផ្ទាល់ (In-Person Check-in)';
+            document.getElementById('loading-desc').textContent = mode === 'online' ? 'រៀនតាមអនឡាញ (Online)' : 'រៀនផ្ទាល់ (Face-to-Face)';
             document.getElementById('btn-open-tab').style.display = 'block';
         }
 
