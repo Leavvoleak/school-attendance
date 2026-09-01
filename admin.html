@@ -1225,7 +1225,7 @@ function renderExcelTable(data) {
             let colTotals = new Array(data.dates.length).fill(0);
             data.students.forEach(s => {
                 s.marks.forEach((m, i) => {
-                    if (m === '1' || m === '✓') colTotals[i] += 1;
+                    if (m === '1') colTotals[i] += 1;
                 });
             });
 
