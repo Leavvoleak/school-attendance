@@ -561,15 +561,57 @@ async function loadCampuses() {
             element.classList.add('active');
             document.getElementById('role').value = element.dataset.role;
         }
+        // 🌟 មុខងារបង្កើត Hardware Device Fingerprint ដែលមិនប្រែប្រួលតាម Browser Profiles
+        async function getDeviceFingerprint() {
+            let components = [];
+            
+            // 1. Hardware Cores & RAM
+            components.push(navigator.hardwareConcurrency || 'unk_core');
+            components.push(navigator.deviceMemory || 'unk_mem');
+            
+            // 2. Screen Specs
+            components.push(screen.width + 'x' + screen.height + 'x' + screen.colorDepth);
+            components.push(screen.availWidth + 'x' + screen.availHeight);
+            
+            // 3. Platform & Timezone
+            components.push(navigator.platform || 'unk_plat');
+            components.push(Intl.DateTimeFormat().resolvedOptions().timeZone || 'unk_tz');
+            
+            // 4. Canvas Fingerprint (ចាប់ GPU/Graphics Driver Signature របស់ម៉ាស៊ីន)
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 200;
+                canvas.height = 50;
+                const ctx = canvas.getContext('2d');
+                ctx.textBaseline = 'top';
+                ctx.font = '14px Arial';
+                ctx.fillStyle = '#f60';
+                ctx.fillRect(125, 1, 62, 20);
+                ctx.fillStyle = '#069';
+                ctx.fillText('RTTC_DEVICE_ID', 2, 15);
+                ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+                ctx.fillText('RTTC_DEVICE_ID', 4, 17);
+                components.push(canvas.toDataURL());
+            } catch(e) {
+                components.push('canvas_err');
+            }
         
-       async function login(event) {
+            // បំប្លែងទិន្នន័យ Hardware ទាំងអស់ទៅជា Hash Code (SHA-256)
+            const rawString = components.join('###');
+            const msgBuffer = new TextEncoder().encode(rawString);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            return 'hw_' + hashHex.substring(0, 24); // ឧទាហរណ៍: hw_8f4b23c91a0e5d...
+        }
+    async function login(event) {
             event.preventDefault();
             
             var userId = document.getElementById('userId').value.trim();
             var password = document.getElementById('password').value.trim();
             var role = document.getElementById('role').value;
             var campusId = document.getElementById('campusSelect').value;
-            var deviceId = getOrCreateDeviceId(); // Get the unique device fingerprint
             
             if (!campusId) { showError('សូមជ្រើសរើសសាលា'); document.getElementById('campusSelect').focus(); return; }
             if (!userId) { showError('សូមបញ្ចូលអត្តលេខ'); document.getElementById('userId').focus(); return; }
@@ -580,75 +622,48 @@ async function loadCampuses() {
             loginBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> កំពុងភ្ជាប់...';
             document.getElementById('loadingSpinner').style.display = 'block';
             document.getElementById('errorMessage').style.display = 'none';
-            try {
-            const response = await fetch(BASE_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'login', userId: userId, password: password, role: role, deviceId: deviceId }),
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-            });
-            const result = await response.json();
             
-            loginBtn.disabled = false;
-            loginBtn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> ចូលប្រើប្រាស់';
-            document.getElementById('loadingSpinner').style.display = 'none';
-
-            if (result.success) {
-                result.campusId = campusId;
-                result.campusName = selectedCampus ? selectedCampus.nameKH : '';
-                localStorage.setItem('sessionUser', JSON.stringify(result));
-                localStorage.setItem('selectedCampus', JSON.stringify(selectedCampus));
+            try {
+                // 🌟 ហៅប្រើមុខងារ Hardware Fingerprint ថ្មី (ត្រូវមាន await)
+                var deviceId = await getDeviceFingerprint(); 
                 
-                if (result.role === 'Student') {
-                    window.location.href = result.requiresPasswordChange ? 'changepassword.html' : 'studentindex.html';
-                } else {
-                    window.location.href = 'admin.html';
-                }
-            } else {
-                showError(result.error || 'ពាក្យសម្ងាត់ ឬអត្តលេខមិនត្រឹមត្រូវ');
-            }
-        } catch(e) {
-            showError('កំហុសបច្ចេកទេស៖ ' + e.message);
-        }
-            // google.script.run
-            //     .withSuccessHandler(function(result) {
-            //         loginBtn.disabled = false;
-            //         loginBtn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> ចូលប្រើប្រាស់';
-            //         document.getElementById('loadingSpinner').style.display = 'none';
+                const response = await fetch(BASE_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'login', userId: userId, password: password, role: role, deviceId: deviceId }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                const result = await response.json();
+                
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> ចូលប្រើប្រាស់';
+                document.getElementById('loadingSpinner').style.display = 'none';
+
+                if (result.success) {
+                    result.campusId = campusId;
+                    result.campusName = selectedCampus ? selectedCampus.nameKH : '';
+                    localStorage.setItem('sessionUser', JSON.stringify(result));
+                    localStorage.setItem('selectedCampus', JSON.stringify(selectedCampus));
                     
-            //         if (result.success) {
-            //             result.campusId = campusId;
-            //             result.campusName = selectedCampus ? selectedCampus.nameKH : '';
-            //             localStorage.setItem('sessionUser', JSON.stringify(result));
-            //             localStorage.setItem('selectedCampus', JSON.stringify(selectedCampus));
-                        
-            //             if (result.role === 'Student') {
-            //                 if (result.requiresPasswordChange) {
-            //                     window.top.location.href = BASE_URL + '?page=ChangePassword';
-            //                 } else {
-            //                     window.top.location.href = BASE_URL + '?page=Student';
-            //                 }
-            //             } else {
-            //                 window.top.location.href = BASE_URL + '?page=Admin';
-            //             }
-            //         } else {
-            //             showError(result.error || 'ពាក្យសម្ងាត់ ឬអត្តលេខមិនត្រឹមត្រូវ');
-            //             document.getElementById('password').value = '';
-            //             document.getElementById('password').focus();
-            //         }
-            //     })
-            //     .withFailureHandler(function(error) {
-            //         loginBtn.disabled = false;
-            //         loginBtn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> ចូលប្រើប្រាស់';
-            //         document.getElementById('loadingSpinner').style.display = 'none';
-            //         showError('កំហុសបច្ចេកទេស៖ ' + error.message);
-            //     })
-            //     .loginUser(userId, password, role, deviceId); // Pass deviceId to backend
+                    if (result.role === 'Student') {
+                        window.location.href = result.requiresPasswordChange ? 'changepassword.html' : 'studentindex.html';
+                    } else {
+                        window.location.href = 'admin.html';
+                    }
+                } else {
+                    showError(result.error || 'ពាក្យសម្ងាត់ ឬអត្តលេខមិនត្រឹមត្រូវ');
+                }
+            } catch(e) {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> ចូលប្រើប្រាស់';
+                document.getElementById('loadingSpinner').style.display = 'none';
+                showError('កំហុសបច្ចេកទេស៖ ' + e.message);
+            }
         }
         
-        function showError(message) {
+    function showError(message) {
             document.getElementById('errorText').innerText = message;
             document.getElementById('errorMessage').style.display = 'block';
-        }
+    }
 
         // ១. មុខងារសម្រាប់ទាញទិន្នន័យពី Select ចាស់ មកបង្កើតជា Custom Dropdown ថ្មី
 function buildCustomDropdown() {
