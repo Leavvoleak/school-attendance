@@ -365,7 +365,12 @@
                     <option value="">កំពុងផ្ទុក...</option>
                 </select>
             </div>
-            
+            <div class="mb-3">
+                        <label class="form-label text-muted small"><i class="bi bi-building"></i> ជ្រើសរើសអគារ (Building)</label>
+                        <select class="form-select bg-light" id="buildingSelect" disabled>
+                            <option value="">-- សូមជ្រើសរើសសាលាជាមុនសិន --</option>
+                        </select>
+            </div>
             <div class="form-group">
                 <label><i class="bi bi-person-badge"></i> អត្តលេខ / ID</label>
                 <input type="text" id="userId" class="form-control-glass" placeholder="បញ្ចូលអត្តលេខរបស់អ្នក" required autofocus>
@@ -450,66 +455,112 @@
                 }
             }
             
-            loadCampuses();
+            loadCampusesAndBuildings();
             document.getElementById('userId').focus();
         };
+        var allCampuses = [];
+        var allBuildings = [];
 
-
-async function loadCampuses() {
-            var select = document.getElementById('campusSelect');
-            select.innerHTML = '<option value="">កំពុងទាញយកទិន្នន័យ...</option>';
-            
+        async function loadCampusesAndBuildings() {
             try {
                 const response = await fetch(BASE_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ action: 'getCampuses' }),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    redirect: 'follow'
+                    body: JSON.stringify({ action: 'getCampusesAndBuildings' }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
+                const data = await response.json();
                 
-                // អានទិន្នន័យឆៅសិន មុននឹងបំប្លែងជា JSON ដើម្បីការពារការគាំង
-                const text = await response.text(); 
-                
-                try {
-                    const data = JSON.parse(text);
+                if (data.success) {
+                    allCampuses = data.campuses;
+                    allBuildings = data.buildings;
                     
-                    if (data.error) {
-                        select.innerHTML = '<option value="">កំហុស: ' + data.error + '</option>';
-                        if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
-                        return;
-                    }
+                    var cSelect = document.getElementById('campusSelect');
+                    cSelect.innerHTML = '<option value="">-- ជ្រើសរើសសាលា --</option>';
+                    allCampuses.forEach(c => {
+                        cSelect.innerHTML += `<option value="${c.id}">${c.nameKH}</option>`;
+                    });
                     
-                    if (data.success && data.campuses && data.campuses.length > 0) {
-                        select.innerHTML = '<option value="">ជ្រើសរើសសាលា...</option>';
-                        campuses = data.campuses;
-                        data.campuses.forEach(function(campus) {
-                            var option = document.createElement('option');
-                            option.value = campus.id;
-                            option.textContent = campus.nameKH + ' (' + campus.nameEN + ')';
-                            option.dataset.nameKH = campus.nameKH;
-                            option.dataset.nameEN = campus.nameEN;
-                            select.appendChild(option);
+                    // បន្ថែម Event ពេលប្តូរសាលា ឲ្យវាលោតអគារមក
+                    cSelect.addEventListener('change', function() {
+                        var cId = this.value;
+                        var bSelect = document.getElementById('buildingSelect');
+                        bSelect.innerHTML = '<option value="">-- ជ្រើសរើសអគារ --</option>';
+                        
+                        if (!cId) {
+                            bSelect.disabled = true;
+                            return;
+                        }
+                        
+                        bSelect.disabled = false;
+                        var filteredB = allBuildings.filter(b => b.campusId === cId);
+                        filteredB.forEach(b => {
+                            bSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
                         });
-                        
-                        // 🌟 បង្កើតបញ្ជី Custom Dropdown បន្ទាប់ពីទាញទិន្នន័យចូល Select ដើមចប់
-                        if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
-                        
-                    } else {
-                        select.innerHTML = '<option value="">គ្មានទិន្នន័យសាលាទេ</option>';
-                        if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
-                    }
-                } catch(e) {
-                    console.error("ទិន្នន័យឆ្លើយតបមិនមែនជា JSON ទេ:", text);
-                    select.innerHTML = '<option value="">Error: ទិន្នន័យពី Server ខុស (ភ្លេច Deploy ថ្មី)</option>';
-                    if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
+                    });
                 }
-                
-            } catch (error) {
-                console.error("Network/CORS Error:", error);
-                select.innerHTML = '<option value="">Error: មិនអាចភ្ជាប់ទៅកាន់ម៉ាស៊ីនមេ</option>';
-                if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
+            } catch (e) {
+                console.error("កំហុសក្នុងការទាញយកទិន្នន័យ");
             }
         }
+        
+        // ហៅមុខងារនេះពេលបើកទំព័រ
+        document.addEventListener('DOMContentLoaded', loadCampusesAndBuildings);
+
+// async function loadCampuses() {
+//             var select = document.getElementById('campusSelect');
+//             select.innerHTML = '<option value="">កំពុងទាញយកទិន្នន័យ...</option>';
+            
+//             try {
+//                 const response = await fetch(BASE_URL, {
+//                     method: 'POST',
+//                     body: JSON.stringify({ action: 'getCampuses' }),
+//                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+//                     redirect: 'follow'
+//                 });
+                
+//                 // អានទិន្នន័យឆៅសិន មុននឹងបំប្លែងជា JSON ដើម្បីការពារការគាំង
+//                 const text = await response.text(); 
+                
+//                 try {
+//                     const data = JSON.parse(text);
+                    
+//                     if (data.error) {
+//                         select.innerHTML = '<option value="">កំហុស: ' + data.error + '</option>';
+//                         if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
+//                         return;
+//                     }
+                    
+//                     if (data.success && data.campuses && data.campuses.length > 0) {
+//                         select.innerHTML = '<option value="">ជ្រើសរើសសាលា...</option>';
+//                         campuses = data.campuses;
+//                         data.campuses.forEach(function(campus) {
+//                             var option = document.createElement('option');
+//                             option.value = campus.id;
+//                             option.textContent = campus.nameKH + ' (' + campus.nameEN + ')';
+//                             option.dataset.nameKH = campus.nameKH;
+//                             option.dataset.nameEN = campus.nameEN;
+//                             select.appendChild(option);
+//                         });
+                        
+//                         // 🌟 បង្កើតបញ្ជី Custom Dropdown បន្ទាប់ពីទាញទិន្នន័យចូល Select ដើមចប់
+//                         if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
+                        
+//                     } else {
+//                         select.innerHTML = '<option value="">គ្មានទិន្នន័យសាលាទេ</option>';
+//                         if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
+//                     }
+//                 } catch(e) {
+//                     console.error("ទិន្នន័យឆ្លើយតបមិនមែនជា JSON ទេ:", text);
+//                     select.innerHTML = '<option value="">Error: ទិន្នន័យពី Server ខុស (ភ្លេច Deploy ថ្មី)</option>';
+//                     if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
+//                 }
+                
+//             } catch (error) {
+//                 console.error("Network/CORS Error:", error);
+//                 select.innerHTML = '<option value="">Error: មិនអាចភ្ជាប់ទៅកាន់ម៉ាស៊ីនមេ</option>';
+//                 if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
+//             }
+//         }
      
         function updateCampusHeader() {
             var select = document.getElementById('campusSelect');
@@ -607,8 +658,9 @@ async function loadCampuses() {
             var password = document.getElementById('password').value.trim();
             var role = document.getElementById('role').value;
             var campusId = document.getElementById('campusSelect').value;
-            
+            var buildingId = document.getElementById('buildingSelect').value; // បន្ថែម
             if (!campusId) { showError('សូមជ្រើសរើសសាលា'); document.getElementById('campusSelect').focus(); return; }
+            if (!buildingId) { showError('សូមជ្រើសរើសអគារ'); document.getElementById('buildingSelect').focus(); return; } // បន្ថែម
             if (!userId) { showError('សូមបញ្ចូលអត្តលេខ'); document.getElementById('userId').focus(); return; }
             if (!password) { showError('សូមបញ្ចូលពាក្យសម្ងាត់'); document.getElementById('password').focus(); return; }
             
@@ -635,6 +687,7 @@ async function loadCampuses() {
 
                 if (result.success) {
                     result.campusId = campusId;
+                    result.buildingId = buildingId; // បន្ថែមចូល Session ទុកស្កេន
                     result.campusName = selectedCampus ? selectedCampus.nameKH : '';
                     localStorage.setItem('sessionUser', JSON.stringify(result));
                     localStorage.setItem('selectedCampus', JSON.stringify(selectedCampus));
