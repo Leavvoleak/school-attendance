@@ -456,7 +456,16 @@
             document.getElementById('errorText').innerText = message;
             document.getElementById('errorMessage').style.display = 'block';
         }
-
+// 🌟 បន្ថែមមុខងារ callAPI សម្រាប់ឲ្យកូដលោតឈ្មោះដំណើរការបាន
+        async function callAPI(action, data = {}) {
+            data.action = action;
+            const response = await fetch(BASE_URL, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
+            return await response.json();
+        }
         // ==========================================
 // បង្ហាញ Toast បញ្ជាក់ឈ្មោះសិស្ស ពេលវាយ ID រួច
 // ==========================================
