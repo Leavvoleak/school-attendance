@@ -966,13 +966,15 @@ async function refreshStats(renderRep) {
                 status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងផ្ទៀងផ្ទាត់ទីតាំង...';
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
-                        async function(position) {
-                            const res = await callAPI('submitAttendanceWithCampus', {
+                            async function(position) {
+                            var buildingId = sessionUser.buildingId || 'B1'; // ទាញយកអគារដែលរើសពេល Login
+                            
+                            const res = await callAPI('submitAttendanceWithBuilding', {
                                 studentId: sessionUser.id,
                                 checkInType: "រៀនផ្ទាល់",
                                 lat: position.coords.latitude,
                                 lng: position.coords.longitude,
-                                campusId: campusId
+                                buildingId: buildingId // បោះអគារទៅកាន់កូដ
                             });
                             handleCheckInResult(res, status);
                         },
