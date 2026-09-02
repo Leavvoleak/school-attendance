@@ -484,7 +484,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 try {
                     const res = await callAPI('checkStudentName', { userId: currentId });
-                    
+                    Swal.hideLoading(); // 🌟 បន្ថែមកូដនេះដើម្បីបិទ Loading មុនលោតផ្ទាំងថ្មី
                     if(res && res.success) {
                         // 🌟 ២. Popup បញ្ជាក់ឈ្មោះ (បង្រួញទំហំ និងបង្រួញអក្សរប៊ូតុង)
                         Swal.fire({
@@ -525,6 +525,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         idInput.focus();
                     }
                 } catch (error) {
+                    Swal.hideLoading(); // 🌟 បិទ Loading មុនលោត Error
                     Swal.fire({
                         title: '<span style="font-size: 16px;">បរាជ័យ</span>',
                         html: '<span style="font-size: 13px;">មានបញ្ហាភ្ជាប់ទៅប្រព័ន្ធ Server</span>',
