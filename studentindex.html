@@ -1049,102 +1049,88 @@ async function refreshStats(renderRep) {
                 if (!dateInputs[1].value) dateInputs[1].value = formatDate(now);
             }
         }
-
-        function applyDateFilter() {
+function applyDateFilter() {
             var inputs = document.querySelectorAll('#view-report input[type="date"]');
-            var fromDate = inputs.length > 0 ? inputs[0].value : '';
-            var toDate = inputs.length > 1 ? inputs[1].value : '';
+            var fromDate = inputs.length > 0 ? inputs[0].value : '', toDate = inputs.length > 1 ? inputs[1].value : '';
             var filtered = allDailyLogs;
-            if (fromDate && toDate) filtered = allDailyLogs.filter(function(l) { return l.date >= fromDate && l.date <= toDate; });
+            if (fromDate && toDate) filtered = allDailyLogs.filter(l => l.date >= fromDate && l.date <= toDate);
 
             var countBadge = document.querySelector('#view-report .badge');
             if (countBadge) countBadge.innerText = filtered.length + ' កំណត់ត្រា';
-            var container = document.getElementById('report_container'); 
-            if(!container) container = document.querySelector('#view-report > div:last-child');
+            var container = document.getElementById('report_container') || document.querySelector('#view-report > div:last-child');
 
-            if (filtered.length === 0) {
-                if(container) container.innerHTML = '<div class="text-center text-muted py-4">មិនមានកំណត់ត្រាទេ</div>';
-                return;
-            }
+            if (filtered.length === 0) { if(container) container.innerHTML = '<div class="text-center text-muted py-4">មិនមានកំណត់ត្រាទេ</div>'; return; }
 
             if(container) {
-                container.innerHTML = filtered.map(function(log) {
-                    var statusText = "វត្តមានពេញ (២ ពិន្ទុ)";
-                    var colorClass = "success"; 
-                    
-                    if (log.overallStatus === "Half") {
-                        statusText = "វត្តមានកន្លះថ្ងៃ (១ ពិន្ទុ)"; colorClass = "info";
-                    } else if (log.overallStatus === "Partial") {
-                        var now = new Date();
-                        var currentHr = now.getHours();
-                        var logDateObj = new Date(log.date);
-                        var isPast = (now.getTime() - logDateObj.getTime()) > (24 * 60 * 60 * 1000); 
-                        
-                        if (isPast || currentHr >= 17) {
-                            statusText = "វត្តមានមិនពេញលេញ (០ ពិន្ទុ)"; colorClass = "secondary"; 
-                        } else {
-                            statusText = "កំពុងរៀន (ស្កេនមិនទាន់គ្រប់)"; colorClass = "primary"; 
-                        }
-                    } else if (log.overallStatus === "Permission") {
+                container.innerHTML = filtered.map(log => {
+                    var statusText = "វត្តមានពេញ (២ ពិន្ទុ)", colorClass = "success"; 
+                    if (log.overallStatus === "Half") { 
+                        statusText = "វត្តមានកន្លះថ្ងៃ (១ ពិន្ទុ)"; colorClass = "info"; 
+                    } 
+                    else if (log.overallStatus === "Partial") {
+                        statusText = "មិនទាន់ពេញលេញ (កំពុងរៀន)"; colorClass = "primary"; 
+                    } 
+                    else if (log.overallStatus === "Permission" || log.overallStatus === "Approved") { 
                         statusText = "សុំច្បាប់ (Permission)"; colorClass = "warning"; 
-                    } else if (log.overallStatus === "Absent") {
+                    } 
+                    else if (log.overallStatus === "Absent") { 
                         statusText = "អវត្តមាន (០ ពិន្ទុ)"; colorClass = "danger"; 
                     }
 
                     var timeBadges = "";
-                    if (log.overallStatus === "Permission") {
+                    if (log.overallStatus === "Permission" || log.overallStatus === "Approved") {
                         timeBadges = `<span class="badge bg-warning text-dark w-100 mb-1" style="font-weight:normal; padding:6px 10px;"><i class="fas fa-calendar-check"></i> មានច្បាប់ឈប់សម្រាក (Approved)</span>`;
-                    } else if (log.overallStatus === "Absent") {
+                    } else if (log.overallStatus === "Absent" && log.mIn === '--:--' && log.mOut === '--:--' && log.aIn === '--:--' && log.aOut === '--:--') {
                         timeBadges = `<span class="badge bg-danger w-100 mb-1" style="font-weight:normal; padding:6px 10px;"><i class="fas fa-times-circle"></i> មិនបានមកចូលរៀន</span>`;
                     } else {
-                        var minUI = log.mIn === '--:--' ? '<span class="text-danger">--:--</span>' : log.mIn;
-                        var moutUI = log.mOut === '--:--' ? '<span class="text-danger">--:--</span>' : log.mOut;
-                        var ainUI = log.aIn === '--:--' ? '<span class="text-danger">--:--</span>' : log.aIn;
-                        var aoutUI = log.aOut === '--:--' ? '<span class="text-danger">--:--</span>' : log.aOut;
-
-                        timeBadges = `
-                            <div class="row g-1 w-100 mt-1 text-center">
-                                <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">ព្រឹកចូល: ${minUI}</span></div>
-                                <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">ព្រឹកចេញ: ${moutUI}</span></div>
-                                <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">រសៀលចូល: ${ainUI}</span></div>
-                                <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">រសៀលចេញ: ${aoutUI}</span></div>
-                            </div>
-                        `;
+                        // 🌟 បន្លិចពណ៌ក្រហមពេលឃើញពាក្យ អវត្តមាន(ខកខានស្កេន)
+                        var formatT = (t) => {
+                            if (t === '--:--') return '<span class="text-danger">--:--</span>';
+                            if (t.includes('អវត្តមាន')) return `<span class="text-danger" style="font-size:10px">${t}</span>`;
+                            return t;
+                        };
+                        var minUI = formatT(log.mIn), moutUI = formatT(log.mOut), ainUI = formatT(log.aIn), aoutUI = formatT(log.aOut);
+                        
+                        timeBadges = `<div class="row g-1 w-100 mt-1 text-center">
+                            <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">ព្រឹកចូល: ${minUI}</span></div>
+                            <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">ព្រឹកចេញ: ${moutUI}</span></div>
+                            <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">រសៀលចូល: ${ainUI}</span></div>
+                            <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">រសៀលចេញ: ${aoutUI}</span></div>
+                        </div>`;
                     }
 
-                    return `
-                    <div class="card mb-3 shadow-sm" style="border:none; border-left: 6px solid var(--bs-${colorClass}); border-radius: 12px;">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div style="flex:1;">
-                                <div class="text-muted small">${statusText}</div>
-                                <h5 class="text-${colorClass} fw-bold mt-1 mb-2">${formatDisplayDate(log.date)}</h5>
-                                <div class="d-flex gap-2">
-                                    ${timeBadges}
-                                </div>
-                            </div>
-                            <button class="btn btn-light border p-2 ms-2" style="border-radius: 8px;" onclick="showLogDetail('${log.date}', '${log.mIn}', '${log.mOut}', '${log.aIn}', '${log.aOut}', '${log.overallStatus}')">
-                                <i class="fas fa-file-alt text-${colorClass} fs-4"></i>
-                            </button>
-                        </div>
-                    </div>`;
+                    return `<div class="card mb-3 shadow-sm" style="border:none; border-left: 6px solid var(--bs-${colorClass}); border-radius: 12px;"><div class="card-body d-flex justify-content-between align-items-center"><div style="flex:1;"><div class="text-muted small">${statusText}</div><h5 class="text-${colorClass} fw-bold mt-1 mb-2">${formatDisplayDate(log.date)}</h5><div class="d-flex gap-2">${timeBadges}</div></div><button class="btn btn-light border p-2 ms-2" style="border-radius: 8px;" onclick="showLogDetail('${log.date}', '${log.mIn}', '${log.mOut}', '${log.aIn}', '${log.aOut}', '${log.overallStatus}')"><i class="fas fa-file-alt text-${colorClass} fs-4"></i></button></div></div>`;
                 }).join('');
             }
         }
 
         function showLogDetail(date, mIn, mOut, aIn, aOut, status) {
-            var statusKH = status === 'Permission' ? '<span class="text-warning fw-bold">សុំច្បាប់ (Permission)</span>' : 
-                           (status === 'Absent' ? '<span class="text-danger fw-bold">អវត្តមាន (០ ពិន្ទុ)</span>' : 
-                           (status === 'Half' ? '<span class="text-info fw-bold">វត្តមានកន្លះថ្ងៃ (១ ពិន្ទុ)</span>' : '<span class="text-success fw-bold">វត្តមានពេញ (២ ពិន្ទុ)</span>'));
+            var statusKH = "";
+            if (status === 'Permission' || status === 'Approved') {
+                statusKH = '<span class="text-warning fw-bold">សុំច្បាប់ (Permission)</span>';
+            } else if (status === 'Absent') {
+                statusKH = '<span class="text-danger fw-bold">អវត្តមាន (០ ពិន្ទុ)</span>';
+            } else if (status === 'Half') {
+                statusKH = '<span class="text-info fw-bold">វត្តមានកន្លះថ្ងៃ (១ ពិន្ទុ)</span>';
+            } else if (status === 'Partial') {
+                statusKH = '<span class="text-primary fw-bold">មិនទាន់ពេញលេញ (កំពុងរៀន)</span>';
+            } else {
+                statusKH = '<span class="text-success fw-bold">វត្តមានពេញ (២ ពិន្ទុ)</span>';
+            }
 
-            var minUI = mIn === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${mIn}</span>`;
-            var moutUI = mOut === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${mOut}</span>`;
-            var ainUI = aIn === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${aIn}</span>`;
-            var aoutUI = aOut === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${aOut}</span>`;
+            // 🌟 បន្លិចពណ៌ក្រហមពេលឃើញពាក្យ អវត្តមាន នៅក្នុង Popup 
+            var formatT = (t) => {
+                if (t === '--:--') return '<span class="text-muted">មិនមានទិន្នន័យ</span>';
+                if (t.includes('អវត្តមាន')) return `<span class="text-danger fw-bold">${t}</span>`;
+                return `<span class="text-primary fw-bold">${t}</span>`;
+            };
+
+            var minUI = formatT(mIn), moutUI = formatT(mOut);
+            var ainUI = formatT(aIn), aoutUI = formatT(aOut);
 
             Swal.fire({
                 title: '<span style="font-size: 18px;">ព័ត៌មានលម្អិត</span>',
-                html: `
-                    <div style="text-align: left; font-size: 11pt; padding: 10px; background: #f8f9fa; border-radius: 8px; margin-top: 10px;">
+                html: `<div style="text-align: left; font-size: 11pt; padding: 10px; background: #f8f9fa; border-radius: 8px; margin-top: 10px;">
                         <p class="mb-2"><i class="fas fa-calendar-alt text-secondary"></i> <strong>កាលបរិច្ឆេទ៖</strong> ${formatDisplayDate(date)}</p>
                         <p class="mb-2"><i class="fas fa-info-circle text-secondary"></i> <strong>ស្ថានភាព៖</strong> ${statusKH}</p>
                         <hr>
@@ -1152,12 +1138,118 @@ async function refreshStats(renderRep) {
                         <p class="mb-1 ms-3">ចូល៖ ${minUI} <br> ចេញ៖ ${moutUI}</p>
                         <p class="mb-1 mt-3"><strong><i class="fas fa-cloud-sun text-info"></i> វេនរសៀល (Afternoon)</strong></p>
                         <p class="mb-0 ms-3">ចូល៖ ${ainUI} <br> ចេញ៖ ${aoutUI}</p>
-                    </div>
-                `,
-                confirmButtonColor: '#0f0659',
-                confirmButtonText: 'បិទ (Close)'
+                      </div>`,
+                confirmButtonColor: '#0f0659', confirmButtonText: 'បិទ (Close)'
             });
         }
+        // function applyDateFilter() {
+        //     var inputs = document.querySelectorAll('#view-report input[type="date"]');
+        //     var fromDate = inputs.length > 0 ? inputs[0].value : '';
+        //     var toDate = inputs.length > 1 ? inputs[1].value : '';
+        //     var filtered = allDailyLogs;
+        //     if (fromDate && toDate) filtered = allDailyLogs.filter(function(l) { return l.date >= fromDate && l.date <= toDate; });
+
+        //     var countBadge = document.querySelector('#view-report .badge');
+        //     if (countBadge) countBadge.innerText = filtered.length + ' កំណត់ត្រា';
+        //     var container = document.getElementById('report_container'); 
+        //     if(!container) container = document.querySelector('#view-report > div:last-child');
+
+        //     if (filtered.length === 0) {
+        //         if(container) container.innerHTML = '<div class="text-center text-muted py-4">មិនមានកំណត់ត្រាទេ</div>';
+        //         return;
+        //     }
+
+        //     if(container) {
+        //         container.innerHTML = filtered.map(function(log) {
+        //             var statusText = "វត្តមានពេញ (២ ពិន្ទុ)";
+        //             var colorClass = "success"; 
+                    
+        //             if (log.overallStatus === "Half") {
+        //                 statusText = "វត្តមានកន្លះថ្ងៃ (១ ពិន្ទុ)"; colorClass = "info";
+        //             } else if (log.overallStatus === "Partial") {
+        //                 var now = new Date();
+        //                 var currentHr = now.getHours();
+        //                 var logDateObj = new Date(log.date);
+        //                 var isPast = (now.getTime() - logDateObj.getTime()) > (24 * 60 * 60 * 1000); 
+                        
+        //                 if (isPast || currentHr >= 17) {
+        //                     statusText = "វត្តមានមិនពេញលេញ (០ ពិន្ទុ)"; colorClass = "secondary"; 
+        //                 } else {
+        //                     statusText = "កំពុងរៀន (ស្កេនមិនទាន់គ្រប់)"; colorClass = "primary"; 
+        //                 }
+        //             } else if (log.overallStatus === "Permission") {
+        //                 statusText = "សុំច្បាប់ (Permission)"; colorClass = "warning"; 
+        //             } else if (log.overallStatus === "Absent") {
+        //                 statusText = "អវត្តមាន (០ ពិន្ទុ)"; colorClass = "danger"; 
+        //             }
+
+        //             var timeBadges = "";
+        //             if (log.overallStatus === "Permission") {
+        //                 timeBadges = `<span class="badge bg-warning text-dark w-100 mb-1" style="font-weight:normal; padding:6px 10px;"><i class="fas fa-calendar-check"></i> មានច្បាប់ឈប់សម្រាក (Approved)</span>`;
+        //             } else if (log.overallStatus === "Absent") {
+        //                 timeBadges = `<span class="badge bg-danger w-100 mb-1" style="font-weight:normal; padding:6px 10px;"><i class="fas fa-times-circle"></i> មិនបានមកចូលរៀន</span>`;
+        //             } else {
+        //                 var minUI = log.mIn === '--:--' ? '<span class="text-danger">--:--</span>' : log.mIn;
+        //                 var moutUI = log.mOut === '--:--' ? '<span class="text-danger">--:--</span>' : log.mOut;
+        //                 var ainUI = log.aIn === '--:--' ? '<span class="text-danger">--:--</span>' : log.aIn;
+        //                 var aoutUI = log.aOut === '--:--' ? '<span class="text-danger">--:--</span>' : log.aOut;
+
+        //                 timeBadges = `
+        //                     <div class="row g-1 w-100 mt-1 text-center">
+        //                         <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">ព្រឹកចូល: ${minUI}</span></div>
+        //                         <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">ព្រឹកចេញ: ${moutUI}</span></div>
+        //                         <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">រសៀលចូល: ${ainUI}</span></div>
+        //                         <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">រសៀលចេញ: ${aoutUI}</span></div>
+        //                     </div>
+        //                 `;
+        //             }
+
+        //             return `
+        //             <div class="card mb-3 shadow-sm" style="border:none; border-left: 6px solid var(--bs-${colorClass}); border-radius: 12px;">
+        //                 <div class="card-body d-flex justify-content-between align-items-center">
+        //                     <div style="flex:1;">
+        //                         <div class="text-muted small">${statusText}</div>
+        //                         <h5 class="text-${colorClass} fw-bold mt-1 mb-2">${formatDisplayDate(log.date)}</h5>
+        //                         <div class="d-flex gap-2">
+        //                             ${timeBadges}
+        //                         </div>
+        //                     </div>
+        //                     <button class="btn btn-light border p-2 ms-2" style="border-radius: 8px;" onclick="showLogDetail('${log.date}', '${log.mIn}', '${log.mOut}', '${log.aIn}', '${log.aOut}', '${log.overallStatus}')">
+        //                         <i class="fas fa-file-alt text-${colorClass} fs-4"></i>
+        //                     </button>
+        //                 </div>
+        //             </div>`;
+        //         }).join('');
+        //     }
+        // }
+
+        // function showLogDetail(date, mIn, mOut, aIn, aOut, status) {
+        //     var statusKH = status === 'Permission' ? '<span class="text-warning fw-bold">សុំច្បាប់ (Permission)</span>' : 
+        //                    (status === 'Absent' ? '<span class="text-danger fw-bold">អវត្តមាន (០ ពិន្ទុ)</span>' : 
+        //                    (status === 'Half' ? '<span class="text-info fw-bold">វត្តមានកន្លះថ្ងៃ (១ ពិន្ទុ)</span>' : '<span class="text-success fw-bold">វត្តមានពេញ (២ ពិន្ទុ)</span>'));
+
+        //     var minUI = mIn === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${mIn}</span>`;
+        //     var moutUI = mOut === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${mOut}</span>`;
+        //     var ainUI = aIn === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${aIn}</span>`;
+        //     var aoutUI = aOut === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${aOut}</span>`;
+
+        //     Swal.fire({
+        //         title: '<span style="font-size: 18px;">ព័ត៌មានលម្អិត</span>',
+        //         html: `
+        //             <div style="text-align: left; font-size: 11pt; padding: 10px; background: #f8f9fa; border-radius: 8px; margin-top: 10px;">
+        //                 <p class="mb-2"><i class="fas fa-calendar-alt text-secondary"></i> <strong>កាលបរិច្ឆេទ៖</strong> ${formatDisplayDate(date)}</p>
+        //                 <p class="mb-2"><i class="fas fa-info-circle text-secondary"></i> <strong>ស្ថានភាព៖</strong> ${statusKH}</p>
+        //                 <hr>
+        //                 <p class="mb-1"><strong><i class="fas fa-sun text-warning"></i> វេនព្រឹក (Morning)</strong></p>
+        //                 <p class="mb-1 ms-3">ចូល៖ ${minUI} <br> ចេញ៖ ${moutUI}</p>
+        //                 <p class="mb-1 mt-3"><strong><i class="fas fa-cloud-sun text-info"></i> វេនរសៀល (Afternoon)</strong></p>
+        //                 <p class="mb-0 ms-3">ចូល៖ ${ainUI} <br> ចេញ៖ ${aoutUI}</p>
+        //             </div>
+        //         `,
+        //         confirmButtonColor: '#0f0659',
+        //         confirmButtonText: 'បិទ (Close)'
+        //     });
+        // }
 
         function submitLeave() {
             var date = document.getElementById('leave_date').value;
