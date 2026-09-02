@@ -243,8 +243,30 @@
         .form-switch {
             margin-bottom: 12px;
         }
-        #totalPresentHeader{
-            text-color:black;
+      /* 🌟 ធ្វើឲ្យប្រអប់រើសថ្ងៃខែ (Date Input) មើលទៅស្រស់ស្អាត និងទាន់សម័យ 🌟 */
+        input[type="date"].form-control {
+            border-radius: 8px;
+            border: 1px solid #c5cbd5;
+            color: #333;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        input[type="date"].form-control:focus {
+            border-color: #0f0659;
+            box-shadow: 0 0 0 0.25rem rgba(15, 6, 89, 0.15);
+        }
+        /* កែច្នៃ Icon កាឡង់ទ័រនៅខាងស្តាំឲ្យលេចធ្លោ (សម្រាប់ Chrome/Edge/Safari) */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            background-color: #e9ecef;
+            padding: 4px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            background-color: #d1d4d7;
         }
             
     </style>
@@ -1298,7 +1320,7 @@
                 });
             });
 
-            totalPresentHeader.innerHTML = `<th colspan="4" class="text-end fw-bold pe-3" style="background: #e9ecef !important; color: #0f0659;">ចំនួននិស្សិតសរុបដែលមករៀន</th>`;
+            totalPresentHeader.innerHTML = `<th colspan="4" class="text-end fw-bold pe-3" style="background: #e9ecef !important; color: #000000 !important;">ចំនួននិស្សិតសរុបដែលមករៀន</th>`;
             let markIndex2 = 0;
             data.subjects.forEach((subj, subIdx) => {
                 for (let i = 0; i < subj.columns; i++) {
@@ -1307,7 +1329,7 @@
                     totalPresentHeader.innerHTML += `<th class="fw-bold ${txtColor}" style="background: #e9ecef !important;">${total}</th>`;
                     markIndex2++;
                 }
-                totalPresentHeader.innerHTML += `<th style="background: #e9ecef !important;"></th><th class="col-separator" style="background: #e9ecef !important;"></th>`;
+                totalPresentHeader.innerHTML += `<th style="background: #e9ecef !important;"></th><th class="col-separator" style="background: #000000 !important;"></th>`;
             });
 
             // 4. ទិន្នន័យសិស្ស
