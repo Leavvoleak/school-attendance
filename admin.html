@@ -1323,15 +1323,17 @@
             totalPresentHeader.innerHTML = `<th colspan="4" class="text-end fw-bold pe-3" style="background: #e9ecef !important; color: #000000 !important;">ចំនួននិស្សិតសរុបដែលមករៀន</th>`;
             let markIndex2 = 0;
             data.subjects.forEach((subj, subIdx) => {
-                for (let i = 0; i < subj.columns; i++) {
-                    let total = colTotals[markIndex2] || 0;
-                   
-                    let txtColor = total > 0 ? 'text-success' : 'text-danger';
-                    totalPresentHeader.innerHTML += `<th class="fw-bold ${txtColor}" style="background: #e9ecef !important;">${total}</th>`;
-                    markIndex2++;
-                }
-                totalPresentHeader.innerHTML += `<th style="background: #e9ecef !important;"></th><th class="col-separator" style="background: #e9ecef !important;"></th>`;
-            });
+                            for (let i = 0; i < subj.columns; i++) {
+                                let total = colTotals[markIndex2] || 0;
+                                
+                                // 🌟 ប្រើកូដពណ៌ផ្ទាល់ជំនួស Class: ពណ៌បៃតង (#198754) បើ > 0, ពណ៌ក្រហម (#dc3545) បើ = 0
+                                let hexColor = total > 0 ? '#198754' : '#dc3545';
+                                
+                                totalPresentHeader.innerHTML += `<th class="fw-bold" style="background: #e9ecef !important; color: ${hexColor} !important;">${total}</th>`;
+                                markIndex2++;
+                            }
+                            totalPresentHeader.innerHTML += `<th style="background: #e9ecef !important;"></th><th class="col-separator" style="background: #e9ecef !important;"></th>`;
+                        });
 
             // 4. ទិន្នន័យសិស្ស
             tbody.innerHTML = data.students.map((s, idx) => {
