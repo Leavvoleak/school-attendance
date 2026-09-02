@@ -504,20 +504,40 @@
             </div>
         </div>
 
-        <!-- NEW: Attendance List Page (Excel-like Matrix View) -->
+     
+<!-- NEW: Attendance List Page (Excel-like Matrix View) -->
         <div id="page-attendance-list" class="page-content">
             <div class="glass-card">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                     <h4 class="mb-0"><i class="bi bi-calendar-check"></i> បញ្ជីសម្រង់វត្តមានប្រចាំឆមាស</h4>
                     <button class="btn btn-success btn-sm" onclick="exportAttendanceMatrix()"><i class="bi bi-file-excel"></i> នាំចេញ (Export)</button>
                 </div>
                 
-                <div class="row g-3 mb-4">
+                <div class="row g-2 mb-4 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label text-muted small">ថ្នាក់រៀន (Class)</label>
-                        <select class="form-select form-select-sm" id="att_matrix_class" onchange="loadComplexAttendance()">
+                        <label class="form-label text-muted small fw-bold">ថ្នាក់រៀន (Class)</label>
+                        <select class="form-select form-select-sm" id="att_matrix_class" onchange="loadStudentOptionsForMatrix()">
                             <option value="ALL">ជ្រើសរើស...</option>
                         </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small fw-bold">សិស្ស (Student)</label>
+                        <select class="form-select form-select-sm" id="att_matrix_student">
+                            <option value="">ទាំងអស់ (All Students)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label text-muted small fw-bold">ពីថ្ងៃ (Start Date)</label>
+                        <input type="date" class="form-control form-control-sm" id="att_matrix_start">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label text-muted small fw-bold">ដល់ថ្ងៃ (End Date)</label>
+                        <input type="date" class="form-control form-control-sm" id="att_matrix_end">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary btn-sm w-100" onclick="loadComplexAttendance()">
+                            <i class="bi bi-search"></i> ស្វែងរក
+                        </button>
                     </div>
                 </div>
 
@@ -525,7 +545,6 @@
                     <table class="table attendance-matrix table-hover align-middle text-center mb-0" id="excelTable" style="min-width: 1500px; font-size: 13px;">
                         <thead class="table-dark" style="position: sticky; top: 0; z-index: 10;">
                                 <tr id="subjectHeader">
-                                    <!-- 🌟 ប្តូរពីលេខ 5 មកលេខ 4 វិញនៅកន្លែងទាំង៤នេះ 🌟 -->
                                     <th rowspan="4" class="align-middle" style="width: 50px;">ល.រ</th>
                                     <th rowspan="4" class="align-middle" style="width: 80px;">អត្តលេខ</th>
                                     <th rowspan="4" class="align-middle text-start" style="width: 150px;">ឈ្មោះនិស្សិត</th>
@@ -1151,12 +1170,45 @@
             }
         }
 
-async function loadComplexAttendance() {
+// មុខងារទាញយកឈ្មោះសិស្សដាក់បញ្ចូលទៅក្នុង Dropdown ពេលរើសថ្នាក់រៀន
+        async function loadStudentOptionsForMatrix() {
             var className = document.getElementById('att_matrix_class').value;
+            var stuSelect = document.getElementById('att_matrix_student');
+            
+            stuSelect.innerHTML = '<option value="">ទាំងអស់ (All Students)</option>';
+            if (!className || className === "ALL") return;
+
+            stuSelect.innerHTML = '<option value="">កំពុងផ្ទុក...</option>';
+            try {
+                const data = await callAPI('getStudentsByClass', { className: className });
+                if (data && data.success) {
+                    stuSelect.innerHTML = '<option value="">ទាំងអស់ (All Students)</option>';
+                    data.students.forEach(function(s) {
+                        stuSelect.innerHTML += '<option value="' + s.id + '">' + s.id + ' - ' + s.name + '</option>';
+                    });
+                } else {
+                    stuSelect.innerHTML = '<option value="">បរាជ័យទាញយកសិស្ស</option>';
+                }
+            } catch (err) {
+                stuSelect.innerHTML = '<option value="">កំហុសបណ្តាញ</option>';
+            }
+        }
+
+        async function loadComplexAttendance() {
+            var className = document.getElementById('att_matrix_class').value;
+            var studentId = document.getElementById('att_matrix_student').value;
+            var startDate = document.getElementById('att_matrix_start').value;
+            var endDate = document.getElementById('att_matrix_end').value;
             var tbody = document.getElementById('excelTbody');
             
             if(!className || className === "ALL") {
-                tbody.innerHTML = '<tr><td colspan="100%" class="text-center text-muted py-4">សូមជ្រើសរើសថ្នាក់ដើម្បីទាញយកទិន្នន័យ</td></tr>';
+                Swal.fire('បម្រាម', 'សូមជ្រើសរើសថ្នាក់ជាមុនសិន!', 'warning');
+                return;
+            }
+
+            // ប្រសិនបើជ្រើសរើសថ្ងៃ ត្រូវប្រាកដថាថ្ងៃចាប់ផ្តើមមិនធំជាងថ្ងៃបញ្ចប់
+            if (startDate && endDate && startDate > endDate) {
+                Swal.fire('បម្រាម', 'ថ្ងៃចាប់ផ្តើម មិនអាចធំជាងថ្ងៃបញ្ចប់ឡើយ!', 'warning');
                 return;
             }
 
@@ -1166,14 +1218,20 @@ async function loadComplexAttendance() {
             </td></tr>`;
             
             try {
-                const response = await callAPI('getComplexAttendanceMatrix', { className: className });
+                // 🌟 បញ្ជូន Parameter ថ្មីៗទៅកាន់ Backend (Code.gs)
+                const response = await callAPI('getComplexAttendanceMatrix', { 
+                    className: className,
+                    studentId: studentId,
+                    startDate: startDate,
+                    endDate: endDate
+                });
+                
                 if (response && response.success) {
                     renderExcelTable(response);
                 } else {
                     tbody.innerHTML = `<tr><td colspan="100%" class="text-center text-danger py-4">បរាជ័យពី Server៖ ${response.error || 'Unknown Error'}</td></tr>`;
                 }
             } catch (err) {
-                // 🌟 កន្លែងនេះនឹងលោតប្រាប់ចំៗបើមាន Error លើ Frontend (JavaScript)
                 console.error("Frontend Crash:", err);
                 tbody.innerHTML = `<tr><td colspan="100%" class="text-center text-danger py-4"><b>កំហុសនៅលើអេក្រង់ (Frontend Error):</b> <br>${err.message}</td></tr>`;
             }
