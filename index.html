@@ -213,14 +213,7 @@
         var allBuildings = [];
         var selectedCampus = null;
         
-        function getOrCreateDeviceId() {
-            var deviceId = localStorage.getItem('app_device_id');
-            if (!deviceId) {
-                deviceId = 'dev_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-                localStorage.setItem('app_device_id', deviceId);
-            }
-            return deviceId;
-        }
+
 
         window.onload = function() {
             var savedSession = localStorage.getItem('sessionUser');
@@ -385,43 +378,19 @@
             }
         }
 
-        async function getDeviceFingerprint() {
-            let components = [];
-            components.push(navigator.hardwareConcurrency || 'unk_core');
-            components.push(navigator.deviceMemory || 'unk_mem');
-            components.push(screen.width + 'x' + screen.height + 'x' + screen.colorDepth);
-            components.push(screen.availWidth + 'x' + screen.availHeight);
-            components.push(navigator.platform || 'unk_plat');
-            components.push(Intl.DateTimeFormat().resolvedOptions().timeZone || 'unk_tz');
-            
-            try {
-                const canvas = document.createElement('canvas');
-                canvas.width = 200; canvas.height = 50;
-                const ctx = canvas.getContext('2d');
-                ctx.textBaseline = 'top'; ctx.font = '14px Arial';
-                ctx.fillStyle = '#f60'; ctx.fillRect(125, 1, 62, 20);
-                ctx.fillStyle = '#069'; ctx.fillText('RTTC_DEVICE_ID', 2, 15);
-                ctx.fillStyle = 'rgba(102, 204, 0, 0.7)'; ctx.fillText('RTTC_DEVICE_ID', 4, 17);
-                components.push(canvas.toDataURL());
-            } catch(e) { components.push('canvas_err'); }
-
-            const rawString = components.join('###');
-            if (!window.crypto || !window.crypto.subtle) {
-                let hash = 0;
-                for (let i = 0; i < rawString.length; i++) {
-                    hash = ((hash << 5) - hash) + rawString.charCodeAt(i);
-                    hash = hash & hash;
+        function getOrCreateDeviceId() {
+                    var deviceId = localStorage.getItem('app_device_id');
+                    if (!deviceId) {
+                        deviceId = 'dev_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+                        localStorage.setItem('app_device_id', deviceId);
+                    }
+                    return deviceId;
                 }
-                return 'hw_fb_' + Math.abs(hash).toString(16) + '_' + rawString.length;
-            }
 
-            try {
-                const msgBuffer = new TextEncoder().encode(rawString);
-                const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgBuffer);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                return 'hw_' + hashHex.substring(0, 24);
-            } catch(e) { return getOrCreateDeviceId(); }
+        async function getDeviceFingerprint() {
+            // ប្រើប្រាស់លេខកូដ Random ពី LocalStorage ជំនួសឲ្យការអាន Hardware
+            // ដោះស្រាយបញ្ហាទូរស័ព្ទ iPhone ឬស៊េរីដូចគ្នា លោតជាន់ ID គ្នា
+            return getOrCreateDeviceId();
         }
 
         async function login(event) {
