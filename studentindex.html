@@ -1049,7 +1049,7 @@ async function refreshStats(renderRep) {
                 if (!dateInputs[1].value) dateInputs[1].value = formatDate(now);
             }
         }
-function applyDateFilter() {
+    function applyDateFilter() {
             var inputs = document.querySelectorAll('#view-report input[type="date"]');
             var fromDate = inputs.length > 0 ? inputs[0].value : '', toDate = inputs.length > 1 ? inputs[1].value : '';
             var filtered = allDailyLogs;
@@ -1068,13 +1068,15 @@ function applyDateFilter() {
                         statusText = "វត្តមានកន្លះថ្ងៃ (១ ពិន្ទុ)"; colorClass = "info"; 
                     } 
                     else if (log.overallStatus === "Partial") {
-                        statusText = "មិនទាន់ពេញលេញ (កំពុងរៀន)"; colorClass = "primary"; 
+                        // 🌟 ប្តូរពី កំពុងរៀន មកជា អវត្តមាន ១ពេល និងប្រើពណ៌ក្រហម
+                        statusText = "អវត្តមាន ១ពេល"; colorClass = "danger"; 
                     } 
                     else if (log.overallStatus === "Permission" || log.overallStatus === "Approved") { 
                         statusText = "សុំច្បាប់ (Permission)"; colorClass = "warning"; 
                     } 
                     else if (log.overallStatus === "Absent") { 
-                        statusText = "អវត្តមាន (០ ពិន្ទុ)"; colorClass = "danger"; 
+                        // 🌟 ប្តូរមកជា អវត្តមាន ២ពេល
+                        statusText = "អវត្តមាន ២ពេល"; colorClass = "danger"; 
                     }
 
                     var timeBadges = "";
@@ -1083,7 +1085,6 @@ function applyDateFilter() {
                     } else if (log.overallStatus === "Absent" && log.mIn === '--:--' && log.mOut === '--:--' && log.aIn === '--:--' && log.aOut === '--:--') {
                         timeBadges = `<span class="badge bg-danger w-100 mb-1" style="font-weight:normal; padding:6px 10px;"><i class="fas fa-times-circle"></i> មិនបានមកចូលរៀន</span>`;
                     } else {
-                        // 🌟 បន្លិចពណ៌ក្រហមពេលឃើញពាក្យ អវត្តមាន(ខកខានស្កេន)
                         var formatT = (t) => {
                             if (t === '--:--') return '<span class="text-danger">--:--</span>';
                             if (t.includes('អវត្តមាន')) return `<span class="text-danger" style="font-size:10px">${t}</span>`;
@@ -1109,16 +1110,17 @@ function applyDateFilter() {
             if (status === 'Permission' || status === 'Approved') {
                 statusKH = '<span class="text-warning fw-bold">សុំច្បាប់ (Permission)</span>';
             } else if (status === 'Absent') {
-                statusKH = '<span class="text-danger fw-bold">អវត្តមាន (០ ពិន្ទុ)</span>';
+                // 🌟 ប្តូរមកជា អវត្តមាន ២ពេល
+                statusKH = '<span class="text-danger fw-bold">អវត្តមាន ២ពេល</span>';
             } else if (status === 'Half') {
                 statusKH = '<span class="text-info fw-bold">វត្តមានកន្លះថ្ងៃ (១ ពិន្ទុ)</span>';
             } else if (status === 'Partial') {
-                statusKH = '<span class="text-primary fw-bold">មិនទាន់ពេញលេញ (កំពុងរៀន)</span>';
+                // 🌟 ប្តូរពី កំពុងរៀន មកជា អវត្តមាន ១ពេល ពណ៌ក្រហម
+                statusKH = '<span class="text-danger fw-bold">អវត្តមាន ១ពេល</span>';
             } else {
                 statusKH = '<span class="text-success fw-bold">វត្តមានពេញ (២ ពិន្ទុ)</span>';
             }
 
-            // 🌟 បន្លិចពណ៌ក្រហមពេលឃើញពាក្យ អវត្តមាន នៅក្នុង Popup 
             var formatT = (t) => {
                 if (t === '--:--') return '<span class="text-muted">មិនមានទិន្នន័យ</span>';
                 if (t.includes('អវត្តមាន')) return `<span class="text-danger fw-bold">${t}</span>`;
