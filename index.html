@@ -453,6 +453,77 @@
             document.getElementById('errorText').innerText = message;
             document.getElementById('errorMessage').style.display = 'block';
         }
+
+        // ==========================================
+// បង្ហាញ Toast បញ្ជាក់ឈ្មោះសិស្ស ពេលវាយ ID រួច
+// ==========================================
+document.addEventListener("DOMContentLoaded", function() {
+    // ស្វែងរកប្រអប់អត្តលេខ (សន្មតថាវាមាន id="userId")
+    var idInput = document.getElementById('userId'); 
+    
+    if(idInput) {
+        // នៅពេលសិស្សវាយរួច ហើយចុចចេញពីប្រអប់ (Change/Blur Event)
+        idInput.addEventListener('change', function() {
+            var currentId = this.value.trim();
+            if(currentId.length > 0) {
+                
+                // បង្ហាញ Loading ស្វែងរកឈ្មោះ
+                Swal.fire({
+                    title: 'កំពុងស្វែងរកឈ្មោះ...',
+                    toast: true,
+                    position: 'top',
+                    showConfirmButton: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                // ហៅទៅកាន់ Code.gs ដើម្បីទាញឈ្មោះសិស្ស
+                google.script.run
+                .withSuccessHandler(function(res) {
+                    if(res.success) {
+                        // 🌟 បើរកឃើញ លោត Toast បញ្ជាក់ Is Me / Not Me
+                        Swal.fire({
+                            title: 'តើនេះពិតជាអ្នកមែនទេ?',
+                            html: 'ឈ្មោះសិស្ស៖ <b style="color:#0f0659; font-size: 18px;">' + res.name + '</b>',
+                            icon: 'question',
+                            toast: true, 
+                            position: 'top',
+                            showCancelButton: true,
+                            confirmButtonText: '✅ គឺខ្ញុំ (Is Me)',
+                            cancelButtonText: '❌ មិនមែនខ្ញុំទេ (Not Me)',
+                            confirmButtonColor: '#28a745',
+                            cancelButtonColor: '#dc3545',
+                            allowOutsideClick: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // ជំហានបន្ទាប់៖ លោតទៅ Focus លើប្រអប់វាយពាក្យសម្ងាត់ដោយស្វ័យប្រវត្តិ
+                                var pwdInput = document.getElementById('password');
+                                if(pwdInput) pwdInput.focus();
+                            } else {
+                                // បើ Not Me ៖ លុបអត្តលេខចោល ឲ្យវាយម្តងទៀត
+                                idInput.value = '';
+                                idInput.focus();
+                            }
+                        });
+                    } else {
+                        // បើវាយលេខខុស ឬរកមិនឃើញ
+                        Swal.fire({
+                            title: 'រកមិនឃើញសិស្សនេះទេ!',
+                            text: 'សូមពិនិត្យមើលអត្តលេខឡើងវិញ',
+                            icon: 'warning',
+                            toast: true,
+                            position: 'top',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                        idInput.value = '';
+                        idInput.focus();
+                    }
+                })
+                .checkStudentNameAPI(currentId);
+            }
+        });
+    }
+});
     </script>
 </body>
 </html>
