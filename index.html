@@ -460,69 +460,66 @@
         // ==========================================
 // បង្ហាញ Toast បញ្ជាក់ឈ្មោះសិស្ស ពេលវាយ ID រួច
 // ==========================================
+// ==========================================
+// បង្ហាញ Popup បញ្ជាក់ឈ្មោះសិស្ស ពេលវាយ ID រួច (Block អេក្រង់)
+// ==========================================
 document.addEventListener("DOMContentLoaded", function() {
-    // ស្វែងរកប្រអប់អត្តលេខ (សន្មតថាវាមាន id="userId")
     var idInput = document.getElementById('userId'); 
     
     if(idInput) {
-        // នៅពេលសិស្សវាយរួច ហើយចុចចេញពីប្រអប់ (Change/Blur Event)
-        idInput.addEventListener('change', function() {
+        // 🌟 ប្រើ async function ដើម្បីអាចប្រើ await callAPI បាន
+        idInput.addEventListener('change', async function() {
             var currentId = this.value.trim();
             if(currentId.length > 0) {
                 
-                // បង្ហាញ Loading ស្វែងរកឈ្មោះ
                 Swal.fire({
                     title: 'កំពុងស្វែងរកឈ្មោះ...',
-                    toast: true,
-                    position: 'top',
+                    allowOutsideClick: false, 
+                    allowEscapeKey: false,
                     showConfirmButton: false,
                     didOpen: () => { Swal.showLoading(); }
                 });
 
-                // ហៅទៅកាន់ Code.gs ដើម្បីទាញឈ្មោះសិស្ស
-                google.script.run
-                .withSuccessHandler(function(res) {
-                    if(res.success) {
-                        // 🌟 បើរកឃើញ លោត Toast បញ្ជាក់ Is Me / Not Me
+                try {
+                    // 🌟 ប្រើ callAPI ជំនួសឲ្យ google.script.run
+                    const res = await callAPI('checkStudentName', { userId: currentId });
+                    
+                    if(res && res.success) {
                         Swal.fire({
                             title: 'តើនេះពិតជាអ្នកមែនទេ?',
                             html: 'ឈ្មោះសិស្ស៖ <b style="color:#0f0659; font-size: 18px;">' + res.name + '</b>',
                             icon: 'question',
-                            toast: true, 
-                            position: 'top',
+                            allowOutsideClick: false, 
+                            allowEscapeKey: false,    
                             showCancelButton: true,
                             confirmButtonText: '✅ គឺខ្ញុំ (Is Me)',
                             cancelButtonText: '❌ មិនមែនខ្ញុំទេ (Not Me)',
                             confirmButtonColor: '#28a745',
-                            cancelButtonColor: '#dc3545',
-                            allowOutsideClick: false
+                            cancelButtonColor: '#dc3545'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                // ជំហានបន្ទាប់៖ លោតទៅ Focus លើប្រអប់វាយពាក្យសម្ងាត់ដោយស្វ័យប្រវត្តិ
                                 var pwdInput = document.getElementById('password');
                                 if(pwdInput) pwdInput.focus();
                             } else {
-                                // បើ Not Me ៖ លុបអត្តលេខចោល ឲ្យវាយម្តងទៀត
                                 idInput.value = '';
                                 idInput.focus();
                             }
                         });
                     } else {
-                        // បើវាយលេខខុស ឬរកមិនឃើញ
                         Swal.fire({
                             title: 'រកមិនឃើញសិស្សនេះទេ!',
                             text: 'សូមពិនិត្យមើលអត្តលេខឡើងវិញ',
                             icon: 'warning',
-                            toast: true,
-                            position: 'top',
+                            allowOutsideClick: false,
                             timer: 3000,
                             showConfirmButton: false
                         });
                         idInput.value = '';
                         idInput.focus();
                     }
-                })
-                .checkStudentNameAPI(currentId);
+                } catch (error) {
+                    Swal.fire('បរាជ័យ', 'មានបញ្ហាភ្ជាប់ទៅប្រព័ន្ធ Server', 'error');
+                }
             }
         });
     }
