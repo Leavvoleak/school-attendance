@@ -461,19 +461,21 @@
 // បង្ហាញ Toast បញ្ជាក់ឈ្មោះសិស្ស ពេលវាយ ID រួច
 // ==========================================
 // ==========================================
-// បង្ហាញ Popup បញ្ជាក់ឈ្មោះសិស្ស ពេលវាយ ID រួច (Block អេក្រង់)
+// បង្ហាញ Popup បញ្ជាក់ឈ្មោះសិស្ស ពេលវាយ ID រួច (ទំហំតូចល្មម)
 // ==========================================
 document.addEventListener("DOMContentLoaded", function() {
     var idInput = document.getElementById('userId'); 
     
     if(idInput) {
-        // 🌟 ប្រើ async function ដើម្បីអាចប្រើ await callAPI បាន
         idInput.addEventListener('change', async function() {
             var currentId = this.value.trim();
             if(currentId.length > 0) {
                 
+                // 🌟 ១. Popup Loading (បង្រួញទំហំ)
                 Swal.fire({
-                    title: 'កំពុងស្វែងរកឈ្មោះ...',
+                    title: '<span style="font-size: 15px;">កំពុងស្វែងរកឈ្មោះ...</span>',
+                    width: '250px', // បង្រួញទទឹងមកត្រឹម 250px
+                    padding: '10px', // បន្ថយគែម
                     allowOutsideClick: false, 
                     allowEscapeKey: false,
                     showConfirmButton: false,
@@ -481,19 +483,21 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
 
                 try {
-                    // 🌟 ប្រើ callAPI ជំនួសឲ្យ google.script.run
                     const res = await callAPI('checkStudentName', { userId: currentId });
                     
                     if(res && res.success) {
+                        // 🌟 ២. Popup បញ្ជាក់ឈ្មោះ (បង្រួញទំហំ និងបង្រួញអក្សរប៊ូតុង)
                         Swal.fire({
-                            title: 'តើនេះពិតជាអ្នកមែនទេ?',
-                            html: 'ឈ្មោះសិស្ស៖ <b style="color:#0f0659; font-size: 18px;">' + res.name + '</b>',
+                            title: '<span style="font-size: 16px;">តើនេះពិតជាអ្នកមែនទេ?</span>',
+                            html: '<span style="font-size: 14px;">ឈ្មោះសិស្ស៖ </span><b style="color:#0f0659; font-size: 16px;">' + res.name + '</b>',
                             icon: 'question',
+                            width: '300px', // បង្រួញទទឹងមកត្រឹម 300px
+                            padding: '15px',
                             allowOutsideClick: false, 
                             allowEscapeKey: false,    
                             showCancelButton: true,
-                            confirmButtonText: '✅ គឺខ្ញុំ (Is Me)',
-                            cancelButtonText: '❌ មិនមែនខ្ញុំទេ (Not Me)',
+                            confirmButtonText: '<span style="font-size: 14px;">✅ គឺខ្ញុំ</span>',
+                            cancelButtonText: '<span style="font-size: 14px;">❌ មិនមែនខ្ញុំទេ</span>',
                             confirmButtonColor: '#28a745',
                             cancelButtonColor: '#dc3545'
                         }).then((result) => {
@@ -506,10 +510,13 @@ document.addEventListener("DOMContentLoaded", function() {
                             }
                         });
                     } else {
+                        // 🌟 ៣. Popup រកមិនឃើញ (បង្រួញទំហំ)
                         Swal.fire({
-                            title: 'រកមិនឃើញសិស្សនេះទេ!',
-                            text: 'សូមពិនិត្យមើលអត្តលេខឡើងវិញ',
+                            title: '<span style="font-size: 16px;">រកមិនឃើញសិស្សនេះទេ!</span>',
+                            html: '<span style="font-size: 13px;">សូមពិនិត្យមើលអត្តលេខឡើងវិញ</span>',
                             icon: 'warning',
+                            width: '280px', // បង្រួញទទឹង
+                            padding: '15px',
                             allowOutsideClick: false,
                             timer: 3000,
                             showConfirmButton: false
@@ -518,7 +525,12 @@ document.addEventListener("DOMContentLoaded", function() {
                         idInput.focus();
                     }
                 } catch (error) {
-                    Swal.fire('បរាជ័យ', 'មានបញ្ហាភ្ជាប់ទៅប្រព័ន្ធ Server', 'error');
+                    Swal.fire({
+                        title: '<span style="font-size: 16px;">បរាជ័យ</span>',
+                        html: '<span style="font-size: 13px;">មានបញ្ហាភ្ជាប់ទៅប្រព័ន្ធ Server</span>',
+                        icon: 'error',
+                        width: '250px'
+                    });
                 }
             }
         });
