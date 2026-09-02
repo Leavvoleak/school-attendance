@@ -996,17 +996,59 @@ async function submitCheckIn(scannedData) {
                             });
                             handleCheckInResult(res, status);
                         },
-                        async function(error) {
-                            // 🌟 ៣. កែសម្រួលសារ Error ឲ្យដឹងច្បាស់ថាវាមកពីសេវាខ្សោយ ឬអត់បើកសិទ្ធិ
+                            async function(error) {
+                            let errorTitle = 'បញ្ហាទីតាំង (GPS)';
                             let errorMsg = 'សូមបើក GPS (Location) រួចព្យាយាមម្តងទៀត។';
+                            let showHelpButton = false;
+
                             if (error.code === error.PERMISSION_DENIED) {
-                                errorMsg = 'ទីតាំងត្រូវបានបដិសេធ! សម្រាប់ iPhone សូមចូល Settings > Privacy & Security > Location Services បើកវា ហើយអនុញ្ញាត (Allow) សម្រាប់ Browser នេះ។';
+                                errorTitle = 'ទីតាំងត្រូវបានបដិសេធ!';
+                                errorMsg = 'កម្មវិធីមិនអាចចាប់ទីតាំងបានទេ ព្រោះអ្នកមិនទាន់បានអនុញ្ញាត (Allow Location)។';
+                                showHelpButton = true; // បង្ហាញប៊ូតុងជំនួយ
                             } else if (error.code === error.TIMEOUT) {
                                 errorMsg = 'ស្វែងរកទីតាំងយូរពេក (Timeout)! សូមសាកល្បងនៅកន្លែងស្រឡះល្អ គ្មានដំបូលបាំងជិត។';
                             } else if (error.code === error.POSITION_UNAVAILABLE) {
                                 errorMsg = 'សេវា GPS ខ្សោយ មិនអាចកំណត់ទីតាំងបានទេ។';
                             }
-                            await Swal.fire({ icon: 'warning', title: 'បញ្ហាទីតាំង (GPS)', text: errorMsg });
+                            
+                            // បើសិស្សចុច Block Location, លោតផ្ទាំងមានប៊ូតុងបង្រៀន
+                            if (showHelpButton) {
+                                await Swal.fire({
+                                    icon: 'warning',
+                                    title: errorTitle,
+                                    text: errorMsg,
+                                    showCancelButton: true,
+                                    confirmButtonText: '📖 មើលរបៀបបើក',
+                                    cancelButtonText: 'បិទ',
+                                    confirmButtonColor: '#3085d6',
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        // ផ្ទាំងបង្រៀនសិស្សពីរបៀបបើក យ៉ាងលម្អិត
+                                        Swal.fire({
+                                            title: 'របៀបបើកទីតាំង (Location)',
+                                            html: `
+                                                <div style="text-align: left; font-size: 14px; line-height: 1.8;">
+                                                    <b>🔵 សម្រាប់ Android (Chrome):</b><br>
+                                                    ១. ចុចសញ្ញា <b>សោ 🔒 ឬ ≡</b> នៅកាច់ជ្រុងខាងឆ្វេងផ្នែកខាងលើ (ជិតឈ្មោះវេបសាយ)<br>
+                                                    ២. ជ្រើសរើស <b>Permissions (សិទ្ធិ)</b><br>
+                                                    ៣. ចុចបើក <b>Location (ទីតាំង)</b> រួច Refresh វេបសាយនេះ។<br><br>
+                                                    
+                                                    <b>🟢 សម្រាប់ iPhone (Safari):</b><br>
+                                                    ១. ចូលទៅកាន់ <b>Settings</b> របស់ទូរស័ព្ទ<br>
+                                                    ២. អូសចុះក្រោម រកមើលពាក្យ <b>Privacy & Security</b> > <b>Location Services</b><br>
+                                                    ៣. បើក Location រួចស្វែងរក <b>Safari Websites</b> ហើយរើស <b>While Using the App</b>។
+                                                </div>
+                                            `,
+                                            icon: 'info',
+                                            confirmButtonText: 'យល់ព្រម'
+                                        });
+                                    }
+                                });
+                            } else {
+                                // Error ផ្សេងៗ លោតធម្មតា
+                                await Swal.fire({ icon: 'warning', title: errorTitle, text: errorMsg });
+                            }
+                            
                             status.innerHTML = '';
                         },
                         // 🌟 ៤. ប្តូរ Timeout មកត្រឹម 10 វិនាទី (10000ms) ដើម្បីកុំឲ្យវារង់ចាំយូរពេកទាល់តែគាំង
