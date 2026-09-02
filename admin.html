@@ -1325,11 +1325,12 @@
             data.subjects.forEach((subj, subIdx) => {
                 for (let i = 0; i < subj.columns; i++) {
                     let total = colTotals[markIndex2] || 0;
+                   
                     let txtColor = total > 0 ? 'text-success' : 'text-danger';
                     totalPresentHeader.innerHTML += `<th class="fw-bold ${txtColor}" style="background: #e9ecef !important;">${total}</th>`;
                     markIndex2++;
                 }
-                totalPresentHeader.innerHTML += `<th style="background: #e9ecef !important;"></th><th class="col-separator" style="background: #000000 !important;"></th>`;
+                totalPresentHeader.innerHTML += `<th style="background: #e9ecef !important;"></th><th class="col-separator" style="background: #e9ecef !important;"></th>`;
             });
 
             // 4. ទិន្នន័យសិស្ស
