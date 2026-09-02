@@ -463,6 +463,9 @@
 // ==========================================
 // បង្ហាញ Popup បញ្ជាក់ឈ្មោះសិស្ស ពេលវាយ ID រួច (ទំហំតូចល្មម)
 // ==========================================
+// ==========================================
+// បង្ហាញ Popup បញ្ជាក់ឈ្មោះសិស្ស ពេលវាយ ID រួច
+// ==========================================
 document.addEventListener("DOMContentLoaded", function() {
     var idInput = document.getElementById('userId'); 
     
@@ -471,11 +474,9 @@ document.addEventListener("DOMContentLoaded", function() {
             var currentId = this.value.trim();
             if(currentId.length > 0) {
                 
-                // 🌟 ១. Popup Loading (បង្រួញទំហំ)
                 Swal.fire({
                     title: '<span style="font-size: 15px;">កំពុងស្វែងរកឈ្មោះ...</span>',
-                    width: '250px', // បង្រួញទទឹងមកត្រឹម 250px
-                    padding: '10px', // បន្ថយគែម
+                    width: '250px',
                     allowOutsideClick: false, 
                     allowEscapeKey: false,
                     showConfirmButton: false,
@@ -484,15 +485,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 try {
                     const res = await callAPI('checkStudentName', { userId: currentId });
-                    Swal.hideLoading(); // 🌟 បន្ថែមកូដនេះដើម្បីបិទ Loading មុនលោតផ្ទាំងថ្មី
+                    
+                    Swal.close(); // 🌟 បិទផ្ទាំង Loading ទាំងស្រុង
+                    
                     if(res && res.success) {
-                        // 🌟 ២. Popup បញ្ជាក់ឈ្មោះ (បង្រួញទំហំ និងបង្រួញអក្សរប៊ូតុង)
                         Swal.fire({
                             title: '<span style="font-size: 16px;">តើនេះពិតជាអ្នកមែនទេ?</span>',
                             html: '<span style="font-size: 14px;">ឈ្មោះសិស្ស៖ </span><b style="color:#0f0659; font-size: 16px;">' + res.name + '</b>',
                             icon: 'question',
-                            width: '300px', // បង្រួញទទឹងមកត្រឹម 300px
-                            padding: '15px',
+                            width: '300px',
                             allowOutsideClick: false, 
                             allowEscapeKey: false,    
                             showCancelButton: true,
@@ -510,13 +511,11 @@ document.addEventListener("DOMContentLoaded", function() {
                             }
                         });
                     } else {
-                        // 🌟 ៣. Popup រកមិនឃើញ (បង្រួញទំហំ)
                         Swal.fire({
                             title: '<span style="font-size: 16px;">រកមិនឃើញសិស្សនេះទេ!</span>',
                             html: '<span style="font-size: 13px;">សូមពិនិត្យមើលអត្តលេខឡើងវិញ</span>',
                             icon: 'warning',
-                            width: '280px', // បង្រួញទទឹង
-                            padding: '15px',
+                            width: '280px',
                             allowOutsideClick: false,
                             timer: 3000,
                             showConfirmButton: false
@@ -525,7 +524,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         idInput.focus();
                     }
                 } catch (error) {
-                    Swal.hideLoading(); // 🌟 បិទ Loading មុនលោត Error
+                    Swal.close(); // 🌟 បិទផ្ទាំង Loading ទាំងស្រុង មុនលោត Error
                     Swal.fire({
                         title: '<span style="font-size: 16px;">បរាជ័យ</span>',
                         html: '<span style="font-size: 13px;">មានបញ្ហាភ្ជាប់ទៅប្រព័ន្ធ Server</span>',
