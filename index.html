@@ -68,9 +68,7 @@
             margin-top: 5px;
         }
         
-        .form-group {
-            margin-bottom: 20px;
-        }
+        .form-group { margin-bottom: 20px; }
         
         .form-group label {
             color: rgba(255,255,255,0.8);
@@ -92,9 +90,7 @@
             font-family: 'Siemreap', sans-serif;
         }
         
-        .form-control-glass::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-        }
+        .form-control-glass::placeholder { color: rgba(255, 255, 255, 0.4); }
         
         .form-control-glass:focus {
             outline: none;
@@ -103,10 +99,7 @@
             box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
         }
         
-        .form-control-glass option {
-            color: #333;
-            background: white;
-        }
+        .form-control-glass option { color: #333; background: white; }
         
         .btn-glass {
             width: 100%;
@@ -127,45 +120,21 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
-        
-        .btn-glass:active {
-            transform: translateY(0);
-        }
-        
-        .btn-glass:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
+        .btn-glass:active { transform: translateY(0); }
+        .btn-glass:disabled { opacity: 0.6; cursor: not-allowed; }
         
         .role-selector {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 20px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px;
         }
-        
         .role-option {
-            padding: 10px;
-            text-align: center;
+            padding: 10px; text-align: center;
             background: rgba(255, 255, 255, 0.08);
             border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            color: rgba(255, 255, 255, 0.6);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 12px;
+            border-radius: 10px; color: rgba(255, 255, 255, 0.6);
+            cursor: pointer; transition: all 0.3s ease; font-size: 12px;
         }
-        
-        .role-option i {
-            display: block;
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-        
-        .role-option:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-        
+        .role-option i { display: block; font-size: 24px; margin-bottom: 5px; }
+        .role-option:hover { background: rgba(255, 255, 255, 0.15); }
         .role-option.active {
             background: rgba(255, 255, 255, 0.2);
             border-color: rgba(255, 255, 255, 0.5);
@@ -173,204 +142,45 @@
         }
         
         .error-message {
-            color: #ff6b6b;
-            font-size: 13px;
-            text-align: center;
-            margin-top: 10px;
-            display: none;
-            background: rgba(255, 0, 0, 0.1);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 0, 0, 0.2);
+            color: #ff6b6b; font-size: 13px; text-align: center;
+            margin-top: 10px; display: none; background: rgba(255, 0, 0, 0.1);
+            padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 0, 0, 0.2);
         }
         
-        .loading-spinner {
-            display: none;
-            text-align: center;
-            margin-top: 15px;
-        }
-        
+        .loading-spinner { display: none; text-align: center; margin-top: 15px; }
         .loading-spinner .spinner {
-            width: 30px;
-            height: 30px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top: 3px solid white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto;
+            width: 30px; height: 30px; border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid white; border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin: 0 auto;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .footer-text {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 11px;
-            margin-top: 20px;
-        }
-        
-        .campus-selector {
-            margin-bottom: 20px;
-        }
-        
-        .campus-selector select {
-            color: white;
-        }
-        
-        .campus-selector select option {
-            color: #333;
-            background: white;
-        }
-
-
-                    /*  Custom Glass Dropdown Styles 
-            .glass-dropdown {
-                position: relative;
-                width: 100%;
-                font-family: 'Siemreap', sans-serif;
-            }
-            .glass-dropdown-select {
-                width: 100%;
-                padding: 12px 15px;
-                background: rgba(255, 255, 255, 0.12);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                border-radius: 12px;
-                color: white;
-                font-size: 15px;
-                cursor: pointer;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                transition: all 0.3s ease;
-            }
-            .glass-dropdown-select:hover, .glass-dropdown.active .glass-dropdown-select {
-                background: rgba(255, 255, 255, 0.2);
-                border-color: rgba(255, 255, 255, 0.5);
-                box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-            }
-            .glass-dropdown-list {
-                position: absolute;
-                top: 110%;
-                left: 0;
-                right: 0;
-                /* ពណ៌ផ្ទៃខាងក្រោយរាងស្វាយក្រាស់បន្តិច ដើម្បីងាយស្រួលអានអក្សរ 
-                background: rgba(85, 60, 140, 0.95); 
-                backdrop-filter: blur(15px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                border-radius: 12px;
-                box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-                list-style: none;
-                padding: 8px 0;
-                margin: 0;
-                opacity: 0;
-                visibility: hidden;
-                transform: translateY(-10px);
-                transition: all 0.3s ease;
-                z-index: 100;
-                max-height: 250px;
-                overflow-y: auto;
-            }
-            .glass-dropdown.active .glass-dropdown-list {
-                opacity: 1;
-                visibility: visible;
-                transform: translateY(0);
-            }
-            .glass-dropdown-item {
-                padding: 12px 15px;
-                color: white;
-                cursor: pointer;
-                transition: background 0.2s;
-                font-size: 14px;
-                line-height: 1.5;
-                border-bottom: 1px solid rgba(255,255,255,0.05);
-            }
-            .glass-dropdown-item:last-child {
-                border-bottom: none;
-            }
-            .glass-dropdown-item:hover {
-                background: rgba(255, 255, 255, 0.2);
-            }
-            /* Scrollbar Customization សម្រាប់បញ្ជី Dropdown 
-            .glass-dropdown-list::-webkit-scrollbar {
-                width: 6px;
-            }
-            .glass-dropdown-list::-webkit-scrollbar-thumb {
-                background: rgba(255, 255, 255, 0.3);
-                border-radius: 10px;
-            } */
-
-.glass-dropdown { position: relative; width: 100%; font-family: 'Siemreap', sans-serif; }
-.glass-dropdown-select {
-    width: 100%; padding: 12px 15px; background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px;
-    color: white; font-size: 15px; cursor: pointer;
-    display: flex; justify-content: space-between; align-items: center;
-    transition: all 0.3s ease;
-}
-.glass-dropdown-select:hover, .glass-dropdown.active .glass-dropdown-select {
-    background: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.5);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-}
-.glass-dropdown-list {
-    position: absolute; top: 110%; left: 0; right: 0;
-    background: rgba(85, 60, 140, 0.95); backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.3); list-style: none;
-    padding: 8px 0; margin: 0; opacity: 0; visibility: hidden;
-    transform: translateY(-10px); transition: all 0.3s ease;
-    z-index: 1000; max-height: 250px; overflow-y: auto;
-}
-.glass-dropdown.active .glass-dropdown-list {
-    opacity: 1; visibility: visible; transform: translateY(0);
-}
-.glass-dropdown-item {
-    padding: 12px 15px; color: white; cursor: pointer;
-    font-size: 14px; line-height: 1.5; border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-.glass-dropdown-item:last-child { border-bottom: none; }
-.glass-dropdown-item:hover { background: rgba(255, 255, 255, 0.2); }
-.glass-dropdown-list::-webkit-scrollbar { width: 6px; }
-.glass-dropdown-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 10px; }
+        .footer-text { text-align: center; color: rgba(255, 255, 255, 0.4); font-size: 11px; margin-top: 20px; }
     </style>
 </head>
 <body>
     <div class="glass-container">
         <div class="logo-container">
-            <div class="logo-icon">
-                <i class="bi bi-mortarboard-fill"></i>
-            </div>
+            <div class="logo-icon"><i class="bi bi-mortarboard-fill"></i></div>
             <div class="logo-text" id="campusHeaderKhmer">ប្រព័ន្ធវត្តមាន(កំពុងជួសជុល)</div>
             <div class="logo-sub" id="campusHeaderEnglish">RTTCPV AMS</div>
         </div>
         
         <form id="loginForm" onsubmit="login(event)">
-            <div class="form-group campus-selector">
-                <label><i class="bi bi-building"></i> ជ្រើសរើសសាលា / Campus</label>
-                
-                <!-- 🌟 Custom Glass Dropdown -->
-                <div class="glass-dropdown" id="customCampusDropdown">
-                    <div class="glass-dropdown-select" id="customSelectBox">
-                        <span class="selected-text" id="customCampusText">កំពុងផ្ទុក...</span>
-                        <i class="bi bi-chevron-down"></i>
-                    </div>
-                    <ul class="glass-dropdown-list" id="customCampusList">
-                        <!-- បញ្ជីសាលានឹងត្រូវបញ្ចូលទីនេះដោយស្វ័យប្រវត្តិ (JS) -->
-                    </ul>
-                </div>
-                
-                <!-- 🌟 Select ដើម (ត្រូវលាក់កុំឲ្យឃើញ) -->
-                <select id="campusSelect" class="form-control-glass" onchange="updateCampusHeader()" style="display: none;">
-                    <option value="">កំពុងផ្ទុក...</option>
+            <div class="form-group">
+                <label><i class="bi bi-buildings"></i> ជ្រើសរើសសាលា / Campus</label>
+                <select id="campusSelect" class="form-control-glass" onchange="updateCampusHeader()">
+                    <option value="" style="color: black;">កំពុងផ្ទុក...</option>
                 </select>
             </div>
-            <div class="mb-3">
-                        <label class="form-label text-muted small"><i class="bi bi-building"></i> ជ្រើសរើសអគារ (Building)</label>
-                        <select class="form-select bg-light" id="buildingSelect" disabled>
-                            <option value="">-- សូមជ្រើសរើសសាលាជាមុនសិន --</option>
-                        </select>
+            
+            <div class="form-group">
+                <label><i class="bi bi-geo-alt"></i> ជ្រើសរើសអគារ (Building)</label>
+                <select class="form-control-glass" id="buildingSelect" disabled>
+                    <option value="" style="color: black;">-- សូមជ្រើសរើសសាលាជាមុនសិន --</option>
+                </select>
             </div>
+            
             <div class="form-group">
                 <label><i class="bi bi-person-badge"></i> អត្តលេខ / ID</label>
                 <input type="text" id="userId" class="form-control-glass" placeholder="បញ្ចូលអត្តលេខរបស់អ្នក" required autofocus>
@@ -385,16 +195,13 @@
                 <label><i class="bi bi-person"></i> តួនាទី</label>
                 <div class="role-selector">
                     <div class="role-option active" data-role="Student" onclick="selectRole(this)">
-                        <i class="bi bi-person-fill"></i>
-                        សិស្ស
+                        <i class="bi bi-person-fill"></i>សិស្ស
                     </div>
                     <div class="role-option" data-role="Teacher" onclick="selectRole(this)">
-                        <i class="bi bi-person-badge-fill"></i>
-                        គ្រូ
+                        <i class="bi bi-person-badge-fill"></i>គ្រូ
                     </div>
                     <div class="role-option" data-role="Admin" onclick="selectRole(this)">
-                        <i class="bi bi-shield-fill-check"></i>
-                        អេដមីន
+                        <i class="bi bi-shield-fill-check"></i>អេដមីន
                     </div>
                 </div>
                 <input type="hidden" id="role" value="Student">
@@ -414,21 +221,18 @@
             </div>
         </form>
         
-        <div class="footer-text">
-            <i class="bi bi-shield-check"></i> ប្រព័ន្ធសុវត្ថិភាពខ្ពស់
-        </div>
+        <div class="footer-text"><i class="bi bi-shield-check"></i> ប្រព័ន្ធសុវត្ថិភាពខ្ពស់</div>
     </div>
     
     <script>
         const BASE_URL = "https://script.google.com/macros/s/AKfycbzsrivSdBSb4s3zDaBhEZL-3R8g8ZJrnXGNweJQh8YGIAOyGohJAPzfOWoONj0LZhkg/exec";
-        var campuses = [];
+        var allCampuses = [];
+        var allBuildings = [];
         var selectedCampus = null;
         
-        // --- ANTI-CHEATING: Generate & Get Device ID ---
         function getOrCreateDeviceId() {
             var deviceId = localStorage.getItem('app_device_id');
             if (!deviceId) {
-                // Creates a random 15-character ID specific to this browser/phone
                 deviceId = 'dev_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
                 localStorage.setItem('app_device_id', deviceId);
             }
@@ -441,11 +245,8 @@
                 try {
                     var session = JSON.parse(savedSession);
                     if (session.role === 'Student') {
-                        if (session.requiresPasswordChange) {
-                            window.location.href = 'changepassword.html';
-                        } else {
-                           window.location.href = 'studentindex.html';
-                        }
+                        if (session.requiresPasswordChange) window.location.href = 'changepassword.html';
+                        else window.location.href = 'studentindex.html';
                     } else {
                         window.location.href = 'admin.html';
                     }
@@ -458,10 +259,11 @@
             loadCampusesAndBuildings();
             document.getElementById('userId').focus();
         };
-        var allCampuses = [];
-        var allBuildings = [];
 
         async function loadCampusesAndBuildings() {
+            var cSelect = document.getElementById('campusSelect');
+            var bSelect = document.getElementById('buildingSelect');
+            
             try {
                 const response = await fetch(BASE_URL, {
                     method: 'POST',
@@ -471,196 +273,105 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    allCampuses = data.campuses;
-                    allBuildings = data.buildings;
+                    allCampuses = data.campuses || [];
+                    allBuildings = data.buildings || [];
                     
-                    var cSelect = document.getElementById('campusSelect');
-                    cSelect.innerHTML = '<option value="">-- ជ្រើសរើសសាលា --</option>';
+                    cSelect.innerHTML = '<option value="" style="color: black;">-- ជ្រើសរើសសាលា --</option>';
                     allCampuses.forEach(c => {
-                        cSelect.innerHTML += `<option value="${c.id}">${c.nameKH}</option>`;
+                        cSelect.innerHTML += `<option value="${c.id}" style="color: black;">${c.nameKH}</option>`;
                     });
-                    
-                    // បន្ថែម Event ពេលប្តូរសាលា ឲ្យវាលោតអគារមក
-                    cSelect.addEventListener('change', function() {
-                        var cId = this.value;
-                        var bSelect = document.getElementById('buildingSelect');
-                        bSelect.innerHTML = '<option value="">-- ជ្រើសរើសអគារ --</option>';
-                        
-                        if (!cId) {
-                            bSelect.disabled = true;
-                            return;
-                        }
-                        
-                        bSelect.disabled = false;
-                        var filteredB = allBuildings.filter(b => b.campusId === cId);
-                        filteredB.forEach(b => {
-                            bSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
-                        });
-                    });
+                } else {
+                    cSelect.innerHTML = '<option value="" style="color: black;">កំហុសពី Server</option>';
                 }
             } catch (e) {
-                console.error("កំហុសក្នុងការទាញយកទិន្នន័យ");
+                cSelect.innerHTML = '<option value="" style="color: black;">បញ្ហាបណ្តាញទាក់ទង</option>';
             }
         }
         
-        // ហៅមុខងារនេះពេលបើកទំព័រ
-        document.addEventListener('DOMContentLoaded', loadCampusesAndBuildings);
-
-// async function loadCampuses() {
-//             var select = document.getElementById('campusSelect');
-//             select.innerHTML = '<option value="">កំពុងទាញយកទិន្នន័យ...</option>';
-            
-//             try {
-//                 const response = await fetch(BASE_URL, {
-//                     method: 'POST',
-//                     body: JSON.stringify({ action: 'getCampuses' }),
-//                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-//                     redirect: 'follow'
-//                 });
-                
-//                 // អានទិន្នន័យឆៅសិន មុននឹងបំប្លែងជា JSON ដើម្បីការពារការគាំង
-//                 const text = await response.text(); 
-                
-//                 try {
-//                     const data = JSON.parse(text);
-                    
-//                     if (data.error) {
-//                         select.innerHTML = '<option value="">កំហុស: ' + data.error + '</option>';
-//                         if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
-//                         return;
-//                     }
-                    
-//                     if (data.success && data.campuses && data.campuses.length > 0) {
-//                         select.innerHTML = '<option value="">ជ្រើសរើសសាលា...</option>';
-//                         campuses = data.campuses;
-//                         data.campuses.forEach(function(campus) {
-//                             var option = document.createElement('option');
-//                             option.value = campus.id;
-//                             option.textContent = campus.nameKH + ' (' + campus.nameEN + ')';
-//                             option.dataset.nameKH = campus.nameKH;
-//                             option.dataset.nameEN = campus.nameEN;
-//                             select.appendChild(option);
-//                         });
-                        
-//                         // 🌟 បង្កើតបញ្ជី Custom Dropdown បន្ទាប់ពីទាញទិន្នន័យចូល Select ដើមចប់
-//                         if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
-                        
-//                     } else {
-//                         select.innerHTML = '<option value="">គ្មានទិន្នន័យសាលាទេ</option>';
-//                         if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
-//                     }
-//                 } catch(e) {
-//                     console.error("ទិន្នន័យឆ្លើយតបមិនមែនជា JSON ទេ:", text);
-//                     select.innerHTML = '<option value="">Error: ទិន្នន័យពី Server ខុស (ភ្លេច Deploy ថ្មី)</option>';
-//                     if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
-//                 }
-                
-//             } catch (error) {
-//                 console.error("Network/CORS Error:", error);
-//                 select.innerHTML = '<option value="">Error: មិនអាចភ្ជាប់ទៅកាន់ម៉ាស៊ីនមេ</option>';
-//                 if (typeof buildCustomDropdown === 'function') buildCustomDropdown();
-//             }
-//         }
-     
         function updateCampusHeader() {
-            var select = document.getElementById('campusSelect');
-            var selectedOption = select.options[select.selectedIndex];
+            var cSelect = document.getElementById('campusSelect');
+            var bSelect = document.getElementById('buildingSelect');
+            var cId = cSelect.value;
             
-            if (selectedOption && selectedOption.dataset.nameKH) {
-                document.getElementById('campusHeaderKhmer').textContent = selectedOption.dataset.nameKH;
-                document.getElementById('campusHeaderEnglish').textContent = selectedOption.dataset.nameEN;
-                selectedCampus = {
-                    id: select.value,
-                    nameKH: selectedOption.dataset.nameKH,
-                    nameEN: selectedOption.dataset.nameEN
-                };
-            } else {
-                document.getElementById('campusHeaderKhmer').textContent = 'ប្រព័ន្ធចូលរៀន';
-                document.getElementById('campusHeaderEnglish').textContent = 'Attendance Management System';
+            bSelect.innerHTML = '<option value="" style="color: black;">-- ជ្រើសរើសអគារ --</option>';
+            
+            if (!cId) {
+                bSelect.disabled = true;
+                document.getElementById('campusHeaderKhmer').textContent = 'ប្រព័ន្ធវត្តមាន(កំពុងជួសជុល)';
+                document.getElementById('campusHeaderEnglish').textContent = 'RTTCPV AMS';
                 selectedCampus = null;
+                return;
+            }
+            
+            bSelect.disabled = false;
+            var filteredB = allBuildings.filter(b => b.campusId === cId);
+            filteredB.forEach(b => {
+                bSelect.innerHTML += `<option value="${b.id}" style="color: black;">${b.name}</option>`;
+            });
+            
+            var campusObj = allCampuses.find(c => c.id === cId);
+            if (campusObj) {
+                document.getElementById('campusHeaderKhmer').textContent = campusObj.nameKH;
+                document.getElementById('campusHeaderEnglish').textContent = campusObj.nameEN;
+                selectedCampus = campusObj;
             }
         }
         
         function selectRole(element) {
-            document.querySelectorAll('.role-option').forEach(function(el) { el.classList.remove('active'); });
+            document.querySelectorAll('.role-option').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
             document.getElementById('role').value = element.dataset.role;
         }
-    
-// 🌟 មុខងារបង្កើត Hardware Device Fingerprint (មានប្រព័ន្ធការពារពេលអត់ HTTPS)
+
         async function getDeviceFingerprint() {
             let components = [];
-            
-            // 1. Hardware Cores & RAM
             components.push(navigator.hardwareConcurrency || 'unk_core');
             components.push(navigator.deviceMemory || 'unk_mem');
-            
-            // 2. Screen Specs
             components.push(screen.width + 'x' + screen.height + 'x' + screen.colorDepth);
             components.push(screen.availWidth + 'x' + screen.availHeight);
-            
-            // 3. Platform & Timezone
             components.push(navigator.platform || 'unk_plat');
             components.push(Intl.DateTimeFormat().resolvedOptions().timeZone || 'unk_tz');
             
-            // 4. Canvas Fingerprint
             try {
                 const canvas = document.createElement('canvas');
-                canvas.width = 200;
-                canvas.height = 50;
+                canvas.width = 200; canvas.height = 50;
                 const ctx = canvas.getContext('2d');
-                ctx.textBaseline = 'top';
-                ctx.font = '14px Arial';
-                ctx.fillStyle = '#f60';
-                ctx.fillRect(125, 1, 62, 20);
-                ctx.fillStyle = '#069';
-                ctx.fillText('RTTC_DEVICE_ID', 2, 15);
-                ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
-                ctx.fillText('RTTC_DEVICE_ID', 4, 17);
+                ctx.textBaseline = 'top'; ctx.font = '14px Arial';
+                ctx.fillStyle = '#f60'; ctx.fillRect(125, 1, 62, 20);
+                ctx.fillStyle = '#069'; ctx.fillText('RTTC_DEVICE_ID', 2, 15);
+                ctx.fillStyle = 'rgba(102, 204, 0, 0.7)'; ctx.fillText('RTTC_DEVICE_ID', 4, 17);
                 components.push(canvas.toDataURL());
-            } catch(e) {
-                components.push('canvas_err');
-            }
+            } catch(e) { components.push('canvas_err'); }
 
             const rawString = components.join('###');
-
-            // 🌟 ដំណោះស្រាយ: ប្រើ Hash ធម្មតាបើ Safari បិទមុខងារ crypto ព្រោះអត់ប្រើ HTTPS
             if (!window.crypto || !window.crypto.subtle) {
                 let hash = 0;
                 for (let i = 0; i < rawString.length; i++) {
-                    let char = rawString.charCodeAt(i);
-                    hash = ((hash << 5) - hash) + char;
-                    hash = hash & hash; // Convert to 32bit integer
+                    hash = ((hash << 5) - hash) + rawString.charCodeAt(i);
+                    hash = hash & hash;
                 }
                 return 'hw_fb_' + Math.abs(hash).toString(16) + '_' + rawString.length;
             }
 
-            // ប្រើកូដនីយកម្មកម្រិតខ្ពស់បើមាន HTTPS
             try {
                 const msgBuffer = new TextEncoder().encode(rawString);
                 const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgBuffer);
                 const hashArray = Array.from(new Uint8Array(hashBuffer));
                 const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
                 return 'hw_' + hashHex.substring(0, 24);
-            } catch(e) {
-                let fallbackHash = 0;
-                for (let i = 0; i < rawString.length; i++) {
-                    fallbackHash = ((fallbackHash << 5) - fallbackHash) + rawString.charCodeAt(i);
-                    fallbackHash = fallbackHash & fallbackHash;
-                }
-                return 'hw_fb_' + Math.abs(fallbackHash).toString(16) + '_' + rawString.length;
-            }
+            } catch(e) { return getOrCreateDeviceId(); }
         }
-    async function login(event) {
+
+        async function login(event) {
             event.preventDefault();
-            
             var userId = document.getElementById('userId').value.trim();
             var password = document.getElementById('password').value.trim();
             var role = document.getElementById('role').value;
             var campusId = document.getElementById('campusSelect').value;
-            var buildingId = document.getElementById('buildingSelect').value; // បន្ថែម
+            var buildingId = document.getElementById('buildingSelect').value;
+            
             if (!campusId) { showError('សូមជ្រើសរើសសាលា'); document.getElementById('campusSelect').focus(); return; }
-            if (!buildingId) { showError('សូមជ្រើសរើសអគារ'); document.getElementById('buildingSelect').focus(); return; } // បន្ថែម
+            if (role === 'Student' && !buildingId) { showError('សូមជ្រើសរើសអគារ'); document.getElementById('buildingSelect').focus(); return; }
             if (!userId) { showError('សូមបញ្ចូលអត្តលេខ'); document.getElementById('userId').focus(); return; }
             if (!password) { showError('សូមបញ្ចូលពាក្យសម្ងាត់'); document.getElementById('password').focus(); return; }
             
@@ -671,7 +382,6 @@
             document.getElementById('errorMessage').style.display = 'none';
             
             try {
-                // 🌟 ហៅប្រើមុខងារ Hardware Fingerprint ថ្មី (ត្រូវមាន await)
                 var deviceId = await getDeviceFingerprint(); 
                 
                 const response = await fetch(BASE_URL, {
@@ -687,7 +397,7 @@
 
                 if (result.success) {
                     result.campusId = campusId;
-                    result.buildingId = buildingId; // បន្ថែមចូល Session ទុកស្កេន
+                    result.buildingId = buildingId;
                     result.campusName = selectedCampus ? selectedCampus.nameKH : '';
                     localStorage.setItem('sessionUser', JSON.stringify(result));
                     localStorage.setItem('selectedCampus', JSON.stringify(selectedCampus));
@@ -708,64 +418,10 @@
             }
         }
         
-    function showError(message) {
+        function showError(message) {
             document.getElementById('errorText').innerText = message;
             document.getElementById('errorMessage').style.display = 'block';
-    }
-
-        // ១. មុខងារសម្រាប់ទាញទិន្នន័យពី Select ចាស់ មកបង្កើតជា Custom Dropdown ថ្មី
-function buildCustomDropdown() {
-    const selectEl = document.getElementById('campusSelect');
-    const customList = document.getElementById('customCampusList');
-    const customText = document.getElementById('customCampusText');
-    
-    // សម្អាតបញ្ជីចាស់ចោលសិន
-    customList.innerHTML = '';
-    
-    // បង្កើតបញ្ជីថ្មីផ្អែកលើ Option ដែលទាញបានពី Server
-    Array.from(selectEl.options).forEach(option => {
-        const li = document.createElement('li');
-        li.className = 'glass-dropdown-item';
-        li.textContent = option.text;
-        li.setAttribute('data-value', option.value);
-        
-        // ពេលសិស្សចុចលើសាលាណាមួយ
-        li.addEventListener('click', function() {
-            customText.textContent = this.textContent;
-            selectEl.value = this.getAttribute('data-value'); // បោះតម្លៃលេខចូល Select ចាស់
-            
-            // 🌟 បញ្ជាឲ្យ onchange="updateCampusHeader()" ដំណើរការ
-            selectEl.dispatchEvent(new Event('change'));
-            
-            document.getElementById('customCampusDropdown').classList.remove('active');
-        });
-        
-        customList.appendChild(li);
-    });
-    
-    // បង្ហាញឈ្មោះសាលាដំបូងគេ (បើមាន)
-    if(selectEl.options.length > 0) {
-        customText.textContent = selectEl.options[selectEl.selectedIndex].text;
-    }
-}
-
-// ២. បញ្ជាឲ្យប្រអប់អាចលោតចុះឡើងពេលចុច
-document.addEventListener('DOMContentLoaded', function() {
-    const dropdown = document.getElementById('customCampusDropdown');
-    const selectBox = document.getElementById('customSelectBox');
-    
-    if(selectBox) {
-        selectBox.addEventListener('click', function(e) {
-            e.stopPropagation();
-            dropdown.classList.toggle('active');
-        });
-    }
-    
-    // ចុចក្រៅប្រអប់ ឲ្យវាលាក់ទៅវិញ
-    document.addEventListener('click', function() {
-        if(dropdown) dropdown.classList.remove('active');
-    });
-});
+        }
     </script>
 </body>
 </html>
