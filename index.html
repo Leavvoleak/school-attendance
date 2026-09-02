@@ -36,126 +36,94 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .logo-container {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
+        .logo-container { text-align: center; margin-bottom: 30px; }
         .logo-icon {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 15px;
-            font-size: 40px;
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            width: 80px; height: 80px; background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 15px; font-size: 40px; color: white; border: 2px solid rgba(255, 255, 255, 0.3);
         }
-        
-        .logo-text {
-            font-family: 'Koulen', sans-serif;
-            color: white;
-            font-size: 24px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        
-        .logo-sub {
-            color: rgba(255,255,255,0.7);
-            font-size: 12px;
-            margin-top: 5px;
-        }
+        .logo-text { font-family: 'Koulen', sans-serif; color: white; font-size: 24px; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .logo-sub { color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 5px; }
         
         .form-group { margin-bottom: 20px; }
-        
-        .form-group label {
-            color: rgba(255,255,255,0.8);
-            font-size: 13px;
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
+        .form-group label { color: rgba(255,255,255,0.8); font-size: 13px; display: block; margin-bottom: 6px; font-weight: 500; }
         
         .form-control-glass {
-            width: 100%;
-            padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            color: white;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            font-family: 'Siemreap', sans-serif;
+            width: 100%; padding: 12px 15px; background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px;
+            color: white; font-size: 15px; transition: all 0.3s ease; font-family: 'Siemreap', sans-serif;
         }
-        
         .form-control-glass::placeholder { color: rgba(255, 255, 255, 0.4); }
-        
         .form-control-glass:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+            outline: none; background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5); box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
         }
-        
-        .form-control-glass option { color: #333; background: white; }
         
         .btn-glass {
-            width: 100%;
-            padding: 14px;
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Koulen', sans-serif;
+            width: 100%; padding: 14px; background: rgba(255, 255, 255, 0.25); color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 12px; font-size: 16px;
+            font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-family: 'Koulen', sans-serif;
         }
-        
-        .btn-glass:hover {
-            background: rgba(255, 255, 255, 0.35);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
+        .btn-glass:hover { background: rgba(255, 255, 255, 0.35); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
         .btn-glass:active { transform: translateY(0); }
         .btn-glass:disabled { opacity: 0.6; cursor: not-allowed; }
         
-        .role-selector {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px;
-        }
+        .role-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
         .role-option {
-            padding: 10px; text-align: center;
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px; color: rgba(255, 255, 255, 0.6);
+            padding: 10px; text-align: center; background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: rgba(255, 255, 255, 0.6);
             cursor: pointer; transition: all 0.3s ease; font-size: 12px;
         }
         .role-option i { display: block; font-size: 24px; margin-bottom: 5px; }
         .role-option:hover { background: rgba(255, 255, 255, 0.15); }
-        .role-option.active {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.5);
-            color: white;
-        }
+        .role-option.active { background: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.5); color: white; }
         
         .error-message {
-            color: #ff6b6b; font-size: 13px; text-align: center;
-            margin-top: 10px; display: none; background: rgba(255, 0, 0, 0.1);
-            padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 0, 0, 0.2);
+            color: #ff6b6b; font-size: 13px; text-align: center; margin-top: 10px; display: none;
+            background: rgba(255, 0, 0, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 0, 0, 0.2);
         }
         
         .loading-spinner { display: none; text-align: center; margin-top: 15px; }
         .loading-spinner .spinner {
             width: 30px; height: 30px; border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top: 3px solid white; border-radius: 50%;
-            animation: spin 0.8s linear infinite; margin: 0 auto;
+            border-top: 3px solid white; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         
         .footer-text { text-align: center; color: rgba(255, 255, 255, 0.4); font-size: 11px; margin-top: 20px; }
+
+        /* 🌟 Custom Glass Dropdown Styles 🌟 */
+        .glass-dropdown { position: relative; width: 100%; font-family: 'Siemreap', sans-serif; }
+        .glass-dropdown-select {
+            width: 100%; padding: 12px 15px; background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px;
+            color: white; font-size: 15px; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: all 0.3s ease;
+        }
+        .glass-dropdown-select:hover, .glass-dropdown.active .glass-dropdown-select {
+            background: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+        .glass-dropdown-list {
+            position: absolute; top: 110%; left: 0; right: 0;
+            background: rgba(85, 60, 140, 0.95); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3); list-style: none;
+            padding: 8px 0; margin: 0; opacity: 0; visibility: hidden;
+            transform: translateY(-10px); transition: all 0.3s ease;
+            z-index: 1000; max-height: 250px; overflow-y: auto;
+        }
+        .glass-dropdown.active .glass-dropdown-list { opacity: 1; visibility: visible; transform: translateY(0); }
+        .glass-dropdown-item {
+            padding: 12px 15px; color: white; cursor: pointer;
+            font-size: 14px; line-height: 1.5; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .glass-dropdown-item:last-child { border-bottom: none; }
+        .glass-dropdown-item:hover { background: rgba(255, 255, 255, 0.2); }
+        .glass-dropdown-list::-webkit-scrollbar { width: 6px; }
+        .glass-dropdown-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 10px; }
+        .disabled-dropdown { opacity: 0.5; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -167,18 +135,33 @@
         </div>
         
         <form id="loginForm" onsubmit="login(event)">
-            <div class="form-group">
+            
+            <!-- 🌟 Custom Campus Dropdown -->
+            <div class="form-group campus-selector">
                 <label><i class="bi bi-buildings"></i> ជ្រើសរើសសាលា / Campus</label>
-                <select id="campusSelect" class="form-control-glass" onchange="updateCampusHeader()">
-                    <option value="" style="color: black;">កំពុងផ្ទុក...</option>
-                </select>
+                <div class="glass-dropdown" id="customCampusDropdown">
+                    <div class="glass-dropdown-select" id="customCampusSelectBox">
+                        <span class="selected-text" id="customCampusText">កំពុងផ្ទុក...</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <ul class="glass-dropdown-list" id="customCampusList"></ul>
+                </div>
+                <!-- លាក់ Select ដើម -->
+                <select id="campusSelect" onchange="updateCampusHeader()" style="display: none;"></select>
             </div>
             
-            <div class="form-group">
+            <!-- 🌟 Custom Building Dropdown -->
+            <div class="form-group campus-selector">
                 <label><i class="bi bi-geo-alt"></i> ជ្រើសរើសអគារ (Building)</label>
-                <select class="form-control-glass" id="buildingSelect" disabled>
-                    <option value="" style="color: black;">-- សូមជ្រើសរើសសាលាជាមុនសិន --</option>
-                </select>
+                <div class="glass-dropdown disabled-dropdown" id="customBuildingDropdown">
+                    <div class="glass-dropdown-select" id="customBuildingSelectBox">
+                        <span class="selected-text" id="customBuildingText">-- សូមជ្រើសរើសសាលាជាមុនសិន --</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <ul class="glass-dropdown-list" id="customBuildingList"></ul>
+                </div>
+                <!-- លាក់ Select ដើម -->
+                <select id="buildingSelect" style="display: none;"></select>
             </div>
             
             <div class="form-group">
@@ -256,13 +239,78 @@
                 }
             }
             
+            setupDropdownListeners();
             loadCampusesAndBuildings();
             document.getElementById('userId').focus();
         };
 
+        // 🌟 រៀបចំ Event សម្រាប់បិទបើក Custom Dropdowns
+        function setupDropdownListeners() {
+            const campusBox = document.getElementById('customCampusSelectBox');
+            const campusDropdown = document.getElementById('customCampusDropdown');
+            const buildingBox = document.getElementById('customBuildingSelectBox');
+            const buildingDropdown = document.getElementById('customBuildingDropdown');
+
+            campusBox.addEventListener('click', function(e) {
+                e.stopPropagation();
+                buildingDropdown.classList.remove('active');
+                campusDropdown.classList.toggle('active');
+            });
+
+            buildingBox.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if(!buildingDropdown.classList.contains('disabled-dropdown')) {
+                    campusDropdown.classList.remove('active');
+                    buildingDropdown.classList.toggle('active');
+                }
+            });
+
+            document.addEventListener('click', function() {
+                campusDropdown.classList.remove('active');
+                buildingDropdown.classList.remove('active');
+            });
+        }
+
+        // 🌟 បំប្លែងទិន្នន័យពី <select> លាក់បាំង ទៅជា UI ថ្មី
+        function buildCustomDropdown(type) {
+            let selectEl, customList, customText, dropdownContainer;
+            
+            if (type === 'campus') {
+                selectEl = document.getElementById('campusSelect');
+                customList = document.getElementById('customCampusList');
+                customText = document.getElementById('customCampusText');
+                dropdownContainer = document.getElementById('customCampusDropdown');
+            } else {
+                selectEl = document.getElementById('buildingSelect');
+                customList = document.getElementById('customBuildingList');
+                customText = document.getElementById('customBuildingText');
+                dropdownContainer = document.getElementById('customBuildingDropdown');
+            }
+
+            customList.innerHTML = '';
+            
+            Array.from(selectEl.options).forEach(option => {
+                if(option.value === "") return; // រំលង Option ទទេ
+                
+                const li = document.createElement('li');
+                li.className = 'glass-dropdown-item';
+                li.textContent = option.text;
+                li.setAttribute('data-value', option.value);
+                
+                li.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    customText.textContent = this.textContent;
+                    selectEl.value = this.getAttribute('data-value');
+                    selectEl.dispatchEvent(new Event('change'));
+                    dropdownContainer.classList.remove('active');
+                });
+                customList.appendChild(li);
+            });
+        }
+
         async function loadCampusesAndBuildings() {
             var cSelect = document.getElementById('campusSelect');
-            var bSelect = document.getElementById('buildingSelect');
+            var customCText = document.getElementById('customCampusText');
             
             try {
                 const response = await fetch(BASE_URL, {
@@ -276,38 +324,45 @@
                     allCampuses = data.campuses || [];
                     allBuildings = data.buildings || [];
                     
-                    cSelect.innerHTML = '<option value="" style="color: black;">-- ជ្រើសរើសសាលា --</option>';
+                    cSelect.innerHTML = '<option value="">-- ជ្រើសរើសសាលា --</option>';
                     allCampuses.forEach(c => {
-                        cSelect.innerHTML += `<option value="${c.id}" style="color: black;">${c.nameKH}</option>`;
+                        cSelect.innerHTML += `<option value="${c.id}">${c.nameKH}</option>`;
                     });
+                    customCText.textContent = '-- ជ្រើសរើសសាលា --';
+                    buildCustomDropdown('campus');
                 } else {
-                    cSelect.innerHTML = '<option value="" style="color: black;">កំហុសពី Server</option>';
+                    customCText.textContent = 'កំហុសពី Server';
                 }
             } catch (e) {
-                cSelect.innerHTML = '<option value="" style="color: black;">បញ្ហាបណ្តាញទាក់ទង</option>';
+                customCText.textContent = 'បញ្ហាបណ្តាញទាក់ទង';
             }
         }
         
         function updateCampusHeader() {
             var cSelect = document.getElementById('campusSelect');
             var bSelect = document.getElementById('buildingSelect');
+            var customBText = document.getElementById('customBuildingText');
             var cId = cSelect.value;
             
-            bSelect.innerHTML = '<option value="" style="color: black;">-- ជ្រើសរើសអគារ --</option>';
+            bSelect.innerHTML = '<option value="">-- ជ្រើសរើសអគារ --</option>';
             
             if (!cId) {
-                bSelect.disabled = true;
+                document.getElementById('customBuildingDropdown').classList.add('disabled-dropdown');
+                customBText.textContent = '-- សូមជ្រើសរើសសាលាជាមុនសិន --';
                 document.getElementById('campusHeaderKhmer').textContent = 'ប្រព័ន្ធវត្តមាន(កំពុងជួសជុល)';
                 document.getElementById('campusHeaderEnglish').textContent = 'RTTCPV AMS';
                 selectedCampus = null;
+                buildCustomDropdown('building');
                 return;
             }
             
-            bSelect.disabled = false;
+            document.getElementById('customBuildingDropdown').classList.remove('disabled-dropdown');
+            customBText.textContent = '-- ជ្រើសរើសអគារ --';
             var filteredB = allBuildings.filter(b => b.campusId === cId);
             filteredB.forEach(b => {
-                bSelect.innerHTML += `<option value="${b.id}" style="color: black;">${b.name}</option>`;
+                bSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
             });
+            buildCustomDropdown('building');
             
             var campusObj = allCampuses.find(c => c.id === cId);
             if (campusObj) {
@@ -321,6 +376,13 @@
             document.querySelectorAll('.role-option').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
             document.getElementById('role').value = element.dataset.role;
+            
+            // បើជាគ្រូ ឬអេដមីន អត់ចាំបាច់ទាមទារឲ្យរើសអគារក៏បានដែរ
+            if(element.dataset.role !== "Student") {
+                document.getElementById('customBuildingDropdown').style.display = 'none';
+            } else {
+                document.getElementById('customBuildingDropdown').style.display = 'block';
+            }
         }
 
         async function getDeviceFingerprint() {
@@ -370,8 +432,8 @@
             var campusId = document.getElementById('campusSelect').value;
             var buildingId = document.getElementById('buildingSelect').value;
             
-            if (!campusId) { showError('សូមជ្រើសរើសសាលា'); document.getElementById('campusSelect').focus(); return; }
-            if (role === 'Student' && !buildingId) { showError('សូមជ្រើសរើសអគារ'); document.getElementById('buildingSelect').focus(); return; }
+            if (!campusId) { showError('សូមជ្រើសរើសសាលា'); return; }
+            if (role === 'Student' && !buildingId) { showError('សូមជ្រើសរើសអគារ'); return; }
             if (!userId) { showError('សូមបញ្ចូលអត្តលេខ'); document.getElementById('userId').focus(); return; }
             if (!password) { showError('សូមបញ្ចូលពាក្យសម្ងាត់'); document.getElementById('password').focus(); return; }
             
