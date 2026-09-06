@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>វ៉ិបសាយកំពុងជួសជុល</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+
+            font-family: "Noto Sans Khmer",
+                         "Khmer OS",
+                         Arial,
+                         sans-serif;
+
+            background:
+                radial-gradient(circle at top left, #dbeafe, transparent 35%),
+                radial-gradient(circle at bottom right, #fce7f3, transparent 35%),
+                linear-gradient(135deg, #f8fbff, #eef5ff);
+        }
+
+        .maintenance {
+            width: 100%;
+            max-width: 680px;
+            padding: 45px 30px;
+            text-align: center;
+
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 30px;
+
+            box-shadow:
+                0 25px 70px rgba(30, 64, 175, 0.12);
+
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Teddy Bear Area */
+        .teddy-area {
+            height: 230px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            margin-bottom: 15px;
+        }
+
+        /* Teddy */
+        .teddy {
+            position: relative;
+            width: 150px;
+            height: 175px;
+            animation: teddyBounce 2s ease-in-out infinite;
+        }
+
+        /* Head */
+        .head {
+            position: absolute;
+            width: 115px;
+            height: 105px;
+            left: 18px;
+            top: 5px;
+
+            background: #b8794f;
+            border-radius: 50%;
+            z-index: 3;
+
+            box-shadow:
+                inset -8px -7px 0 rgba(0,0,0,0.08);
+        }
+
+        /* Ears */
+        .ear {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            top: -12px;
+            background: #9b5f3d;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .ear.left {
+            left: 5px;
+        }
+
+        .ear.right {
+            right: 5px;
+        }
+
+        .ear::after {
+            content: "";
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            left: 10px;
+            top: 10px;
+            background: #d89a72;
+            border-radius: 50%;
+        }
+
+        /* Eyes */
+        .eye {
+            position: absolute;
+            width: 10px;
+            height: 13px;
+            top: 42px;
+            background: #33221a;
+            border-radius: 50%;
+        }
+
+        .eye.left {
+            left: 35px;
+        }
+
+        .eye.right {
+            right: 35px;
+        }
+
+        /* Nose */
+        .nose {
+            position: absolute;
+            width: 25px;
+            height: 18px;
+            top: 55px;
+            left: 45px;
+            background: #4a2c20;
+            border-radius: 50%;
+        }
+
+        /* Mouth */
+        .mouth {
+            position: absolute;
+            width: 25px;
+            height: 13px;
+            top: 70px;
+            left: 45px;
+            border-bottom: 3px solid #4a2c20;
+            border-radius: 50%;
+        }
+
+        /* Body */
+        .body {
+            position: absolute;
+            width: 110px;
+            height: 85px;
+            left: 20px;
+            top: 90px;
+            background: #b8794f;
+            border-radius: 48% 48% 40% 40%;
+            z-index: 2;
+        }
+
+        /* Belly */
+        .belly {
+            position: absolute;
+            width: 65px;
+            height: 50px;
+            left: 22px;
+            top: 18px;
+            background: #d99a70;
+            border-radius: 50%;
+        }
+
+        /* Arms */
+        .arm {
+            position: absolute;
+            width: 38px;
+            height: 70px;
+            top: 100px;
+            background: #a96845;
+            border-radius: 40px;
+            z-index: 1;
+        }
+
+        .arm.left {
+            left: 0;
+            transform: rotate(30deg);
+        }
+
+        .arm.right {
+            right: 0;
+            transform: rotate(-35deg);
+            animation: workArm 1.2s ease-in-out infinite;
+        }
+
+        /* Legs */
+        .leg {
+            position: absolute;
+            width: 48px;
+            height: 40px;
+            top: 145px;
+            background: #9f6240;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .leg.left {
+            left: 18px;
+        }
+
+        .leg.right {
+            right: 18px;
+        }
+
+        /* Hard Hat */
+        .helmet {
+            position: absolute;
+            width: 105px;
+            height: 38px;
+            left: 23px;
+            top: -8px;
+            background: #facc15;
+            border-radius: 60px 60px 10px 10px;
+            z-index: 5;
+            border-bottom: 7px solid #eab308;
+        }
+
+        .helmet::after {
+            content: "";
+            position: absolute;
+            width: 130px;
+            height: 10px;
+            left: -12px;
+            bottom: -7px;
+            background: #eab308;
+            border-radius: 20px;
+        }
+
+        /* Wrench */
+        .wrench {
+            position: absolute;
+            right: -15px;
+            top: 80px;
+            font-size: 40px;
+            z-index: 6;
+            transform: rotate(-25deg);
+            animation: wrenchMove 1.2s ease-in-out infinite;
+        }
+
+        /* Floating Tools */
+        .tool {
+            position: absolute;
+            font-size: 28px;
+            animation: floatTool 3s ease-in-out infinite;
+            opacity: 0.7;
+        }
+
+        .tool.one {
+            left: 12%;
+            top: 30px;
+        }
+
+        .tool.two {
+            right: 12%;
+            top: 50px;
+            animation-delay: 1s;
+        }
+
+        .tool.three {
+            left: 20%;
+            bottom: 15px;
+            animation-delay: 2s;
+        }
+
+        h1 {
+            color: #2563eb;
+            font-size: 31px;
+            margin-bottom: 15px;
+        }
+
+        .description {
+            color: #64748b;
+            font-size: 17px;
+            line-height: 2;
+            margin-bottom: 25px;
+        }
+
+        /* Status */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+
+            padding: 11px 22px;
+
+            background: #fff7ed;
+            color: #c2410c;
+
+            border-radius: 30px;
+
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            background: #f97316;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        /* Animations */
+
+        @keyframes teddyBounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        @keyframes workArm {
+            0%, 100% {
+                transform: rotate(-35deg);
+            }
+
+            50% {
+                transform: rotate(-70deg);
+            }
+        }
+
+        @keyframes wrenchMove {
+            0%, 100% {
+                transform: rotate(-25deg);
+            }
+
+            50% {
+                transform: rotate(25deg);
+            }
+        }
+
+        @keyframes floatTool {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(15deg);
+            }
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.3;
+                transform: scale(0.7);
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 576px) {
+
+            .maintenance {
+                padding: 35px 20px;
+            }
+
+            .teddy-area {
+                height: 215px;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+
+            .description {
+                font-size: 15px;
+            }
+
+            .tool {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="maintenance">
+
+        <div class="teddy-area">
+
+            <!-- Floating tools -->
+            <div class="tool one">🔨</div>
+            <div class="tool two">⚙️</div>
+            <div class="tool three">🔩</div>
+
+            <!-- Teddy Bear -->
+            <div class="teddy">
+
+                <!-- Helmet -->
+                <div class="helmet"></div>
+
+                <!-- Ears -->
+                <div class="ear left"></div>
+                <div class="ear right"></div>
+
+                <!-- Head -->
+                <div class="head">
+                    <div class="eye left"></div>
+                    <div class="eye right"></div>
+                    <div class="nose"></div>
+                    <div class="mouth"></div>
+                </div>
+
+                <!-- Arms -->
+                <div class="arm left"></div>
+                <div class="arm right"></div>
+
+                <!-- Body -->
+                <div class="body">
+                    <div class="belly"></div>
+                </div>
+
+                <!-- Legs -->
+                <div class="leg left"></div>
+                <div class="leg right"></div>
+
+                <!-- Wrench -->
+                <div class="wrench">🔧</div>
+
+            </div>
+
+        </div>
+
+        <h1>វ៉ិបសាយកំពុងជួសជុល</h1>
+
+        <p class="description">
+            សូមអភ័យទោសចំពោះការរអាក់រអួល។<br>
+            ក្រុមការងាររបស់យើងកំពុងធ្វើការជួសជុល
+            និងកែលម្អវ៉ិបសាយ។<br>
+            សូមរង់ចាំបន្តិច ហើយពួកយើងនឹងត្រឡប់មកវិញឆាប់ៗនេះ។
+        </p>
+
+        <div class="status">
+            <span class="dot"></span>
+            កំពុងជួសជុល...
+        </div>
+
+        <div class="footer">
+            សូមអរគុណសម្រាប់ការយោគយល់ ❤️
+        </div>
+
+    </div>
+
+</body>
+</html>
