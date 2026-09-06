@@ -935,130 +935,145 @@ async function refreshStats(renderRep) {
             event.target.value = '';
         }
 async function submitCheckIn(scannedData) {
-            var status = document.getElementById('checkin-status');
-            if (!scannedData) return;
+    var status = document.getElementById('checkin-status');
+    if (!scannedData) return;
 
-            var parts = scannedData.split('|');
-            if (parts.length !== 2) {
-                Swal.fire({ icon: 'error', title: 'កាតមិនត្រឹមត្រូវ', text: 'ទម្រង់ QR Code មិនត្រឹមត្រូវ។', confirmButtonText: 'យល់ព្រម' });
-                return;
-            }
+    var parts = scannedData.split('|');
+    if (parts.length !== 2) {
+        // 🌟 បង្ហាញទិន្នន័យដែលស្កេនបាន ករណីខុសទម្រង់
+        Swal.fire({ icon: 'error', title: 'កាតមិនត្រឹមត្រូវ', text: 'ទម្រង់ QR Code មិនត្រឹមត្រូវ (គ្មានសញ្ញា | បំបែក)។ ទិន្នន័យដែលស្កេនបាន៖ ' + scannedData, confirmButtonText: 'យល់ព្រម' });
+        return;
+    }
 
-            var scannedId = parts[0].trim();
-            if (/^\d+$/.test(scannedId)) scannedId = scannedId.padStart(4, '0');
-            
-            var currentUserId = String(sessionUser.id).trim();
-            if (/^\d+$/.test(currentUserId)) currentUserId = currentUserId.padStart(4, '0');
+    var scannedId = parts[0].trim();
+    if (/^\d+$/.test(scannedId)) scannedId = scannedId.padStart(4, '0');
+    
+    var currentUserId = String(sessionUser.id).trim();
+    if (/^\d+$/.test(currentUserId)) currentUserId = currentUserId.padStart(4, '0');
 
-            if (scannedId !== currentUserId || parts[1].trim() !== sessionUser.secretWord) {
-                Swal.fire({ icon: 'error', title: 'កាតមិនត្រឹមត្រូវ', text: 'QR Code មិនត្រឹមត្រូវ ឬមិនមែនជារបស់អ្នក។', confirmButtonText: 'យល់ព្រម' });
-                return;
-            }
+    // 🌟 ទាញយកពាក្យសម្ងាត់ដែលស្កេនបាន និងពាក្យសម្ងាត់ក្នុងប្រព័ន្ធមកផ្ទឹមគ្នា
+    var scannedSecret = parts[1].trim();
+    var mySecret = sessionUser.secretWord || "គ្មានទិន្នន័យក្នុងប្រព័ន្ធ";
 
-            var campusId = sessionUser.campusId || '1';
-            
-            if (currentCheckInMode === 'online') {
-                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងចុះវត្តមានអនឡាញ...';
-                // 🌟 បន្ថែម Loading សម្រាប់អនឡាញ
-                Swal.fire({ title: 'កំពុងបញ្ជូនទិន្នន័យ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-                
-                const res = await callAPI('submitAttendance', { studentId: sessionUser.id, checkInType: "រៀនអនឡាញ", lat: 0, lng: 0 });
-                handleCheckInResult(res, status);
-            } else {
-                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងផ្ទៀងផ្ទាត់ទីតាំង...';
-                
-                if (navigator.geolocation) {
-                    // 🌟 ១. បង្ហាញផ្ទាំង Loading ឱ្យសិស្សដឹងថាប្រព័ន្ធកំពុងស្វែងរកទីតាំង មិនមែនគាំងទេ
+    // 🌟 បើផ្ទៀងផ្ទាត់មិនត្រូវគ្នា លោតប្រាប់ចំៗថាខុសកន្លែងណា
+    if (scannedId !== currentUserId || scannedSecret !== mySecret) {
+        Swal.fire({ 
+            icon: 'error', 
+            title: 'កាតមិនត្រូវគ្នា', 
+            html: `<div style="text-align: left; background: #f8f9fa; padding: 10px; border-radius: 8px;">
+                     ទិន្នន័យពីកាត (QR): <br><b style="color: #d32f2f;">${scannedId} | ${scannedSecret}</b><br><br>
+                     ទិន្នន័យក្នុងប្រព័ន្ធរបស់អ្នក: <br><b style="color: #1976d2;">${currentUserId} | ${mySecret}</b>
+                   </div>
+                   <br><span style="color:red; font-size:13px;">សូមពិនិត្យមើលថាតើលេខ ឬពាក្យសម្ងាត់មួយណាដែលខុសគ្នា?<br><b>ដំណោះស្រាយ៖</b> សូមចុចប៊ូតុង "ចាកចេញ (Logout)" រួច Login ចូលវិញ ដើម្បីឲ្យប្រព័ន្ធទាញយកពាក្យសម្ងាត់ថ្មី។</span>`, 
+            confirmButtonText: 'យល់ព្រម' 
+        });
+        return;
+    }
+
+    var campusId = sessionUser.campusId || '1';
+    
+    if (currentCheckInMode === 'online') {
+        status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងចុះវត្តមានអនឡាញ...';
+        // 🌟 បន្ថែម Loading សម្រាប់អនឡាញ
+        Swal.fire({ title: 'កំពុងបញ្ជូនទិន្នន័យ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+        
+        const res = await callAPI('submitAttendance', { studentId: sessionUser.id, checkInType: "រៀនអនឡាញ", lat: 0, lng: 0 });
+        handleCheckInResult(res, status);
+    } else {
+        status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងផ្ទៀងផ្ទាត់ទីតាំង...';
+        
+        if (navigator.geolocation) {
+            // 🌟 ១. បង្ហាញផ្ទាំង Loading ឱ្យសិស្សដឹងថាប្រព័ន្ធកំពុងស្វែងរកទីតាំង មិនមែនគាំងទេ
+            Swal.fire({
+                title: 'កំពុងស្វែងរកទីតាំង GPS...',
+                html: 'សូមរង់ចាំបន្តិច ប្រព័ន្ធកំពុងផ្ទៀងផ្ទាត់ទីតាំងរបស់អ្នក។<br><span style="font-size:12px; color:red;">(បើលោតយូរ សូមដើរចេញមកកន្លែងស្រឡះបន្តិច)</span>',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            navigator.geolocation.getCurrentPosition(
+                async function(position) {
+                    // 🌟 ២. ពេលចាប់ទីតាំងបានហើយ ប្តូរអក្សរ Loading ទៅជាកំពុងបញ្ជូនទិន្នន័យ
                     Swal.fire({
-                        title: 'កំពុងស្វែងរកទីតាំង GPS...',
-                        html: 'សូមរង់ចាំបន្តិច ប្រព័ន្ធកំពុងផ្ទៀងផ្ទាត់ទីតាំងរបស់អ្នក។<br><span style="font-size:12px; color:red;">(បើលោតយូរ សូមដើរចេញមកកន្លែងស្រឡះបន្តិច)</span>',
+                        title: 'កំពុងបញ្ជូនទិន្នន័យ...',
                         allowOutsideClick: false,
                         didOpen: () => { Swal.showLoading(); }
                     });
 
-                    navigator.geolocation.getCurrentPosition(
-                            async function(position) {
-                            // 🌟 ២. ពេលចាប់ទីតាំងបានហើយ ប្តូរអក្សរ Loading ទៅជាកំពុងបញ្ជូនទិន្នន័យ
-                            Swal.fire({
-                                title: 'កំពុងបញ្ជូនទិន្នន័យ...',
-                                allowOutsideClick: false,
-                                didOpen: () => { Swal.showLoading(); }
-                            });
+                    var buildingId = sessionUser.buildingId || 'B1'; 
+                    
+                    const res = await callAPI('submitAttendanceWithBuilding', {
+                        studentId: sessionUser.id,
+                        checkInType: "រៀនផ្ទាល់",
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        buildingId: buildingId 
+                    });
+                    handleCheckInResult(res, status);
+                },
+                async function(error) {
+                    let errorTitle = 'បញ្ហាទីតាំង (GPS)';
+                    let errorMsg = 'សូមបើក GPS (Location) រួចព្យាយាមម្តងទៀត។';
+                    let showHelpButton = false;
 
-                            var buildingId = sessionUser.buildingId || 'B1'; 
-                            
-                            const res = await callAPI('submitAttendanceWithBuilding', {
-                                studentId: sessionUser.id,
-                                checkInType: "រៀនផ្ទាល់",
-                                lat: position.coords.latitude,
-                                lng: position.coords.longitude,
-                                buildingId: buildingId 
-                            });
-                            handleCheckInResult(res, status);
-                        },
-                            async function(error) {
-                            let errorTitle = 'បញ្ហាទីតាំង (GPS)';
-                            let errorMsg = 'សូមបើក GPS (Location) រួចព្យាយាមម្តងទៀត។';
-                            let showHelpButton = false;
-
-                            if (error.code === error.PERMISSION_DENIED) {
-                                errorTitle = 'ទីតាំងត្រូវបានបដិសេធ!';
-                                errorMsg = 'កម្មវិធីមិនអាចចាប់ទីតាំងបានទេ ព្រោះអ្នកមិនទាន់បានអនុញ្ញាត (Allow Location)។';
-                                showHelpButton = true; // បង្ហាញប៊ូតុងជំនួយ
-                            } else if (error.code === error.TIMEOUT) {
-                                errorMsg = 'ស្វែងរកទីតាំងយូរពេក (Timeout)! សូមសាកល្បងនៅកន្លែងស្រឡះល្អ គ្មានដំបូលបាំងជិត។';
-                            } else if (error.code === error.POSITION_UNAVAILABLE) {
-                                errorMsg = 'សេវា GPS ខ្សោយ មិនអាចកំណត់ទីតាំងបានទេ។';
-                            }
-                            
-                            // បើសិស្សចុច Block Location, លោតផ្ទាំងមានប៊ូតុងបង្រៀន
-                            if (showHelpButton) {
-                                await Swal.fire({
-                                    icon: 'warning',
-                                    title: errorTitle,
-                                    text: errorMsg,
-                                    showCancelButton: true,
-                                    confirmButtonText: '📖 មើលរបៀបបើក',
-                                    cancelButtonText: 'បិទ',
-                                    confirmButtonColor: '#3085d6',
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        // ផ្ទាំងបង្រៀនសិស្សពីរបៀបបើក យ៉ាងលម្អិត
-                                        Swal.fire({
-                                            title: 'របៀបបើកទីតាំង (Location)',
-                                            html: `
-                                                <div style="text-align: left; font-size: 14px; line-height: 1.8;">
-                                                    <b>🔵 សម្រាប់ Android (Chrome):</b><br>
-                                                    ១. ចុចសញ្ញា <b>សោ 🔒 ឬ ≡</b> នៅកាច់ជ្រុងខាងឆ្វេងផ្នែកខាងលើ (ជិតឈ្មោះវេបសាយ)<br>
-                                                    ២. ជ្រើសរើស <b>Permissions (សិទ្ធិ)</b><br>
-                                                    ៣. ចុចបើក <b>Location (ទីតាំង)</b> រួច Refresh វេបសាយនេះ។<br><br>
-                                                    
-                                                    <b>🟢 សម្រាប់ iPhone (Safari):</b><br>
-                                                    ១. ចូលទៅកាន់ <b>Settings</b> របស់ទូរស័ព្ទ<br>
-                                                    ២. អូសចុះក្រោម រកមើលពាក្យ <b>Privacy & Security</b> > <b>Location Services</b><br>
-                                                    ៣. បើក Location រួចស្វែងរក <b>Safari Websites</b> ហើយរើស <b>While Using the App</b>។
-                                                </div>
-                                            `,
-                                            icon: 'info',
-                                            confirmButtonText: 'យល់ព្រម'
-                                        });
-                                    }
+                    if (error.code === error.PERMISSION_DENIED) {
+                        errorTitle = 'ទីតាំងត្រូវបានបដិសេធ!';
+                        errorMsg = 'កម្មវិធីមិនអាចចាប់ទីតាំងបានទេ ព្រោះអ្នកមិនទាន់បានអនុញ្ញាត (Allow Location)។';
+                        showHelpButton = true; // បង្ហាញប៊ូតុងជំនួយ
+                    } else if (error.code === error.TIMEOUT) {
+                        errorMsg = 'ស្វែងរកទីតាំងយូរពេក (Timeout)! សូមសាកល្បងនៅកន្លែងស្រឡះល្អ គ្មានដំបូលបាំងជិត។';
+                    } else if (error.code === error.POSITION_UNAVAILABLE) {
+                        errorMsg = 'សេវា GPS ខ្សោយ មិនអាចកំណត់ទីតាំងបានទេ។';
+                    }
+                    
+                    // បើសិស្សចុច Block Location, លោតផ្ទាំងមានប៊ូតុងបង្រៀន
+                    if (showHelpButton) {
+                        await Swal.fire({
+                            icon: 'warning',
+                            title: errorTitle,
+                            text: errorMsg,
+                            showCancelButton: true,
+                            confirmButtonText: '📖 មើលរបៀបបើក',
+                            cancelButtonText: 'បិទ',
+                            confirmButtonColor: '#3085d6',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // ផ្ទាំងបង្រៀនសិស្សពីរបៀបបើក យ៉ាងលម្អិត
+                                Swal.fire({
+                                    title: 'របៀបបើកទីតាំង (Location)',
+                                    html: `
+                                        <div style="text-align: left; font-size: 14px; line-height: 1.8;">
+                                            <b>🔵 សម្រាប់ Android (Chrome):</b><br>
+                                            ១. ចុចសញ្ញា <b>សោ 🔒 ឬ ≡</b> នៅកាច់ជ្រុងខាងឆ្វេងផ្នែកខាងលើ (ជិតឈ្មោះវេបសាយ)<br>
+                                            ២. ជ្រើសរើស <b>Permissions (សិទ្ធិ)</b><br>
+                                            ៣. ចុចបើក <b>Location (ទីតាំង)</b> រួច Refresh វេបសាយនេះ។<br><br>
+                                            
+                                            <b>🟢 សម្រាប់ iPhone (Safari):</b><br>
+                                            ១. ចូលទៅកាន់ <b>Settings</b> របស់ទូរស័ព្ទ<br>
+                                            ២. អូសចុះក្រោម រកមើលពាក្យ <b>Privacy & Security</b> > <b>Location Services</b><br>
+                                            ៣. បើក Location រួចស្វែងរក <b>Safari Websites</b> ហើយរើស <b>While Using the App</b>។
+                                        </div>
+                                    `,
+                                    icon: 'info',
+                                    confirmButtonText: 'យល់ព្រម'
                                 });
-                            } else {
-                                // Error ផ្សេងៗ លោតធម្មតា
-                                await Swal.fire({ icon: 'warning', title: errorTitle, text: errorMsg });
                             }
-                            
-                            status.innerHTML = '';
-                        },
-                        // 🌟 ៤. ប្តូរ Timeout មកត្រឹម 10 វិនាទី (10000ms) ដើម្បីកុំឲ្យវារង់ចាំយូរពេកទាល់តែគាំង
-                        { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
-                    );
-                } else {
-                    await Swal.fire('Error', 'GPS មិនដំណើរការលើឧបករណ៍នេះទេ', 'error');
-                }
-            }
+                        });
+                    } else {
+                        // Error ផ្សេងៗ លោតធម្មតា
+                        await Swal.fire({ icon: 'warning', title: errorTitle, text: errorMsg });
+                    }
+                    
+                    status.innerHTML = '';
+                },
+                // 🌟 ៤. ប្តូរ Timeout មកត្រឹម 10 វិនាទី (10000ms) ដើម្បីកុំឲ្យវារង់ចាំយូរពេកទាល់តែគាំង
+                { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+            );
+        } else {
+            await Swal.fire('Error', 'GPS មិនដំណើរការលើឧបករណ៍នេះទេ', 'error');
         }
+    }
+}
         // async function submitCheckIn(scannedData) {
         //     var status = document.getElementById('checkin-status');
         //     if (!scannedData) return;
