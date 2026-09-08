@@ -6,7 +6,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Koulen&family=Siemreap&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- ភ្ជាប់បណ្ណាល័យ SweetAlert2 សម្រាប់បង្ហាញផ្ទាំងសារ -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
@@ -95,7 +94,7 @@
         
         .footer-text { text-align: center; color: rgba(255, 255, 255, 0.4); font-size: 11px; margin-top: 20px; }
 
-        /* 🌟 Custom Glass Dropdown Styles 🌟 */
+        /* Custom Glass Dropdown Styles */
         .glass-dropdown { position: relative; width: 100%; font-family: 'Siemreap', sans-serif; }
         .glass-dropdown-select {
             width: 100%; padding: 12px 15px; background: rgba(255, 255, 255, 0.12);
@@ -139,8 +138,7 @@
         
         <form id="loginForm" onsubmit="login(event)">
             
-            <!-- 🌟 Custom Campus Dropdown -->
-            <div class="form-group campus-selector">
+            <div class="form-group campus-selector" id="campusGroup">
                 <label><i class="bi bi-buildings"></i> ជ្រើសរើសសាលា / Campus</label>
                 <div class="glass-dropdown" id="customCampusDropdown">
                     <div class="glass-dropdown-select" id="customCampusSelectBox">
@@ -149,12 +147,10 @@
                     </div>
                     <ul class="glass-dropdown-list" id="customCampusList"></ul>
                 </div>
-                <!-- លាក់ Select ដើម -->
                 <select id="campusSelect" onchange="updateCampusHeader()" style="display: none;"></select>
             </div>
             
-            <!-- 🌟 Custom Building Dropdown -->
-            <div class="form-group campus-selector">
+            <div class="form-group campus-selector" id="buildingGroup">
                 <label><i class="bi bi-geo-alt"></i> ជ្រើសរើសអគារ (Building)</label>
                 <div class="glass-dropdown disabled-dropdown" id="customBuildingDropdown">
                     <div class="glass-dropdown-select" id="customBuildingSelectBox">
@@ -163,7 +159,6 @@
                     </div>
                     <ul class="glass-dropdown-list" id="customBuildingList"></ul>
                 </div>
-                <!-- លាក់ Select ដើម -->
                 <select id="buildingSelect" style="display: none;"></select>
             </div>
             
@@ -211,12 +206,10 @@
     </div>
     
     <script>
-        const BASE_URL = "https://script.google.com/macros/s/AKfycbzsrivSdBSb4s3zDaBhEZL-3R8g8ZJrnXGNweJQh8YGIAOyGohJAPzfOWoONj0LZhkg/exec";
+        const BASE_URL = "https://billowing-river-2c20.ponlorkleav168.workers.dev";
         var allCampuses = [];
         var allBuildings = [];
         var selectedCampus = null;
-        
-
 
         window.onload = function() {
             var savedSession = localStorage.getItem('sessionUser');
@@ -240,7 +233,6 @@
             document.getElementById('userId').focus();
         };
 
-        // 🌟 រៀបចំ Event សម្រាប់បិទបើក Custom Dropdowns
         function setupDropdownListeners() {
             const campusBox = document.getElementById('customCampusSelectBox');
             const campusDropdown = document.getElementById('customCampusDropdown');
@@ -267,10 +259,8 @@
             });
         }
 
-        // 🌟 បំប្លែងទិន្នន័យពី <select> លាក់បាំង ទៅជា UI ថ្មី
         function buildCustomDropdown(type) {
             let selectEl, customList, customText, dropdownContainer;
-            
             if (type === 'campus') {
                 selectEl = document.getElementById('campusSelect');
                 customList = document.getElementById('customCampusList');
@@ -284,15 +274,12 @@
             }
 
             customList.innerHTML = '';
-            
             Array.from(selectEl.options).forEach(option => {
-                if(option.value === "") return; // រំលង Option ទទេ
-                
+                if(option.value === "") return; 
                 const li = document.createElement('li');
                 li.className = 'glass-dropdown-item';
                 li.textContent = option.text;
                 li.setAttribute('data-value', option.value);
-                
                 li.addEventListener('click', function(e) {
                     e.stopPropagation();
                     customText.textContent = this.textContent;
@@ -307,7 +294,6 @@
         async function loadCampusesAndBuildings() {
             var cSelect = document.getElementById('campusSelect');
             var customCText = document.getElementById('customCampusText');
-            
             try {
                 const response = await fetch(BASE_URL, {
                     method: 'POST',
@@ -368,31 +354,37 @@
             }
         }
         
+        // 🌟 មុខងារលាក់អគារ និងសាលាពេលរើស Admin/Teacher
         function selectRole(element) {
             document.querySelectorAll('.role-option').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
-            document.getElementById('role').value = element.dataset.role;
+            var selectedRole = element.dataset.role;
+            document.getElementById('role').value = selectedRole;
             
-            // បើជាគ្រូ ឬអេដមីន អត់ចាំបាច់ទាមទារឲ្យរើសអគារក៏បានដែរ
-            if(element.dataset.role !== "Student") {
-                document.getElementById('customBuildingDropdown').style.display = 'none';
+            var buildingGroup = document.getElementById('buildingGroup');
+            var campusGroup = document.getElementById('campusGroup');
+            
+            if(selectedRole !== "Student") {
+                // លាក់ផ្ទាំងអគារ និងសាលាទាំងមូលចេញឲ្យស្អាត
+                buildingGroup.style.display = 'none';
+                campusGroup.style.display = 'none';
             } else {
-                document.getElementById('customBuildingDropdown').style.display = 'block';
+                // បង្ហាញមកវិញពេលរើសសិស្ស
+                buildingGroup.style.display = 'block';
+                campusGroup.style.display = 'block';
             }
         }
 
         function getOrCreateDeviceId() {
-                    var deviceId = localStorage.getItem('app_device_id');
-                    if (!deviceId) {
-                        deviceId = 'dev_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-                        localStorage.setItem('app_device_id', deviceId);
-                    }
-                    return deviceId;
-                }
+            var deviceId = localStorage.getItem('app_device_id');
+            if (!deviceId) {
+                deviceId = 'dev_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+                localStorage.setItem('app_device_id', deviceId);
+            }
+            return deviceId;
+        }
 
         async function getDeviceFingerprint() {
-            // ប្រើប្រាស់លេខកូដ Random ពី LocalStorage ជំនួសឲ្យការអាន Hardware
-            // ដោះស្រាយបញ្ហាទូរស័ព្ទ iPhone ឬស៊េរីដូចគ្នា លោតជាន់ ID គ្នា
             return getOrCreateDeviceId();
         }
 
@@ -404,8 +396,12 @@
             var campusId = document.getElementById('campusSelect').value;
             var buildingId = document.getElementById('buildingSelect').value;
             
-            if (!campusId) { showError('សូមជ្រើសរើសសាលា'); return; }
-            if (role === 'Student' && !buildingId) { showError('សូមជ្រើសរើសអគារ'); return; }
+            // 🌟 លក្ខខណ្ឌតម្រូវការសម្រាប់តែសិស្សប៉ុណ្ណោះ
+            if (role === 'Student') {
+                if (!campusId) { showError('សូមជ្រើសរើសសាលា'); return; }
+                if (!buildingId) { showError('សូមជ្រើសរើសអគារ'); return; }
+            }
+            
             if (!userId) { showError('សូមបញ្ចូលអត្តលេខ'); document.getElementById('userId').focus(); return; }
             if (!password) { showError('សូមបញ្ចូលពាក្យសម្ងាត់'); document.getElementById('password').focus(); return; }
             
@@ -430,11 +426,13 @@
                 document.getElementById('loadingSpinner').style.display = 'none';
 
                 if (result.success) {
-                    result.campusId = campusId;
-                    result.buildingId = buildingId;
-                    result.campusName = selectedCampus ? selectedCampus.nameKH : '';
+                    if(role === 'Student') {
+                        result.campusId = campusId;
+                        result.buildingId = buildingId;
+                        result.campusName = selectedCampus ? selectedCampus.nameKH : '';
+                    }
                     localStorage.setItem('sessionUser', JSON.stringify(result));
-                    localStorage.setItem('selectedCampus', JSON.stringify(selectedCampus));
+                    if(selectedCampus) localStorage.setItem('selectedCampus', JSON.stringify(selectedCampus));
                     
                     if (result.role === 'Student') {
                         window.location.href = result.requiresPasswordChange ? 'changepassword.html' : 'studentindex.html';
@@ -448,7 +446,7 @@
                 loginBtn.disabled = false;
                 loginBtn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> ចូលប្រើប្រាស់';
                 document.getElementById('loadingSpinner').style.display = 'none';
-                showError('កំហុសបច្ចេកទេស៖ ' + e.message);
+                showError('កំហុសបណ្តាញទាក់ទង សូមព្យាយាមម្តងទៀត');
             }
         }
         
@@ -456,7 +454,7 @@
             document.getElementById('errorText').innerText = message;
             document.getElementById('errorMessage').style.display = 'block';
         }
-// 🌟 បន្ថែមមុខងារ callAPI សម្រាប់ឲ្យកូដលោតឈ្មោះដំណើរការបាន
+
         async function callAPI(action, data = {}) {
             data.action = action;
             const response = await fetch(BASE_URL, {
@@ -466,85 +464,87 @@
             });
             return await response.json();
         }
-        // ==========================================
-// បង្ហាញ Toast បញ្ជាក់ឈ្មោះសិស្ស ពេលវាយ ID រួច
-// ==========================================
-// ==========================================
-// បង្ហាញ Popup បញ្ជាក់ឈ្មោះសិស្ស ពេលវាយ ID រួច (ទំហំតូចល្មម)
-// ==========================================
-// ==========================================
-// បង្ហាញ Popup បញ្ជាក់ឈ្មោះសិស្ស ពេលវាយ ID រួច
-// ==========================================
-document.addEventListener("DOMContentLoaded", function() {
-    var idInput = document.getElementById('userId'); 
-    
-    if(idInput) {
-        idInput.addEventListener('change', async function() {
-            var currentId = this.value.trim();
-            if(currentId.length > 0) {
-                
-                Swal.fire({
-                    title: '<span style="font-size: 15px;">កំពុងស្វែងរកឈ្មោះ...</span>',
-                    width: '250px',
-                    allowOutsideClick: false, 
-                    allowEscapeKey: false,
-                    showConfirmButton: false,
-                    didOpen: () => { Swal.showLoading(); }
-                });
 
-                try {
-                    const res = await callAPI('checkStudentName', { userId: currentId });
+        // ==========================================
+        // 🌟 មុខងារឆែកឈ្មោះសិស្ស (រំលងចោលបើជា Admin)
+        // ==========================================
+        document.addEventListener("DOMContentLoaded", function() {
+            var idInput = document.getElementById('userId'); 
+            
+            if(idInput) {
+                idInput.addEventListener('change', async function() {
+                    var role = document.getElementById('role').value;
                     
-                    Swal.close(); // 🌟 បិទផ្ទាំង Loading ទាំងស្រុង
-                    
-                    if(res && res.success) {
+                    // បើជា Admin ឬ Teacher កុំឲ្យវាលោតផ្ទាំងឆែកឈ្មោះសិស្សអី (រំលងចោល)
+                    if (role !== 'Student') {
+                        var pwdInput = document.getElementById('password');
+                        if(pwdInput) pwdInput.focus();
+                        return;
+                    }
+
+                    var currentId = this.value.trim();
+                    if(currentId.length > 0) {
                         Swal.fire({
-                            title: '<span style="font-size: 16px;">តើនេះពិតជាអ្នកមែនទេ?</span>',
-                            html: '<span style="font-size: 14px;">ឈ្មោះសិស្ស៖ </span><b style="color:#0f0659; font-size: 16px;">' + res.name + '</b>',
-                            icon: 'question',
-                            width: '300px',
+                            title: '<span style="font-size: 15px;">កំពុងស្វែងរកឈ្មោះ...</span>',
+                            width: '250px',
                             allowOutsideClick: false, 
-                            allowEscapeKey: false,    
-                            showCancelButton: true,
-                            confirmButtonText: '<span style="font-size: 14px;">✅ គឺខ្ញុំ</span>',
-                            cancelButtonText: '<span style="font-size: 14px;">❌ មិនមែនខ្ញុំទេ</span>',
-                            confirmButtonColor: '#28a745',
-                            cancelButtonColor: '#dc3545'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                var pwdInput = document.getElementById('password');
-                                if(pwdInput) pwdInput.focus();
+                            allowEscapeKey: false,
+                            showConfirmButton: false,
+                            didOpen: () => { Swal.showLoading(); }
+                        });
+
+                        try {
+                            const res = await callAPI('checkStudentName', { userId: currentId });
+                            Swal.close(); 
+                            
+                            if(res && res.success) {
+                                Swal.fire({
+                                    title: '<span style="font-size: 16px;">តើនេះពិតជាអ្នកមែនទេ?</span>',
+                                    html: '<span style="font-size: 14px;">ឈ្មោះសិស្ស៖ </span><b style="color:#0f0659; font-size: 16px;">' + res.name + '</b>',
+                                    icon: 'question',
+                                    width: '300px',
+                                    allowOutsideClick: false, 
+                                    allowEscapeKey: false,    
+                                    showCancelButton: true,
+                                    confirmButtonText: '<span style="font-size: 14px;">✅ គឺខ្ញុំ</span>',
+                                    cancelButtonText: '<span style="font-size: 14px;">❌ មិនមែនខ្ញុំទេ</span>',
+                                    confirmButtonColor: '#28a745',
+                                    cancelButtonColor: '#dc3545'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        var pwdInput = document.getElementById('password');
+                                        if(pwdInput) pwdInput.focus();
+                                    } else {
+                                        idInput.value = '';
+                                        idInput.focus();
+                                    }
+                                });
                             } else {
+                                Swal.fire({
+                                    title: '<span style="font-size: 16px;">រកមិនឃើញសិស្សនេះទេ!</span>',
+                                    html: '<span style="font-size: 13px;">សូមពិនិត្យមើលអត្តលេខឡើងវិញ</span>',
+                                    icon: 'warning',
+                                    width: '280px',
+                                    allowOutsideClick: false,
+                                    timer: 3000,
+                                    showConfirmButton: false
+                                });
                                 idInput.value = '';
                                 idInput.focus();
                             }
-                        });
-                    } else {
-                        Swal.fire({
-                            title: '<span style="font-size: 16px;">រកមិនឃើញសិស្សនេះទេ!</span>',
-                            html: '<span style="font-size: 13px;">សូមពិនិត្យមើលអត្តលេខឡើងវិញ</span>',
-                            icon: 'warning',
-                            width: '280px',
-                            allowOutsideClick: false,
-                            timer: 3000,
-                            showConfirmButton: false
-                        });
-                        idInput.value = '';
-                        idInput.focus();
+                        } catch (error) {
+                            Swal.close(); 
+                            Swal.fire({
+                                title: '<span style="font-size: 16px;">បរាជ័យ</span>',
+                                html: '<span style="font-size: 13px;">មានបញ្ហាភ្ជាប់ទៅប្រព័ន្ធ Server</span>',
+                                icon: 'error',
+                                width: '250px'
+                            });
+                        }
                     }
-                } catch (error) {
-                    Swal.close(); // 🌟 បិទផ្ទាំង Loading ទាំងស្រុង មុនលោត Error
-                    Swal.fire({
-                        title: '<span style="font-size: 16px;">បរាជ័យ</span>',
-                        html: '<span style="font-size: 13px;">មានបញ្ហាភ្ជាប់ទៅប្រព័ន្ធ Server</span>',
-                        icon: 'error',
-                        width: '250px'
-                    });
-                }
+                });
             }
         });
-    }
-});
     </script>
 </body>
 </html>
