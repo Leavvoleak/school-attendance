@@ -646,18 +646,27 @@
         var currentQRStudents = [];      
         var globalStudents = [];         
         
+        const BASE_URL = "https://billowing-river-2c20.ponlorkleav168.workers.dev"; // Cloudflare
+        const BASE_URL = "https://script.google.com/macros/s/AKfycbzsrivSdBSb4s3zDaBhEZL-3R8g8ZJrnXGNweJQh8YGIAOyGohJAPzfOWoONj0LZhkg/exec"; // Google Apps Script
+
         async function callAPI(action, data = {}) {
             data.action = action;
+            
+            // 🌟 កំណត់គោលដៅ៖ ស្កេន និង Login រត់ទៅ Cloudflare | ឯមុខងារផ្សេងទៀតរត់ទៅ Google Apps Script ទាំងអស់
+            let targetURL = BASE_URL; 
+            if (action === 'submitAttendance' || action === 'submitAttendanceWithBuilding' || action === 'login') {
+                targetURL = BASE_URL;
+            }
+
             try {
-                const response = await fetch(BASE_URL, {
+                const response = await fetch(targetURL, {
                     method: 'POST',
                     body: JSON.stringify(data),
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     redirect: 'follow'
                 });
                 return await response.json();
-            } catch (error) {
-                console.error('API Error:', error);
+            } catch (e) {
                 return { error: 'បញ្ហាភ្ជាប់អ៊ីនធឺណិត' };
             }
         }
