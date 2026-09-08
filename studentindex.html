@@ -913,27 +913,32 @@
         }
 
         async function handleCheckInResult(data, statusElement) {
-            if (data.error) {
-                await Swal.fire({ icon: 'error', title: 'បរាជ័យ', text: data.error });
-                statusElement.innerHTML = '';
-            } else {
-                await Swal.fire({
-                    icon: 'success',
-                    title: 'ជោគជ័យ',
-                    text: data.alert,
-                    timer: 3500,
-                    showConfirmButton: true
-                });
-                statusElement.innerHTML = '<i class="fas fa-check-circle text-success"></i> ' + data.success;
-                statusElement.className = 'text-success fw-bold text-center mb-2';
-                
-                if (data.scansToday >= 4) {
-                    document.getElementById('btnStartScanContainer').style.display = 'none';
+                    if (data.error) {
+                        await Swal.fire({ icon: 'error', title: 'បរាជ័យ', text: data.error });
+                        statusElement.innerHTML = '';
+                    } else {
+                        // ១. លោតផ្ទាំងបញ្ជាក់ថាស្កេនជោគជ័យ
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'ជោគជ័យ',
+                            text: data.alert,
+                            timer: 3500,
+                            showConfirmButton: true
+                        });
+                        
+                        statusElement.innerHTML = '<i class="fas fa-check-circle text-success"></i> ' + data.success;
+                        statusElement.className = 'text-success fw-bold text-center mb-2';
+                        
+                        // បិទប៊ូតុងស្កេន បើស្កេនគ្រប់ ៤ ដង
+                        if (data.scansToday >= 4) {
+                            document.getElementById('btnStartScanContainer').style.display = 'none';
+                        }
+                        
+                        // ២. 🌟 កូដបញ្ជាឲ្យ Dashboard លោត Update ទិន្នន័យភ្លាមៗ
+                        window.isFirstStatsLoad = true; // បង្ខំឲ្យបង្ហាញ Spinner វិលៗលើតួលេខសិន
+                        refreshStats(true); // ទាញយកទិន្នន័យថ្មីពី Database រួច Update ទាំងតួលេខ និងតារាងរបាយការណ៍
+                    }
                 }
-                
-                refreshStats(false);
-            }
-        }
 
         function formatDisplayDate(dateStr) {
             if (!dateStr) return "";
