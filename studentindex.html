@@ -384,17 +384,15 @@
             }
 
             try {
-                // 🌟 បន្ថែមពេលវេលា (Timestamp) ពីក្រោយលីង ដើម្បីបោក Telegram កុំឲ្យវាចាំទិន្នន័យចាស់
+                // 🌟 រក្សាទុកត្រឹមការបូកពេលវេលា (Timestamp) នេះ គឺអាចប្រឆាំង Cache របស់ Telegram បានហើយ
                 const noCacheURL = targetURL + "?t=" + new Date().getTime();
 
                 const response = await fetch(noCacheURL, {
                     method: 'POST',
                     body: JSON.stringify(data),
                     headers: { 
-                        'Content-Type': 'text/plain;charset=utf-8',
-                        'Cache-Control': 'no-cache, no-store, must-revalidate', // 🌟 ប្រាប់ Telegram កុំឲ្យលាក់ទិន្នន័យទុក
-                        'Pragma': 'no-cache',
-                        'Expires': '0'
+                        // ⚠️ រក្សាទុកតែមួយជួរនេះ ហាមបន្ថែម Cache-Control ផ្សេងៗទៀត ព្រោះវាធ្វើឲ្យ Google លោត CORS Error
+                        'Content-Type': 'text/plain;charset=utf-8' 
                     },
                     redirect: 'follow'
                 });
