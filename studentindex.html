@@ -130,6 +130,91 @@
         @keyframes scan { 0% { top: 10%; } 50% { top: 90%; } 100% { top: 10%; } }
         .btn-cancel-cam { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.9); border: none; padding: 12px 30px; border-radius: 30px; font-size: 14pt; font-weight: bold; color: #333; z-index: 10001; }
         .cam-hint { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); color: white; background: rgba(0,0,0,0.6); padding: 8px 15px; border-radius: 20px; font-size: 11pt; white-space: nowrap; z-index: 10001; }
+
+        /* ==========================================
+   រចនាម៉ូដ Radial Menu សម្រាប់ Profile
+   ========================================== */
+.radial-menu-container {
+    position: relative;
+    display: inline-block;
+    width: 70px; /* ទំហំរូប Profile */
+    height: 70px;
+    z-index: 1000;
+}
+
+.main-profile-btn {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    cursor: pointer;
+    overflow: hidden;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 10;
+    transition: transform 0.3s ease;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.main-profile-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ពេលចុចបើក ធ្វើឲ្យរូប Profile ស្រុតចុះបន្តិច */
+.radial-menu-container.active .main-profile-btn {
+    transform: scale(0.9);
+    box-shadow: 0 0 15px rgba(255, 0, 102, 0.4); /* ពណ៌ស្រមោលស៊ីជម្ពូ ដូចរូប */
+}
+
+/* រចនាម៉ូដប៊ូតុងតូចៗ (កូនចៅ) */
+.radial-item {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 45px;
+    height: 45px;
+    margin-top: -22.5px;
+    margin-left: -22.5px;
+    border-radius: 50%;
+    background-color: #8c52ff; /* ពណ៌ស្វាយ ដូចរូប */
+    color: white;
+    border: none;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0);
+    /* ចលនាលោតបែប Bouncy */
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+    z-index: 5;
+}
+
+.radial-item:hover {
+    background-color: #7b45e6;
+    transform: scale(1.1) !important;
+}
+
+/* ទីតាំងប៊ូតុងទី ១ (ប្តូររូបថត) ពេលលោតចេញមក */
+.radial-menu-container.active .radial-item-1 {
+    opacity: 1;
+    /* រំកិលទៅខាងឆ្វេង និងចុះក្រោមបន្តិច */
+    transform: translate(-65px, 20px) scale(1); 
+}
+
+/* ទីតាំងប៊ូតុងទី ២ (ប្តូរពាក្យសម្ងាត់) ពេលលោតចេញមក */
+.radial-menu-container.active .radial-item-2 {
+    opacity: 1;
+    /* រំកិលចុះក្រោម និងមកឆ្វេងបន្តិច */
+    transform: translate(-15px, 70px) scale(1); 
+}
     </style>
 </head>
 <body>
@@ -178,10 +263,35 @@
                         <span id="dash_student_type">...</span> | <span id="dash_group">...</span>
                     </p>
                 </div>
-                <div class="dash-avatar" onclick="triggerFileInput()" style="cursor: pointer; overflow: hidden; position: relative;" title="ចុចទីនេះដើម្បីប្តូររូបថត">
+                
+                <!-- <div class="dash-avatar" onclick="triggerFileInput()" style="cursor: pointer; overflow: hidden; position: relative;" title="ចុចទីនេះដើម្បីប្តូររូបថត">
                     <i class="fas fa-user-graduate" id="defaultAvatarIcon"></i>
                     <img id="userProfileImg" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
                 </div>
+                
+                <input type="file" id="profileImageInput" accept="image/jpeg, image/png" style="display:none" onchange="handleProfileImageSelect(event)"> -->
+                <!-- 🌟 ប្រអប់មេសម្រាប់ក្តោបម៉ឺនុយ Radial -->
+                <div class="radial-menu-container" id="profileRadialMenu">
+                    
+                    <!-- រូប Profile ធំ (ប្តូរ onclick ទៅជា toggleRadialMenu វិញ) -->
+                    <div class="dash-avatar main-profile-btn" onclick="toggleRadialMenu()" style="cursor: pointer; overflow: hidden; position: relative;" title="ចុចដើម្បីបង្ហាញម៉ឺនុយ">
+                        <i class="fas fa-user-graduate" id="defaultAvatarIcon"></i>
+                        <img id="userProfileImg" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                    </div>
+                    
+                    <!-- ប៊ូតុងតូចទី ១៖ ប្តូររូបថត -->
+                    <button class="radial-item radial-item-1" onclick="triggerFileInput()" title="ប្តូររូបថត Profile">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                    
+                    <!-- ប៊ូតុងតូចទី ២៖ ប្តូរពាក្យសម្ងាត់ -->
+                    <!-- (សូមប្រាកដថាអ្នកមានមុខងារប្តូរពាក្យសម្ងាត់ ឧ. showChangePasswordModal) -->
+                    <button class="radial-item radial-item-2" onclick="showChangePasswordModal()" title="ប្តូរពាក្យសម្ងាត់">
+                        <i class="fas fa-key"></i>
+                    </button>
+                </div>
+                
+                <!-- Input សម្រាប់រើសរូបភាព គឺរក្សាទុកនៅដដែល -->
                 <input type="file" id="profileImageInput" accept="image/jpeg, image/png" style="display:none" onchange="handleProfileImageSelect(event)">
             </div>
 
