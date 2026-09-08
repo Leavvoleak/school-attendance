@@ -358,8 +358,7 @@
     
     <script>
         // 🌟 បានផ្លាស់ប្តូរ BASE_URL ទៅកាន់ Cloudflare Worker ដើម្បីដំណើរការលឿននិងមិនគាំង
-        const BASE_URL = "https://billowing-river-2c20.ponlorkleav168.workers.dev";
-        
+          
         var sessionUser = null;
         var scannerWindow = null;
         var checkInDone = false;
@@ -373,13 +372,30 @@
         var inlineStream = null;
         var inlineScanning = false;
 
-        async function callAPI(action, data) {
+        const BASE_URL = "https://billowing-river-2c20.ponlorkleav168.workers.dev"; // Cloudflare
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzsrivSdBSb4s3zDaBhEZL-3R8g8ZJrnXGNweJQh8YGIAOyGohJAPzfOWoONj0LZhkg/exec"; // Google Apps Script
+
+        async function callAPI(action, data = {}) {
             data.action = action;
+            
+            let targetURL = GAS_URL; 
+            if (action === 'submitAttendance' || action === 'submitAttendanceWithBuilding' || action === 'login') {
+                targetURL = BASE_URL;
+            }
+
             try {
-                const response = await fetch(BASE_URL, {
+                // 🌟 បន្ថែមពេលវេលា (Timestamp) ពីក្រោយលីង ដើម្បីបោក Telegram កុំឲ្យវាចាំទិន្នន័យចាស់
+                const noCacheURL = targetURL + "?t=" + new Date().getTime();
+
+                const response = await fetch(noCacheURL, {
                     method: 'POST',
                     body: JSON.stringify(data),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    headers: { 
+                        'Content-Type': 'text/plain;charset=utf-8',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate', // 🌟 ប្រាប់ Telegram កុំឲ្យលាក់ទិន្នន័យទុក
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    },
                     redirect: 'follow'
                 });
                 return await response.json();
