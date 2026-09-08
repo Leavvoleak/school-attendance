@@ -1283,6 +1283,27 @@
                 Swal.fire('កំហុស!', 'បញ្ហាភ្ជាប់អ៊ីនធឺណិត', 'error');
             }
         }
+
+        // ==========================================
+// មុខងារគ្រប់គ្រង Radial Menu របស់ Profile
+// ==========================================
+
+// មុខងារបិទ/បើកម៉ឺនុយ ពេលចុចលើរូប Profile
+function toggleRadialMenu() {
+    var container = document.getElementById('profileRadialMenu');
+    if(container) {
+        container.classList.toggle('active');
+    }
+}
+
+// មុខងារបិទម៉ឺនុយស្វ័យប្រវត្តិ ពេលចុចនៅចន្លោះទទេផ្សេងៗ
+document.addEventListener('click', function(event) {
+    var container = document.getElementById('profileRadialMenu');
+    // បើម៉ឺនុយកំពុងបើក ហើយអ្នកប្រើចុចកន្លែងផ្សេងក្រៅពីម៉ឺនុយនេះ វានឹងបិទទៅវិញ
+    if (container && container.classList.contains('active') && !container.contains(event.target)) {
+        container.classList.remove('active');
+    }
+});
     </script>
 </body>
 </html>
