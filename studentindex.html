@@ -357,7 +357,8 @@
     </div>
     
     <script>
-        const BASE_URL = "https://script.google.com/macros/s/AKfycbzsrivSdBSb4s3zDaBhEZL-3R8g8ZJrnXGNweJQh8YGIAOyGohJAPzfOWoONj0LZhkg/exec";
+        // 🌟 បានផ្លាស់ប្តូរ BASE_URL ទៅកាន់ Cloudflare Worker ដើម្បីដំណើរការលឿននិងមិនគាំង
+        const BASE_URL = "https://billowing-river-2c20.ponlorkleav168.workers.dev";
         
         var sessionUser = null;
         var scannerWindow = null;
@@ -468,7 +469,8 @@
                 refreshStats(viewName === 'report');
             }
         }
-async function refreshStats(renderRep) {
+        
+        async function refreshStats(renderRep) {
             if (typeof window.isFirstStatsLoad === 'undefined') {
                 window.isFirstStatsLoad = true;
             }
@@ -488,7 +490,6 @@ async function refreshStats(renderRep) {
                     statusEl.innerHTML = '<i class="fas fa-spinner fa-spin text-primary"></i> កំពុងរៀបចំទិន្នន័យ...';
                     statusEl.className = 'text-center text-primary fw-bold mb-2';
                 }
-                // យើងឈប់លាក់ប៊ូតុងទៀតហើយ តែឲ្យវាបង្ហាញ Spinner ជំនួសវិញ
                 if (btnContainer) btnContainer.style.display = 'flex';
             }
 
@@ -518,7 +519,6 @@ async function refreshStats(renderRep) {
                     var sOffline = data.stats.scanSettings.offline;
                     var sOnline = data.stats.scanSettings.online;
                     
-                    // 🌟 ស្តារប៊ូតុង និង Icon មកសភាពដើមវិញ រួចកំណត់សិទ្ធិចុច
                     if (btnContainer) {
                         var btnInPerson = document.getElementById('btnInPerson');
                         var btnOnline = document.getElementById('btnOnline');
@@ -528,18 +528,15 @@ async function refreshStats(renderRep) {
                         var subOnline = document.getElementById('subOnline');
 
                         if (btnInPerson && btnOnline) {
-                            // ស្តារ Icon និង អក្សរ
                             iconInPerson.className = "fas fa-qrcode text-success";
                             subInPerson.innerText = "ត្រូវមកសាលារៀន";
                             iconOnline.className = "fas fa-qrcode text-primary";
                             subOnline.innerText = "មិនគិតទីតាំងទេ";
 
-                            // បើក/បិទ ប៊ូតុងរៀនផ្ទាល់
                             var disableOffline = !sOffline || hasPermissionToday;
                             btnInPerson.disabled = disableOffline; 
                             btnInPerson.style.opacity = disableOffline ? "0.5" : "1"; 
 
-                            // បើក/បិទ ប៊ូតុងរៀនអនឡាញ
                             btnOnline.disabled = !sOnline;
                             btnOnline.style.opacity = sOnline ? "1" : "0.5";
                         }
@@ -632,180 +629,13 @@ async function refreshStats(renderRep) {
                     }
                 } else {
                     if (statusEl) statusEl.innerHTML = '<i class="fas fa-exclamation-circle text-danger"></i> បរាជ័យក្នុងការទាញយកទិន្នន័យ';
-                    if (btnContainer) btnContainer.style.display = 'none'; // បិទប៊ូតុងបើមាន Error
+                    if (btnContainer) btnContainer.style.display = 'none';
                 }
             } catch (error) {
                 if (statusEl) statusEl.innerHTML = '<i class="fas fa-wifi text-danger"></i> មានបញ្ហាភ្ជាប់អ៊ីនធឺណិត';
-                if (btnContainer) btnContainer.style.display = 'none'; // បិទប៊ូតុងបើមាន Error
+                if (btnContainer) btnContainer.style.display = 'none';
             }
         }
-        // async function refreshStats(renderRep) {
-        //     if (typeof window.isFirstStatsLoad === 'undefined') {
-        //         window.isFirstStatsLoad = true;
-        //     }
-
-        //     var statusEl = document.getElementById('checkin-status');
-        //     var btnContainer = document.getElementById('btnStartScanContainer');
-            
-        //     if (window.isFirstStatsLoad) {
-        //         var spinnerHtml = '<i class="fas fa-spinner fa-spin text-muted"></i>';
-        //         document.getElementById('dash_hrs').innerHTML = spinnerHtml;
-        //         document.getElementById('dash_present').innerHTML = spinnerHtml;
-        //         if (document.getElementById('dash_absent')) document.getElementById('dash_absent').innerHTML = spinnerHtml;
-        //         if (document.getElementById('dash_leaves')) document.getElementById('dash_leaves').innerHTML = spinnerHtml;
-        //         document.getElementById('dash_percent').innerHTML = spinnerHtml;
-                
-        //         if (statusEl) {
-        //             statusEl.innerHTML = '<i class="fas fa-spinner fa-spin text-primary"></i> កំពុងរៀបចំទិន្នន័យ...';
-        //             statusEl.className = 'text-center text-primary fw-bold mb-2';
-        //         }
-        //         if (btnContainer) btnContainer.style.display = 'none';
-        //     }
-
-        //     try {
-        //         const data = await callAPI('getStudentData', { studentId: sessionUser.id });
-                
-        //         if (data && data.success) {
-        //             window.isFirstStatsLoad = false;
-        //             allDailyLogs = data.logs || [];
-                    
-        //             document.getElementById('dash_hrs').innerText = data.stats.hours || '0h 0m';
-        //             document.getElementById('dash_present').innerText = data.stats.present || 0;
-        //             if (document.getElementById('dash_absent')) document.getElementById('dash_absent').innerText = data.stats.absent || 0;
-        //             if (document.getElementById('dash_leaves')) document.getElementById('dash_leaves').innerText = data.stats.leaves || 0;
-        //             document.getElementById('dash_percent').innerText = data.stats.percentage + '%';
-        //             document.getElementById('donut_chart').style.background = 'conic-gradient(#0f0659 0% ' + data.stats.percentage + '%, #e0e0e0 ' + data.stats.percentage + '% 100%)';
-                    
-        //             var todayDateStr = new Date().toISOString().split('T')[0];
-        //             var hasPermissionToday = false;
-                    
-        //             if (data.notifications && data.notifications.length > 0) {
-        //                 hasPermissionToday = data.notifications.some(function(n) {
-        //                     return n.status === 'Approved' && n.date === todayDateStr;
-        //                 });
-        //             }
-
-        //             var sOffline = data.stats.scanSettings.offline;
-        //             var sOnline = data.stats.scanSettings.online;
-                    
-        //             if (btnContainer) {
-        //                 var btns = btnContainer.querySelectorAll('button');
-        //                 btns.forEach(function(btn) {
-        //                     var txt = btn.innerText || btn.textContent;
-        //                     if (txt.includes('ផ្ទាល់') || txt.includes('Offline')) {
-        //                         var disableOffline = !sOffline || hasPermissionToday;
-        //                         btn.disabled = disableOffline; 
-        //                         btn.style.opacity = disableOffline ? "0.5" : "1"; 
-        //                     } 
-        //                     if (txt.includes('អនឡាញ') || txt.includes('Online')) {
-        //                         btn.disabled = !sOnline;
-        //                         btn.style.opacity = sOnline ? "1" : "0.5";
-        //                     }
-        //                 });
-        //             }
-
-        //             var todayStatStr = String(data.stats.todayStatus).toLowerCase();
-
-        //             if (!sOffline && !sOnline) {
-        //                 statusEl.innerHTML = '<i class="fas fa-lock text-danger"></i> ការស្កេនទាំងអស់ត្រូវបានបិទដោយ Admin';
-        //                 statusEl.className = 'text-center text-danger fw-bold mb-2';
-        //             } 
-        //             else if (hasPermissionToday || todayStatStr.includes("permission") || todayStatStr.includes("approved") || todayStatStr.includes("អនុម័តច្បាប់")) {
-        //                 statusEl.innerHTML = '<i class="fas fa-calendar-check text-warning"></i> អ្នកមានច្បាប់ឈប់សម្រាកសម្រាប់ថ្ងៃនេះ';
-        //                 statusEl.className = 'text-warning fw-bold text-center mb-2';
-        //                 if(btnContainer) btnContainer.style.display = 'flex';
-        //             } 
-        //             else if (data.stats.missingScanPrompt) {
-        //                 statusEl.innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i> ' + data.stats.missingScanPrompt;
-        //                 statusEl.className = 'text-warning fw-bold text-center mb-2';
-        //                 if(btnContainer) btnContainer.style.display = 'flex';
-        //             } 
-        //             else if(allDailyLogs.length > 0 && allDailyLogs[0].date === todayDateStr && allDailyLogs[0].aOut !== '--:--') {
-        //                 statusEl.innerHTML = '<i class="fas fa-check-circle text-success"></i> អ្នកបានបញ្ជប់ការស្កេនទាំង ៤ សម្រាប់ថ្ងៃនេះហើយ';
-        //                 statusEl.className = 'text-success fw-bold text-center mb-2';
-        //                 if(btnContainer) btnContainer.style.display = 'none';
-        //             } 
-        //             else {
-        //                 statusEl.innerHTML = '<i class="fas fa-info-circle text-muted"></i> សូមរង់ចាំម៉ោងស្កេនបន្ទាប់';
-        //                 statusEl.className = 'text-center text-muted mb-2';
-        //                 if(btnContainer) btnContainer.style.display = 'none';
-        //             }
-
-        //             if (renderRep){
-        //                 setDefaultDates();
-        //                 applyDateFilter();
-        //             }
-
-        //             var notifContainer = document.getElementById('notification-list');
-        //             if (notifContainer) {
-        //                 if (data.notifications && data.notifications.length > 0) {
-        //                     var alertedNotifs = JSON.parse(localStorage.getItem('alertedNotifs') || '[]');
-        //                     var viewedNotifs = JSON.parse(localStorage.getItem('viewedNotifs') || '[]');
-        //                     var unreadCount = 0; var allIds = []; var newApprovals = []; var newRejections = [];
-
-        //                     notifContainer.innerHTML = data.notifications.map(function(n) {
-        //                         allIds.push(n.id);
-        //                         var isUnread = !viewedNotifs.includes(n.id);
-        //                         if (isUnread) unreadCount++;
-        //                         if (!alertedNotifs.includes(n.id)) {
-        //                             if (n.status === 'Approved') newApprovals.push(formatDisplayDate(n.date));
-        //                             else if (n.status === 'Rejected') newRejections.push(formatDisplayDate(n.date));
-        //                             alertedNotifs.push(n.id);
-        //                         }
-        //                         var title = n.status === 'Approved' ? 'សំណើសុំច្បាប់ត្រូវបានអនុម័ត' : 'សំណើសុំច្បាប់ត្រូវបានបដិសេធ';
-        //                         var colorClass = n.status === 'Approved' ? 'approved' : 'rejected';
-        //                         var icon = n.status === 'Approved' ? 'fa-check-circle text-success' : 'fa-times-circle text-danger';
-        //                         var newBadge = isUnread ? '<span class="badge bg-danger ms-2 new-notif-badge">ថ្មី (New)</span>' : '';
-                                
-        //                         return '<div class="notif-card ' + colorClass + '"><div class="d-flex justify-content-between"><div class="fw-bold" style="font-size:11pt;"><i class="fas ' + icon + '"></i> ' + title + newBadge + '</div><small class="text-muted" style="font-size:8pt;">' + n.reqTime + '</small></div><div class="mt-2 text-muted small">ថ្ងៃសុំច្បាប់៖ <span class="fw-bold">' + formatDisplayDate(n.date) + '</span></div><div class="text-muted small">មូលហេតុ៖ ' + n.reason + '</div></div>';
-        //                     }).join('');
-                            
-        //                     localStorage.setItem('allNotifIds', JSON.stringify(allIds));
-        //                     var badgeEl = document.getElementById('notif-badge');
-        //                     if (badgeEl) {
-        //                         if (unreadCount > 0) {
-        //                             badgeEl.innerText = unreadCount;
-        //                             badgeEl.style.display = 'inline-block';
-        //                         } else { 
-        //                             badgeEl.style.display = 'none'; 
-        //                         }
-        //                     }
-                            
-        //                     if (newApprovals.length > 0 || newRejections.length > 0) {
-        //                         localStorage.setItem('alertedNotifs', JSON.stringify(alertedNotifs));
-                                
-        //                         const Toast = Swal.mixin({
-        //                             toast: true,
-        //                             position: 'top-end',
-        //                             showConfirmButton: false,
-        //                             timer: 5000,
-        //                             timerProgressBar: true,
-        //                             didOpen: (toast) => {
-        //                                 toast.addEventListener('mouseenter', Swal.stopTimer)
-        //                                 toast.addEventListener('mouseleave', Swal.resumeTimer)
-        //                             }
-        //                         });
-
-        //                         if (newApprovals.length > 0) {
-        //                             Toast.fire({ icon: 'success', title: 'ដំណឹងល្អ!', text: 'ពាក្យសុំច្បាប់ថ្ងៃទី ' + newApprovals.join(', ') + ' ត្រូវបានអនុម័ត។' });
-        //                         }
-        //                         if (newRejections.length > 0) {
-        //                             setTimeout(function() { 
-        //                                 Toast.fire({ icon: 'error', title: 'សោកស្តាយ', text: 'ពាក្យសុំច្បាប់ថ្ងៃទី ' + newRejections.join(', ') + ' ត្រូវបានបដិសេធ។' }); 
-        //                             }, newApprovals.length > 0 ? 5500 : 0);
-        //                         }
-        //                     }
-        //                 } else { 
-        //                     notifContainer.innerHTML = '<div class="text-center text-muted py-4"><i class="fas fa-bell-slash fs-1"></i><p class="mt-2">មិនមានដំណឹងថ្មីៗទេ</p></div>'; 
-        //                 }
-        //             }
-        //         } else {
-        //             if (statusEl) statusEl.innerHTML = '<i class="fas fa-exclamation-circle text-danger"></i> បរាជ័យក្នុងការទាញយកទិន្នន័យ';
-        //         }
-        //     } catch (error) {
-        //         if (statusEl) statusEl.innerHTML = '<i class="fas fa-wifi text-danger"></i> មានបញ្ហាភ្ជាប់អ៊ីនធឺណិត';
-        //     }
-        // }
 
         function startRealtimeUpdates() {
             if (realtimeTimer) clearInterval(realtimeTimer);
@@ -934,205 +764,137 @@ async function refreshStats(renderRep) {
             };
             event.target.value = '';
         }
-async function submitCheckIn(scannedData) {
-    var status = document.getElementById('checkin-status');
-    if (!scannedData) return;
 
-    var parts = scannedData.split('|');
-    if (parts.length !== 2) {
-        // 🌟 បង្ហាញទិន្នន័យដែលស្កេនបាន ករណីខុសទម្រង់
-        Swal.fire({ icon: 'error', title: 'កាតមិនត្រឹមត្រូវ', text: 'ទម្រង់ QR Code មិនត្រឹមត្រូវ (គ្មានសញ្ញា | បំបែក)។ ទិន្នន័យដែលស្កេនបាន៖ ' + scannedData, confirmButtonText: 'យល់ព្រម' });
-        return;
-    }
+        async function submitCheckIn(scannedData) {
+            var status = document.getElementById('checkin-status');
+            if (!scannedData) return;
 
-    var scannedId = parts[0].trim();
-    if (/^\d+$/.test(scannedId)) scannedId = scannedId.padStart(4, '0');
-    
-    var currentUserId = String(sessionUser.id).trim();
-    if (/^\d+$/.test(currentUserId)) currentUserId = currentUserId.padStart(4, '0');
+            var parts = scannedData.split('|');
+            if (parts.length !== 2) {
+                Swal.fire({ icon: 'error', title: 'កាតមិនត្រឹមត្រូវ', text: 'ទម្រង់ QR Code មិនត្រឹមត្រូវ (គ្មានសញ្ញា | បំបែក)។ ទិន្នន័យដែលស្កេនបាន៖ ' + scannedData, confirmButtonText: 'យល់ព្រម' });
+                return;
+            }
 
-    // 🌟 ទាញយកពាក្យសម្ងាត់ដែលស្កេនបាន និងពាក្យសម្ងាត់ក្នុងប្រព័ន្ធមកផ្ទឹមគ្នា
-    var scannedSecret = parts[1].trim();
-    var mySecret = sessionUser.secretWord || "គ្មានទិន្នន័យក្នុងប្រព័ន្ធ";
+            var scannedId = parts[0].trim();
+            if (/^\d+$/.test(scannedId)) scannedId = scannedId.padStart(4, '0');
+            
+            var currentUserId = String(sessionUser.id).trim();
+            if (/^\d+$/.test(currentUserId)) currentUserId = currentUserId.padStart(4, '0');
 
-    // 🌟 បើផ្ទៀងផ្ទាត់មិនត្រូវគ្នា លោតប្រាប់ចំៗថាខុសកន្លែងណា
-    if (scannedId !== currentUserId || scannedSecret !== mySecret) {
-        Swal.fire({ 
-            icon: 'error', 
-            title: 'កាតមិនត្រូវគ្នា', 
-            html: `<div style="text-align: left; background: #f8f9fa; padding: 10px; border-radius: 8px;">
-                     ទិន្នន័យពីកាត (QR): <br><b style="color: #d32f2f;">${scannedId} | ${scannedSecret}</b><br><br>
-                     ទិន្នន័យក្នុងប្រព័ន្ធរបស់អ្នក: <br><b style="color: #1976d2;">${currentUserId} | ${mySecret}</b>
-                   </div>
-                   <br><span style="color:red; font-size:13px;">សូមពិនិត្យមើលថាតើលេខ ឬពាក្យសម្ងាត់មួយណាដែលខុសគ្នា?<br><b>ដំណោះស្រាយ៖</b> សូមចុចប៊ូតុង "ចាកចេញ (Logout)" រួច Login ចូលវិញ ដើម្បីឲ្យប្រព័ន្ធទាញយកពាក្យសម្ងាត់ថ្មី។</span>`, 
-            confirmButtonText: 'យល់ព្រម' 
-        });
-        return;
-    }
+            var scannedSecret = parts[1].trim();
+            var mySecret = sessionUser.secretWord || "គ្មានទិន្នន័យក្នុងប្រព័ន្ធ";
 
-    var campusId = sessionUser.campusId || '1';
-    
-    if (currentCheckInMode === 'online') {
-        status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងចុះវត្តមានអនឡាញ...';
-        // 🌟 បន្ថែម Loading សម្រាប់អនឡាញ
-        Swal.fire({ title: 'កំពុងបញ្ជូនទិន្នន័យ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-        
-        const res = await callAPI('submitAttendance', { studentId: sessionUser.id, checkInType: "រៀនអនឡាញ", lat: 0, lng: 0 });
-        handleCheckInResult(res, status);
-    } else {
-        status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងផ្ទៀងផ្ទាត់ទីតាំង...';
-        
-        if (navigator.geolocation) {
-            // 🌟 ១. បង្ហាញផ្ទាំង Loading ឱ្យសិស្សដឹងថាប្រព័ន្ធកំពុងស្វែងរកទីតាំង មិនមែនគាំងទេ
-            Swal.fire({
-                title: 'កំពុងស្វែងរកទីតាំង GPS...',
-                html: 'សូមរង់ចាំបន្តិច ប្រព័ន្ធកំពុងផ្ទៀងផ្ទាត់ទីតាំងរបស់អ្នក។<br><span style="font-size:12px; color:red;">(បើលោតយូរ សូមដើរចេញមកកន្លែងស្រឡះបន្តិច)</span>',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
-            });
+            if (scannedId !== currentUserId || scannedSecret !== mySecret) {
+                Swal.fire({ 
+                    icon: 'error', 
+                    title: 'កាតមិនត្រូវគ្នា', 
+                    html: `<div style="text-align: left; background: #f8f9fa; padding: 10px; border-radius: 8px;">
+                             ទិន្នន័យពីកាត (QR): <br><b style="color: #d32f2f;">${scannedId} | ${scannedSecret}</b><br><br>
+                             ទិន្នន័យក្នុងប្រព័ន្ធរបស់អ្នក: <br><b style="color: #1976d2;">${currentUserId} | ${mySecret}</b>
+                           </div>
+                           <br><span style="color:red; font-size:13px;">សូមពិនិត្យមើលថាតើលេខ ឬពាក្យសម្ងាត់មួយណាដែលខុសគ្នា?<br><b>ដំណោះស្រាយ៖</b> សូមចុចប៊ូតុង "ចាកចេញ (Logout)" រួច Login ចូលវិញ ដើម្បីឲ្យប្រព័ន្ធទាញយកពាក្យសម្ងាត់ថ្មី។</span>`, 
+                    confirmButtonText: 'យល់ព្រម' 
+                });
+                return;
+            }
 
-            navigator.geolocation.getCurrentPosition(
-                async function(position) {
-                    // 🌟 ២. ពេលចាប់ទីតាំងបានហើយ ប្តូរអក្សរ Loading ទៅជាកំពុងបញ្ជូនទិន្នន័យ
+            var campusId = sessionUser.campusId || '1';
+            
+            if (currentCheckInMode === 'online') {
+                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងចុះវត្តមានអនឡាញ...';
+                Swal.fire({ title: 'កំពុងបញ្ជូនទិន្នន័យ...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+                
+                const res = await callAPI('submitAttendance', { studentId: sessionUser.id, checkInType: "រៀនអនឡាញ", lat: 0, lng: 0 });
+                handleCheckInResult(res, status);
+            } else {
+                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងផ្ទៀងផ្ទាត់ទីតាំង...';
+                
+                if (navigator.geolocation) {
                     Swal.fire({
-                        title: 'កំពុងបញ្ជូនទិន្នន័យ...',
+                        title: 'កំពុងស្វែងរកទីតាំង GPS...',
+                        html: 'សូមរង់ចាំបន្តិច ប្រព័ន្ធកំពុងផ្ទៀងផ្ទាត់ទីតាំងរបស់អ្នក។<br><span style="font-size:12px; color:red;">(បើលោតយូរ សូមដើរចេញមកកន្លែងស្រឡះបន្តិច)</span>',
                         allowOutsideClick: false,
                         didOpen: () => { Swal.showLoading(); }
                     });
 
-                    var buildingId = sessionUser.buildingId || 'B1'; 
-                    
-                    const res = await callAPI('submitAttendanceWithBuilding', {
-                        studentId: sessionUser.id,
-                        checkInType: "រៀនផ្ទាល់",
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                        buildingId: buildingId 
-                    });
-                    handleCheckInResult(res, status);
-                },
-                async function(error) {
-                    let errorTitle = 'បញ្ហាទីតាំង (GPS)';
-                    let errorMsg = 'សូមបើក GPS (Location) រួចព្យាយាមម្តងទៀត។';
-                    let showHelpButton = false;
+                    navigator.geolocation.getCurrentPosition(
+                        async function(position) {
+                            Swal.fire({
+                                title: 'កំពុងបញ្ជូនទិន្នន័យ...',
+                                allowOutsideClick: false,
+                                didOpen: () => { Swal.showLoading(); }
+                            });
 
-                    if (error.code === error.PERMISSION_DENIED) {
-                        errorTitle = 'ទីតាំងត្រូវបានបដិសេធ!';
-                        errorMsg = 'កម្មវិធីមិនអាចចាប់ទីតាំងបានទេ ព្រោះអ្នកមិនទាន់បានអនុញ្ញាត (Allow Location)។';
-                        showHelpButton = true; // បង្ហាញប៊ូតុងជំនួយ
-                    } else if (error.code === error.TIMEOUT) {
-                        errorMsg = 'ស្វែងរកទីតាំងយូរពេក (Timeout)! សូមសាកល្បងនៅកន្លែងស្រឡះល្អ គ្មានដំបូលបាំងជិត។';
-                    } else if (error.code === error.POSITION_UNAVAILABLE) {
-                        errorMsg = 'សេវា GPS ខ្សោយ មិនអាចកំណត់ទីតាំងបានទេ។';
-                    }
-                    
-                    // បើសិស្សចុច Block Location, លោតផ្ទាំងមានប៊ូតុងបង្រៀន
-                    if (showHelpButton) {
-                        await Swal.fire({
-                            icon: 'warning',
-                            title: errorTitle,
-                            text: errorMsg,
-                            showCancelButton: true,
-                            confirmButtonText: '📖 មើលរបៀបបើក',
-                            cancelButtonText: 'បិទ',
-                            confirmButtonColor: '#3085d6',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                // ផ្ទាំងបង្រៀនសិស្សពីរបៀបបើក យ៉ាងលម្អិត
-                                Swal.fire({
-                                    title: 'របៀបបើកទីតាំង (Location)',
-                                    html: `
-                                        <div style="text-align: left; font-size: 14px; line-height: 1.8;">
-                                            <b>🔵 សម្រាប់ Android (Chrome):</b><br>
-                                            ១. ចុចសញ្ញា <b>សោ 🔒 ឬ ≡</b> នៅកាច់ជ្រុងខាងឆ្វេងផ្នែកខាងលើ (ជិតឈ្មោះវេបសាយ)<br>
-                                            ២. ជ្រើសរើស <b>Permissions (សិទ្ធិ)</b><br>
-                                            ៣. ចុចបើក <b>Location (ទីតាំង)</b> រួច Refresh វេបសាយនេះ។<br><br>
-                                            
-                                            <b>🟢 សម្រាប់ iPhone (Safari):</b><br>
-                                            ១. ចូលទៅកាន់ <b>Settings</b> របស់ទូរស័ព្ទ<br>
-                                            ២. អូសចុះក្រោម រកមើលពាក្យ <b>Privacy & Security</b> > <b>Location Services</b><br>
-                                            ៣. បើក Location រួចស្វែងរក <b>Safari Websites</b> ហើយរើស <b>While Using the App</b>។
-                                        </div>
-                                    `,
-                                    icon: 'info',
-                                    confirmButtonText: 'យល់ព្រម'
-                                });
-                            }
-                        });
-                    } else {
-                        // Error ផ្សេងៗ លោតធម្មតា
-                        await Swal.fire({ icon: 'warning', title: errorTitle, text: errorMsg });
-                    }
-                    
-                    status.innerHTML = '';
-                },
-                // 🌟 ៤. ប្តូរ Timeout មកត្រឹម 10 វិនាទី (10000ms) ដើម្បីកុំឲ្យវារង់ចាំយូរពេកទាល់តែគាំង
-                { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
-            );
-        } else {
-            await Swal.fire('Error', 'GPS មិនដំណើរការលើឧបករណ៍នេះទេ', 'error');
-        }
-    }
-}
-        // async function submitCheckIn(scannedData) {
-        //     var status = document.getElementById('checkin-status');
-        //     if (!scannedData) return;
-
-        //     var parts = scannedData.split('|');
-        //     if (parts.length !== 2) {
-        //         Swal.fire({ icon: 'error', title: 'កាតមិនត្រឹមត្រូវ', text: 'ទម្រង់ QR Code មិនត្រឹមត្រូវ។', confirmButtonText: 'យល់ព្រម' });
-        //         return;
-        //     }
-
-        //     var scannedId = parts[0].trim();
-        //     if (/^\d+$/.test(scannedId)) scannedId = scannedId.padStart(4, '0');
-            
-        //     var currentUserId = String(sessionUser.id).trim();
-        //     if (/^\d+$/.test(currentUserId)) currentUserId = currentUserId.padStart(4, '0');
-
-        //     if (scannedId !== currentUserId || parts[1].trim() !== sessionUser.secretWord) {
-        //         Swal.fire({ icon: 'error', title: 'កាតមិនត្រឹមត្រូវ', text: 'QR Code មិនត្រឹមត្រូវ ឬមិនមែនជារបស់អ្នក។', confirmButtonText: 'យល់ព្រម' });
-        //         return;
-        //     }
-
-        //     var campusId = sessionUser.campusId || '1';
-            
-        //     if (currentCheckInMode === 'online') {
-        //         status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងចុះវត្តមានអនឡាញ...';
-        //         const res = await callAPI('submitAttendance', { studentId: sessionUser.id, checkInType: "រៀនអនឡាញ", lat: 0, lng: 0 });
-        //         handleCheckInResult(res, status);
-        //     } else {
-        //         status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងផ្ទៀងផ្ទាត់ទីតាំង...';
-        //         if (navigator.geolocation) {
-        //             navigator.geolocation.getCurrentPosition(
-        //                     async function(position) {
-        //                     var buildingId = sessionUser.buildingId || 'B1'; // ទាញយកអគារដែលរើសពេល Login
+                            var buildingId = sessionUser.buildingId || 'B1'; 
                             
-        //                     const res = await callAPI('submitAttendanceWithBuilding', {
-        //                         studentId: sessionUser.id,
-        //                         checkInType: "រៀនផ្ទាល់",
-        //                         lat: position.coords.latitude,
-        //                         lng: position.coords.longitude,
-        //                         buildingId: buildingId // បោះអគារទៅកាន់កូដ
-        //                     });
-        //                     handleCheckInResult(res, status);
-        //                 },
-        //                 async function(error) {
-        //                     // 🌟 សារលោតប្រាប់ឲ្យបើក GPS សម្រាប់ iPhone 🌟
-        //                     let errorMsg = 'សូមបើក GPS (Location) រួចព្យាយាមម្តងទៀត។';
-        //                     if (error.code === error.PERMISSION_DENIED) {
-        //                         errorMsg = 'ទីតាំងត្រូវបានបដិសេធ! សម្រាប់ iPhone សូមចូល Settings > Privacy & Security > Location Services បើកវា ហើយអនុញ្ញាត (Allow) សម្រាប់ Browser នេះ។';
-        //                     }
-        //                     await Swal.fire({ icon: 'warning', title: 'មិនអាចចាប់ទីតាំងបានទេ', text: errorMsg });
-        //                     status.innerHTML = '';
-        //                 },
-        //                 { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
-        //             );
-        //         } else {
-        //             await Swal.fire('Error', 'GPS មិនដំណើរការលើឧបករណ៍នេះទេ', 'error');
-        //         }
-        //     }
-        // }
+                            const res = await callAPI('submitAttendanceWithBuilding', {
+                                studentId: sessionUser.id,
+                                checkInType: "រៀនផ្ទាល់",
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude,
+                                buildingId: buildingId 
+                            });
+                            handleCheckInResult(res, status);
+                        },
+                        async function(error) {
+                            let errorTitle = 'បញ្ហាទីតាំង (GPS)';
+                            let errorMsg = 'សូមបើក GPS (Location) រួចព្យាយាមម្តងទៀត។';
+                            let showHelpButton = false;
+
+                            if (error.code === error.PERMISSION_DENIED) {
+                                errorTitle = 'ទីតាំងត្រូវបានបដិសេធ!';
+                                errorMsg = 'កម្មវិធីមិនអាចចាប់ទីតាំងបានទេ ព្រោះអ្នកមិនទាន់បានអនុញ្ញាត (Allow Location)។';
+                                showHelpButton = true;
+                            } else if (error.code === error.TIMEOUT) {
+                                errorMsg = 'ស្វែងរកទីតាំងយូរពេក (Timeout)! សូមសាកល្បងនៅកន្លែងស្រឡះល្អ គ្មានដំបូលបាំងជិត។';
+                            } else if (error.code === error.POSITION_UNAVAILABLE) {
+                                errorMsg = 'សេវា GPS ខ្សោយ មិនអាចកំណត់ទីតាំងបានទេ។';
+                            }
+                            
+                            if (showHelpButton) {
+                                await Swal.fire({
+                                    icon: 'warning',
+                                    title: errorTitle,
+                                    text: errorMsg,
+                                    showCancelButton: true,
+                                    confirmButtonText: '📖 មើលរបៀបបើក',
+                                    cancelButtonText: 'បិទ',
+                                    confirmButtonColor: '#3085d6',
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        Swal.fire({
+                                            title: 'របៀបបើកទីតាំង (Location)',
+                                            html: `
+                                                <div style="text-align: left; font-size: 14px; line-height: 1.8;">
+                                                    <b>🔵 សម្រាប់ Android (Chrome):</b><br>
+                                                    ១. ចុចសញ្ញា <b>សោ 🔒 ឬ ≡</b> នៅកាច់ជ្រុងខាងឆ្វេងផ្នែកខាងលើ<br>
+                                                    ២. ជ្រើសរើស <b>Permissions (សិទ្ធិ)</b><br>
+                                                    ៣. ចុចបើក <b>Location (ទីតាំង)</b> រួច Refresh វេបសាយនេះ។<br><br>
+                                                    
+                                                    <b>🟢 សម្រាប់ iPhone (Safari):</b><br>
+                                                    ១. ចូលទៅកាន់ <b>Settings</b> របស់ទូរស័ព្ទ<br>
+                                                    ២. អូសចុះក្រោម រកមើលពាក្យ <b>Privacy & Security</b> > <b>Location Services</b><br>
+                                                    ៣. បើក Location រួចស្វែងរក <b>Safari Websites</b> ហើយរើស <b>While Using the App</b>។
+                                                </div>
+                                            `,
+                                            icon: 'info',
+                                            confirmButtonText: 'យល់ព្រម'
+                                        });
+                                    }
+                                });
+                            } else {
+                                await Swal.fire({ icon: 'warning', title: errorTitle, text: errorMsg });
+                            }
+                            
+                            status.innerHTML = '';
+                        },
+                        { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+                    );
+                } else {
+                    await Swal.fire('Error', 'GPS មិនដំណើរការលើឧបករណ៍នេះទេ', 'error');
+                }
+            }
+        }
 
         async function handleCheckInResult(data, statusElement) {
             if (data.error) {
@@ -1188,7 +950,8 @@ async function submitCheckIn(scannedData) {
                 if (!dateInputs[1].value) dateInputs[1].value = formatDate(now);
             }
         }
-    function applyDateFilter() {
+
+        function applyDateFilter() {
             var inputs = document.querySelectorAll('#view-report input[type="date"]');
             var fromDate = inputs.length > 0 ? inputs[0].value : '', toDate = inputs.length > 1 ? inputs[1].value : '';
             var filtered = allDailyLogs;
@@ -1207,14 +970,12 @@ async function submitCheckIn(scannedData) {
                         statusText = "វត្តមានកន្លះថ្ងៃ (១ ពិន្ទុ)"; colorClass = "info"; 
                     } 
                     else if (log.overallStatus === "Partial") {
-                        // 🌟 ប្តូរពី កំពុងរៀន មកជា អវត្តមាន ១ពេល និងប្រើពណ៌ក្រហម
                         statusText = "អវត្តមាន ១ពេល"; colorClass = "danger"; 
                     } 
                     else if (log.overallStatus === "Permission" || log.overallStatus === "Approved") { 
                         statusText = "សុំច្បាប់ (Permission)"; colorClass = "warning"; 
                     } 
                     else if (log.overallStatus === "Absent") { 
-                        // 🌟 ប្តូរមកជា អវត្តមាន ២ពេល
                         statusText = "អវត្តមាន ២ពេល"; colorClass = "danger"; 
                     }
 
@@ -1249,12 +1010,10 @@ async function submitCheckIn(scannedData) {
             if (status === 'Permission' || status === 'Approved') {
                 statusKH = '<span class="text-warning fw-bold">សុំច្បាប់ (Permission)</span>';
             } else if (status === 'Absent') {
-                // 🌟 ប្តូរមកជា អវត្តមាន ២ពេល
                 statusKH = '<span class="text-danger fw-bold">អវត្តមាន ២ពេល</span>';
             } else if (status === 'Half') {
                 statusKH = '<span class="text-info fw-bold">វត្តមានកន្លះថ្ងៃ (១ ពិន្ទុ)</span>';
             } else if (status === 'Partial') {
-                // 🌟 ប្តូរពី កំពុងរៀន មកជា អវត្តមាន ១ពេល ពណ៌ក្រហម
                 statusKH = '<span class="text-danger fw-bold">អវត្តមាន ១ពេល</span>';
             } else {
                 statusKH = '<span class="text-success fw-bold">វត្តមានពេញ (២ ពិន្ទុ)</span>';
@@ -1283,114 +1042,6 @@ async function submitCheckIn(scannedData) {
                 confirmButtonColor: '#0f0659', confirmButtonText: 'បិទ (Close)'
             });
         }
-        // function applyDateFilter() {
-        //     var inputs = document.querySelectorAll('#view-report input[type="date"]');
-        //     var fromDate = inputs.length > 0 ? inputs[0].value : '';
-        //     var toDate = inputs.length > 1 ? inputs[1].value : '';
-        //     var filtered = allDailyLogs;
-        //     if (fromDate && toDate) filtered = allDailyLogs.filter(function(l) { return l.date >= fromDate && l.date <= toDate; });
-
-        //     var countBadge = document.querySelector('#view-report .badge');
-        //     if (countBadge) countBadge.innerText = filtered.length + ' កំណត់ត្រា';
-        //     var container = document.getElementById('report_container'); 
-        //     if(!container) container = document.querySelector('#view-report > div:last-child');
-
-        //     if (filtered.length === 0) {
-        //         if(container) container.innerHTML = '<div class="text-center text-muted py-4">មិនមានកំណត់ត្រាទេ</div>';
-        //         return;
-        //     }
-
-        //     if(container) {
-        //         container.innerHTML = filtered.map(function(log) {
-        //             var statusText = "វត្តមានពេញ (២ ពិន្ទុ)";
-        //             var colorClass = "success"; 
-                    
-        //             if (log.overallStatus === "Half") {
-        //                 statusText = "វត្តមានកន្លះថ្ងៃ (១ ពិន្ទុ)"; colorClass = "info";
-        //             } else if (log.overallStatus === "Partial") {
-        //                 var now = new Date();
-        //                 var currentHr = now.getHours();
-        //                 var logDateObj = new Date(log.date);
-        //                 var isPast = (now.getTime() - logDateObj.getTime()) > (24 * 60 * 60 * 1000); 
-                        
-        //                 if (isPast || currentHr >= 17) {
-        //                     statusText = "វត្តមានមិនពេញលេញ (០ ពិន្ទុ)"; colorClass = "secondary"; 
-        //                 } else {
-        //                     statusText = "កំពុងរៀន (ស្កេនមិនទាន់គ្រប់)"; colorClass = "primary"; 
-        //                 }
-        //             } else if (log.overallStatus === "Permission") {
-        //                 statusText = "សុំច្បាប់ (Permission)"; colorClass = "warning"; 
-        //             } else if (log.overallStatus === "Absent") {
-        //                 statusText = "អវត្តមាន (០ ពិន្ទុ)"; colorClass = "danger"; 
-        //             }
-
-        //             var timeBadges = "";
-        //             if (log.overallStatus === "Permission") {
-        //                 timeBadges = `<span class="badge bg-warning text-dark w-100 mb-1" style="font-weight:normal; padding:6px 10px;"><i class="fas fa-calendar-check"></i> មានច្បាប់ឈប់សម្រាក (Approved)</span>`;
-        //             } else if (log.overallStatus === "Absent") {
-        //                 timeBadges = `<span class="badge bg-danger w-100 mb-1" style="font-weight:normal; padding:6px 10px;"><i class="fas fa-times-circle"></i> មិនបានមកចូលរៀន</span>`;
-        //             } else {
-        //                 var minUI = log.mIn === '--:--' ? '<span class="text-danger">--:--</span>' : log.mIn;
-        //                 var moutUI = log.mOut === '--:--' ? '<span class="text-danger">--:--</span>' : log.mOut;
-        //                 var ainUI = log.aIn === '--:--' ? '<span class="text-danger">--:--</span>' : log.aIn;
-        //                 var aoutUI = log.aOut === '--:--' ? '<span class="text-danger">--:--</span>' : log.aOut;
-
-        //                 timeBadges = `
-        //                     <div class="row g-1 w-100 mt-1 text-center">
-        //                         <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">ព្រឹកចូល: ${minUI}</span></div>
-        //                         <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">ព្រឹកចេញ: ${moutUI}</span></div>
-        //                         <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">រសៀលចូល: ${ainUI}</span></div>
-        //                         <div class="col-6"><span class="badge bg-light text-dark border w-100" style="font-weight:normal;">រសៀលចេញ: ${aoutUI}</span></div>
-        //                     </div>
-        //                 `;
-        //             }
-
-        //             return `
-        //             <div class="card mb-3 shadow-sm" style="border:none; border-left: 6px solid var(--bs-${colorClass}); border-radius: 12px;">
-        //                 <div class="card-body d-flex justify-content-between align-items-center">
-        //                     <div style="flex:1;">
-        //                         <div class="text-muted small">${statusText}</div>
-        //                         <h5 class="text-${colorClass} fw-bold mt-1 mb-2">${formatDisplayDate(log.date)}</h5>
-        //                         <div class="d-flex gap-2">
-        //                             ${timeBadges}
-        //                         </div>
-        //                     </div>
-        //                     <button class="btn btn-light border p-2 ms-2" style="border-radius: 8px;" onclick="showLogDetail('${log.date}', '${log.mIn}', '${log.mOut}', '${log.aIn}', '${log.aOut}', '${log.overallStatus}')">
-        //                         <i class="fas fa-file-alt text-${colorClass} fs-4"></i>
-        //                     </button>
-        //                 </div>
-        //             </div>`;
-        //         }).join('');
-        //     }
-        // }
-
-        // function showLogDetail(date, mIn, mOut, aIn, aOut, status) {
-        //     var statusKH = status === 'Permission' ? '<span class="text-warning fw-bold">សុំច្បាប់ (Permission)</span>' : 
-        //                    (status === 'Absent' ? '<span class="text-danger fw-bold">អវត្តមាន (០ ពិន្ទុ)</span>' : 
-        //                    (status === 'Half' ? '<span class="text-info fw-bold">វត្តមានកន្លះថ្ងៃ (១ ពិន្ទុ)</span>' : '<span class="text-success fw-bold">វត្តមានពេញ (២ ពិន្ទុ)</span>'));
-
-        //     var minUI = mIn === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${mIn}</span>`;
-        //     var moutUI = mOut === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${mOut}</span>`;
-        //     var ainUI = aIn === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${aIn}</span>`;
-        //     var aoutUI = aOut === '--:--' ? '<span class="text-muted">មិនមានទិន្នន័យ</span>' : `<span class="text-primary fw-bold">${aOut}</span>`;
-
-        //     Swal.fire({
-        //         title: '<span style="font-size: 18px;">ព័ត៌មានលម្អិត</span>',
-        //         html: `
-        //             <div style="text-align: left; font-size: 11pt; padding: 10px; background: #f8f9fa; border-radius: 8px; margin-top: 10px;">
-        //                 <p class="mb-2"><i class="fas fa-calendar-alt text-secondary"></i> <strong>កាលបរិច្ឆេទ៖</strong> ${formatDisplayDate(date)}</p>
-        //                 <p class="mb-2"><i class="fas fa-info-circle text-secondary"></i> <strong>ស្ថានភាព៖</strong> ${statusKH}</p>
-        //                 <hr>
-        //                 <p class="mb-1"><strong><i class="fas fa-sun text-warning"></i> វេនព្រឹក (Morning)</strong></p>
-        //                 <p class="mb-1 ms-3">ចូល៖ ${minUI} <br> ចេញ៖ ${moutUI}</p>
-        //                 <p class="mb-1 mt-3"><strong><i class="fas fa-cloud-sun text-info"></i> វេនរសៀល (Afternoon)</strong></p>
-        //                 <p class="mb-0 ms-3">ចូល៖ ${ainUI} <br> ចេញ៖ ${aoutUI}</p>
-        //             </div>
-        //         `,
-        //         confirmButtonColor: '#0f0659',
-        //         confirmButtonText: 'បិទ (Close)'
-        //     });
-        // }
 
         function submitLeave() {
             var date = document.getElementById('leave_date').value;
@@ -1449,7 +1100,7 @@ async function submitCheckIn(scannedData) {
 
         function logout() {
             localStorage.removeItem('sessionUser');
-            closeInlineCamera(); // បិទកាមេរ៉ាបើបើកចោល
+            closeInlineCamera(); 
             window.location.href = 'index.html';
         }
 
