@@ -482,36 +482,62 @@
         var inlineStream = null;
         var inlineScanning = false;
 
-        const BASE_URL = "https://billowing-river-2c20.ponlorkleav168.workers.dev"; // Cloudflare
-       //const GAS_URL = "https://script.google.com/macros/s/AKfycbzsrivSdBSb4s3zDaBhEZL-3R8g8ZJrnXGNweJQh8YGIAOyGohJAPzfOWoONj0LZhkg/exec"; // Google Apps Script
-       const GAS_URL = "https://script.google.com/macros/s/AKfycby0rzPCw5Srnsa-YpzeEHhsYiNLD778mwa2svz5KXGLzcoUM2qzIm0p_6a_yCLpjRNqvA/exec"; // Google Apps Script
-        async function callAPI(action, data = {}) {
-            data.action = action;
+       //  const BASE_URL = "https://billowing-river-2c20.ponlorkleav168.workers.dev"; // Cloudflare
+       // //const GAS_URL = "https://script.google.com/macros/s/AKfycbzsrivSdBSb4s3zDaBhEZL-3R8g8ZJrnXGNweJQh8YGIAOyGohJAPzfOWoONj0LZhkg/exec"; // Google Apps Script
+       // const GAS_URL = "https://script.google.com/macros/s/AKfycby0rzPCw5Srnsa-YpzeEHhsYiNLD778mwa2svz5KXGLzcoUM2qzIm0p_6a_yCLpjRNqvA/exec"; // Google Apps Script
+       //  async function callAPI(action, data = {}) {
+       //      data.action = action;
             
-            let targetURL = GAS_URL; 
-            if (action === 'submitAttendance' || action === 'submitAttendanceWithBuilding' || action === 'login') {
-                targetURL = BASE_URL;
-            }
+       //      let targetURL = GAS_URL; 
+       //      if (action === 'submitAttendance' || action === 'submitAttendanceWithBuilding' || action === 'login') {
+       //          targetURL = BASE_URL;
+       //      }
 
-            try {
-                // 🌟 រក្សាទុកត្រឹមការបូកពេលវេលា (Timestamp) នេះ គឺអាចប្រឆាំង Cache របស់ Telegram បានហើយ
-                const noCacheURL = targetURL + "?t=" + new Date().getTime();
+       //      try {
+       //          // 🌟 រក្សាទុកត្រឹមការបូកពេលវេលា (Timestamp) នេះ គឺអាចប្រឆាំង Cache របស់ Telegram បានហើយ
+       //          const noCacheURL = targetURL + "?t=" + new Date().getTime();
 
-                const response = await fetch(noCacheURL, {
-                    method: 'POST',
-                    body: JSON.stringify(data),
-                    headers: { 
-                        // ⚠️ រក្សាទុកតែមួយជួរនេះ ហាមបន្ថែម Cache-Control ផ្សេងៗទៀត ព្រោះវាធ្វើឲ្យ Google លោត CORS Error
-                        'Content-Type': 'text/plain;charset=utf-8' 
-                    },
-                    redirect: 'follow'
-                });
-                return await response.json();
-            } catch (e) {
-                return { error: 'បញ្ហាភ្ជាប់អ៊ីនធឺណិត' };
-            }
-        }
-
+       //          const response = await fetch(noCacheURL, {
+       //              method: 'POST',
+       //              body: JSON.stringify(data),
+       //              headers: { 
+       //                  // ⚠️ រក្សាទុកតែមួយជួរនេះ ហាមបន្ថែម Cache-Control ផ្សេងៗទៀត ព្រោះវាធ្វើឲ្យ Google លោត CORS Error
+       //                  'Content-Type': 'text/plain;charset=utf-8' 
+       //              },
+       //              redirect: 'follow'
+       //          });
+       //          return await response.json();
+       //      } catch (e) {
+       //          return { error: 'បញ្ហាភ្ជាប់អ៊ីនធឺណិត' };
+       //      }
+       //  }
+        const BASE_URL = "https://billowing-river-2c20.ponlorkleav168.workers.dev"; // 🌟 Cloudflare API តែមួយគត់
+        
+          async function callAPI(action, data = {}) {
+              data.action = action;
+              
+              // លែងប្រើលក្ខខណ្ឌបែងចែកទៀតហើយ គឺបាញ់រាល់សកម្មភាព (Actions) ទាំងអស់ទៅកាន់ Cloudflare ផ្ទាល់តែម្តង!
+              const targetURL = BASE_URL; 
+        
+              try {
+                  // រក្សាទុកត្រឹមការបូកពេលវេលា (Timestamp) នេះ គឺអាចប្រឆាំង Cache របស់ Telegram បានហើយ
+                  const noCacheURL = targetURL + "?t=" + new Date().getTime();
+        
+                  const response = await fetch(noCacheURL, {
+                      method: 'POST',
+                      body: JSON.stringify(data),
+                      headers: { 
+                          // 🌟 អាចប្តូរមកប្រើ JSON ស្តង់ដារវិញបាន ព្រោះ Cloudflare មិនមានបញ្ហា CORS ដូច Google ទេ
+                          'Content-Type': 'application/json' 
+                      },
+                      redirect: 'follow'
+                  });
+                  
+                  return await response.json();
+              } catch (e) {
+                  return { error: 'បញ្ហាភ្ជាប់អ៊ីនធឺណិត' };
+              }
+          }
         window.onload = function() {
             try {
                 var savedSession = localStorage.getItem('sessionUser');
