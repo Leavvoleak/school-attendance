@@ -649,7 +649,11 @@
                 if (data && data.success) {
                     window.isFirstStatsLoad = false;
                     allDailyLogs = data.logs || [];
-                    
+                    // ===============================================
+                    // 🌟 ថែមកូដចាប់យក "ប្រភេទសិស្ស" និង "ក្រុម" នៅទីនេះ៖
+                    if (data.studentType) document.getElementById('dash_student_type').innerText = data.studentType;
+                    if (data.group) document.getElementById('dash_group').innerText = data.group;
+                    // ===============================================
                     document.getElementById('dash_hrs').innerText = data.stats.hours || '0h 0m';
                     document.getElementById('dash_present').innerText = data.stats.present || 0;
                     if (document.getElementById('dash_absent')) document.getElementById('dash_absent').innerText = data.stats.absent || 0;
