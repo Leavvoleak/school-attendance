@@ -552,40 +552,55 @@
             }
         });
 
-        // ==========================================
-// 🌟 លំហូរការងារ Forgot Password ដ៏រលូនដោយប្រើ SweetAlert2
+// ==========================================
+// 🌟 លំហូរការងារ Forgot Password (UI ថ្មីបែបកញ្ចក់ស្រស់ស្អាត)
 // ==========================================
 async function forgotPasswordFlow() {
     // វគ្គទី ១៖ បញ្ចូលលេខ ID
     const { value: studentId } = await Swal.fire({
-        title: 'ភ្លេចពាក្យសម្ងាត់?',
+        title: '<span style="color:#0f0659;">ស្វែងរកគណនី</span>',
+        html: '<p style="color:#6c757d; font-size:14px;">សូមបញ្ចូលអត្តលេខ (ID) របស់អ្នក ដើម្បីកំណត់ពាក្យសម្ងាត់ឡើងវិញ។</p>',
         input: 'text',
-        inputLabel: 'សូមបញ្ចូលអត្តលេខ (ID) របស់អ្នក',
         inputPlaceholder: 'ឧទាហរណ៍៖ 1234',
         showCancelButton: true,
         confirmButtonText: '<i class="fas fa-search"></i> ស្វែងរក',
-        cancelButtonText: 'បោះបង់'
+        cancelButtonText: 'បោះបង់',
+        confirmButtonColor: '#0f0659',
+        cancelButtonColor: '#e0e0e0',
+        customClass: {
+            cancelButton: 'text-dark',
+            popup: 'rounded-4 shadow-lg'
+        },
+        inputAttributes: {
+            style: 'border-radius: 10px; text-align: center; font-size: 18px; padding: 12px; border: 1.5px solid #ced4da;'
+        }
     });
     if (!studentId) return;
 
     Swal.fire({title: 'កំពុងស្វែងរក...', didOpen: () => Swal.showLoading()});
 
-    const res = await callAPI('lookupStudent', { studentId }); // កុំភ្លេចប្រាកដថាអ្នកមានមុខងារ callAPI នៅទំព័រនេះ
+    const res = await callAPI('lookupStudent', { studentId }); 
     if (res.error) return Swal.fire('រកមិនឃើញទេ', res.error, 'error');
 
-    // វគ្គទី ២៖ បញ្ជាក់ឈ្មោះ និងវាយ Password ថ្មី
+    // វគ្គទី ២៖ បញ្ជាក់ឈ្មោះ និងវាយ Password ថ្មី (UI បែបកញ្ចក់)
     const { value: newPassword } = await Swal.fire({
-        title: 'តើនេះជាអ្នកមែនទេ?',
+        title: '<span style="color:#0f0659;">តើនេះជាអ្នកមែនទេ?</span>',
         html: `
-            <div style="background:#eef2ff; padding:15px; border-radius:10px; margin-bottom:15px;">
-                <p style="font-size:18px; font-weight:bold; color:#0f0659; margin:0;">ឈ្មោះ៖ ${res.name}</p>
+            <div style="background: rgba(15, 6, 89, 0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(15, 6, 89, 0.1); margin-bottom: 20px;">
+                <p style="font-size: 14px; color: #6c757d; margin-bottom: 5px;">ឈ្មោះសិស្ស</p>
+                <h3 style="color: #0f0659; margin: 0; font-weight: bold; font-family: 'Khmer OS Battambang', sans-serif;">${res.name}</h3>
             </div>
-            <label style="font-weight:bold;">បង្កើតពាក្យសម្ងាត់ថ្មី</label>
-            <input type="password" id="newPassReset" class="swal2-input" placeholder="បញ្ចូលពាក្យសម្ងាត់ថ្មី" style="width:100%; font-size:16px;">
+            <div style="text-align: left;">
+                <label style="font-weight: bold; font-size: 14px; color: #555; margin-bottom: 8px; display: block;">បង្កើតពាក្យសម្ងាត់ថ្មី <span style="color:red;">*</span></label>
+                <input type="password" id="newPassReset" class="swal2-input" placeholder="វាយពាក្យសម្ងាត់ថ្មីទីនេះ..." style="width: 100%; margin: 0; border-radius: 10px; box-sizing: border-box; border: 1.5px solid #ced4da;">
+            </div>
         `,
         showCancelButton: true,
-        confirmButtonText: 'បាទ/ចាស គឺខ្ញុំ (បញ្ជាក់)',
+        confirmButtonText: 'បាទ/ចាស គឺខ្ញុំ',
         cancelButtonText: 'មិនមែនខ្ញុំទេ',
+        confirmButtonColor: '#0f0659',
+        cancelButtonColor: '#dc3545',
+        customClass: { popup: 'rounded-4 shadow-lg' },
         preConfirm: () => {
             const pass = document.getElementById('newPassReset').value;
             if (!pass || pass.length < 4) Swal.showValidationMessage('សូមបញ្ចូលពាក្យសម្ងាត់យ៉ាងហោចណាស់ ៤ ខ្ទង់');
@@ -594,21 +609,31 @@ async function forgotPasswordFlow() {
     });
     if (!newPassword) return;
 
-    Swal.fire({title: 'កំពុងផ្ញើលេខកូដ OTP ទៅកាន់ Telegram...', didOpen: () => Swal.showLoading()});
+    Swal.fire({title: 'កំពុងផ្ញើលេខកូដ OTP...', didOpen: () => Swal.showLoading()});
 
     // វគ្គទី ៣៖ ស្នើសុំ OTP
     const otpRes = await callAPI('requestOTP', { studentId, newPassword });
-    if (otpRes.error) return Swal.fire('បរាជ័យ', otpRes.error, 'error');
+    if (otpRes.error) return Swal.fire({ icon: 'warning', title: 'បរាជ័យ', text: otpRes.error, confirmButtonColor: '#0f0659' });
 
     // វគ្គទី ៤៖ បញ្ចូលលេខកូដ OTP ពី Telegram
     const { value: otpCode } = await Swal.fire({
-        title: 'បញ្ជាក់លេខកូដ OTP',
-        html: 'ប្រព័ន្ធបានផ្ញើលេខកូដ OTP ទៅកាន់គណនី Telegram របស់អ្នកហើយ។<br><span style="font-size:12px; color:red;">(ទាមទារគណនីធ្លាប់ Scan QR Login)</span>',
+        title: '<span style="color:#0f0659;">បញ្ជាក់លេខកូដ OTP</span>',
+        html: `
+            <div style="color:#555; font-size: 15px; margin-bottom: 15px;">
+                ប្រព័ន្ធបានបញ្ជា Bot ឲ្យផ្ញើលេខកូដ OTP ទៅកាន់ <b style="color:#0f0659;">Telegram</b> របស់អ្នកហើយ។
+            </div>
+        `,
         input: 'text',
         inputPlaceholder: 'បញ្ចូលលេខកូដ ៦ខ្ទង់ទីនេះ',
         showCancelButton: true,
         confirmButtonText: '<i class="fas fa-check-circle"></i> ផ្លាស់ប្តូរពាក្យសម្ងាត់',
-        cancelButtonText: 'បោះបង់'
+        cancelButtonText: 'បោះបង់',
+        confirmButtonColor: '#198754',
+        cancelButtonColor: '#6c757d',
+        customClass: { popup: 'rounded-4 shadow-lg' },
+        inputAttributes: {
+            style: 'border-radius: 10px; text-align: center; font-size: 20px; letter-spacing: 5px; padding: 12px; font-weight: bold; border: 1.5px solid #0f0659;'
+        }
     });
     if (!otpCode) return;
 
@@ -617,9 +642,15 @@ async function forgotPasswordFlow() {
     // វគ្គទី ៥៖ បញ្ចប់ការផ្លាស់ប្តូរ
     const confirmRes = await callAPI('confirmPasswordReset', { studentId, newPassword, otpCode });
     if (confirmRes.success) {
-        Swal.fire('ជោគជ័យ!', 'ពាក្យសម្ងាត់របស់អ្នកត្រូវបានផ្លាស់ប្តូរ។ សូម Login ចូលម្តងទៀត។', 'success');
+        Swal.fire({
+            icon: 'success', 
+            title: 'ជោគជ័យ!', 
+            text: 'ពាក្យសម្ងាត់របស់អ្នកត្រូវបានផ្លាស់ប្តូរ។ សូម Login ចូលម្តងទៀត។', 
+            confirmButtonColor: '#0f0659',
+            customClass: { popup: 'rounded-4 shadow-lg' }
+        });
     } else {
-        Swal.fire('បរាជ័យ', confirmRes.error, 'error');
+        Swal.fire({ icon: 'error', title: 'បរាជ័យ', text: confirmRes.error, confirmButtonColor: '#0f0659' });
     }
 }
     </script>
