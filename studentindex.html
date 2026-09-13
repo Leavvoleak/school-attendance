@@ -1345,6 +1345,88 @@ document.addEventListener('click', function(event) {
         container.classList.remove('active');
     }
 });
+
+
+// ==========================================
+// 🌟 មុខងារបង្ហាញ Popup ផ្លាស់ប្តូរពាក្យសម្ងាត់
+// ==========================================
+function showChangePasswordModal() {
+    // បិទ Radial Menu ប្រសិនបើអ្នកហៅមុខងារនេះចេញពី Profile Menu
+    var radialMenu = document.getElementById('profileRadialMenu');
+    if(radialMenu) radialMenu.classList.remove('active');
+
+    Swal.fire({
+        title: 'ផ្លាស់ប្តូរពាក្យសម្ងាត់',
+        html: `
+            <div style="text-align: left; padding: 0 10px;">
+                <label style="font-size: 14px; font-weight: bold; color: #555;">ពាក្យសម្ងាត់ចាស់</label>
+                <input type="password" id="old-pass" class="swal2-input" placeholder="បញ្ចូលពាក្យសម្ងាត់បច្ចុប្បន្ន" style="width: 100%; margin: 5px 0 15px 0; font-size:16px;">
+                
+                <label style="font-size: 14px; font-weight: bold; color: #555;">ពាក្យសម្ងាត់ថ្មី</label>
+                <input type="password" id="new-pass" class="swal2-input" placeholder="បញ្ចូលពាក្យសម្ងាត់ថ្មី" style="width: 100%; margin: 5px 0 15px 0; font-size:16px;">
+                
+                <label style="font-size: 14px; font-weight: bold; color: #555;">បញ្ជាក់ពាក្យសម្ងាត់ថ្មី</label>
+                <input type="password" id="confirm-pass" class="swal2-input" placeholder="វាយពាក្យសម្ងាត់ថ្មីម្តងទៀត" style="width: 100%; margin: 5px 0 10px 0; font-size:16px;">
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-save"></i> រក្សាទុក',
+        cancelButtonText: 'បោះបង់',
+        confirmButtonColor: '#0f0659',
+        cancelButtonColor: '#6c757d',
+        preConfirm: () => {
+            const oldPass = document.getElementById('old-pass').value;
+            const newPass = document.getElementById('new-pass').value;
+            const confirmPass = document.getElementById('confirm-pass').value;
+
+            if (!oldPass || !newPass || !confirmPass) {
+                Swal.showValidationMessage('សូមបំពេញព័ត៌មានឲ្យបានគ្រប់ចន្លោះ!');
+                return false;
+            }
+            if (newPass !== confirmPass) {
+                Swal.showValidationMessage('ពាក្យសម្ងាត់ថ្មីទាំង២ មិនស៊ីគ្នាទេ!');
+                return false;
+            }
+            if (newPass.length < 4) {
+                Swal.showValidationMessage('ពាក្យសម្ងាត់ថ្មីត្រូវមានយ៉ាងហោចណាស់ ៤ ខ្ទង់!');
+                return false;
+            }
+            return { oldPass, newPass };
+        }
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            Swal.fire({ title: 'កំពុងដំណើរការ...', text: 'សូមរង់ចាំបន្តិច', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+            
+            try {
+                // បាញ់ទិន្នន័យទៅកាន់ Cloudflare Worker
+                const response = await callAPI('changePassword', {
+                    studentId: sessionUser.id,
+                    oldPassword: result.value.oldPass,
+                    newPassword: result.value.newPass
+                });
+
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ជោគជ័យ!',
+                        text: response.message,
+                        confirmButtonColor: '#0f0659'
+                    });
+                    
+                    // ជម្រើស៖ អាចធ្វើបច្ចុប្បន្នភាព sessionUser ក្នុង LocalStorage ប្រសិនបើអ្នកមានផ្ទុក Password ក្នុងនោះ
+                    if(sessionUser.password) {
+                        sessionUser.password = result.value.newPass;
+                        localStorage.setItem('sessionUser', JSON.stringify(sessionUser));
+                    }
+                } else {
+                    Swal.fire('បរាជ័យ!', response.error, 'error');
+                }
+            } catch (e) {
+                Swal.fire('កំហុស!', 'មានបញ្ហាភ្ជាប់អ៊ីនធឺណិត', 'error');
+            }
+        }
+    });
+}        
     </script>
 </body>
 </html>
