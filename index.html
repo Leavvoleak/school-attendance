@@ -545,6 +545,77 @@
                 });
             }
         });
+
+        // ==========================================
+// 🌟 លំហូរការងារ Forgot Password ដ៏រលូនដោយប្រើ SweetAlert2
+// ==========================================
+async function forgotPasswordFlow() {
+    // វគ្គទី ១៖ បញ្ចូលលេខ ID
+    const { value: studentId } = await Swal.fire({
+        title: 'ភ្លេចពាក្យសម្ងាត់?',
+        input: 'text',
+        inputLabel: 'សូមបញ្ចូលអត្តលេខ (ID) របស់អ្នក',
+        inputPlaceholder: 'ឧទាហរណ៍៖ 1234',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-search"></i> ស្វែងរក',
+        cancelButtonText: 'បោះបង់'
+    });
+    if (!studentId) return;
+
+    Swal.fire({title: 'កំពុងស្វែងរក...', didOpen: () => Swal.showLoading()});
+
+    const res = await callAPI('lookupStudent', { studentId }); // កុំភ្លេចប្រាកដថាអ្នកមានមុខងារ callAPI នៅទំព័រនេះ
+    if (res.error) return Swal.fire('រកមិនឃើញទេ', res.error, 'error');
+
+    // វគ្គទី ២៖ បញ្ជាក់ឈ្មោះ និងវាយ Password ថ្មី
+    const { value: newPassword } = await Swal.fire({
+        title: 'តើនេះជាអ្នកមែនទេ?',
+        html: `
+            <div style="background:#eef2ff; padding:15px; border-radius:10px; margin-bottom:15px;">
+                <p style="font-size:18px; font-weight:bold; color:#0f0659; margin:0;">ឈ្មោះ៖ ${res.name}</p>
+            </div>
+            <label style="font-weight:bold;">បង្កើតពាក្យសម្ងាត់ថ្មី</label>
+            <input type="password" id="newPassReset" class="swal2-input" placeholder="បញ្ចូលពាក្យសម្ងាត់ថ្មី" style="width:100%; font-size:16px;">
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'បាទ/ចាស គឺខ្ញុំ (បញ្ជាក់)',
+        cancelButtonText: 'មិនមែនខ្ញុំទេ',
+        preConfirm: () => {
+            const pass = document.getElementById('newPassReset').value;
+            if (!pass || pass.length < 4) Swal.showValidationMessage('សូមបញ្ចូលពាក្យសម្ងាត់យ៉ាងហោចណាស់ ៤ ខ្ទង់');
+            return pass;
+        }
+    });
+    if (!newPassword) return;
+
+    Swal.fire({title: 'កំពុងផ្ញើលេខកូដ OTP ទៅកាន់ Telegram...', didOpen: () => Swal.showLoading()});
+
+    // វគ្គទី ៣៖ ស្នើសុំ OTP
+    const otpRes = await callAPI('requestOTP', { studentId, newPassword });
+    if (otpRes.error) return Swal.fire('បរាជ័យ', otpRes.error, 'error');
+
+    // វគ្គទី ៤៖ បញ្ចូលលេខកូដ OTP ពី Telegram
+    const { value: otpCode } = await Swal.fire({
+        title: 'បញ្ជាក់លេខកូដ OTP',
+        html: 'ប្រព័ន្ធបានផ្ញើលេខកូដ OTP ទៅកាន់គណនី Telegram របស់អ្នកហើយ។<br><span style="font-size:12px; color:red;">(ទាមទារគណនីធ្លាប់ Scan QR Login)</span>',
+        input: 'text',
+        inputPlaceholder: 'បញ្ចូលលេខកូដ ៦ខ្ទង់ទីនេះ',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-check-circle"></i> ផ្លាស់ប្តូរពាក្យសម្ងាត់',
+        cancelButtonText: 'បោះបង់'
+    });
+    if (!otpCode) return;
+
+    Swal.fire({title: 'កំពុងផ្ទៀងផ្ទាត់...', didOpen: () => Swal.showLoading()});
+
+    // វគ្គទី ៥៖ បញ្ចប់ការផ្លាស់ប្តូរ
+    const confirmRes = await callAPI('confirmPasswordReset', { studentId, newPassword, otpCode });
+    if (confirmRes.success) {
+        Swal.fire('ជោគជ័យ!', 'ពាក្យសម្ងាត់របស់អ្នកត្រូវបានផ្លាស់ប្តូរ។ សូម Login ចូលម្តងទៀត។', 'success');
+    } else {
+        Swal.fire('បរាជ័យ', confirmRes.error, 'error');
+    }
+}
     </script>
 </body>
 </html>
