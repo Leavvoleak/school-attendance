@@ -1432,7 +1432,50 @@ function showChangePasswordModal() {
             }
         }
     });
-}        
+}    
+
+        async function viewTranscript() {
+    // បិទ Radial Menu ប្រសិនបើវាកំពុងបើក
+    var radialMenu = document.getElementById('profileRadialMenu');
+    if (radialMenu) radialMenu.classList.remove('active');
+
+    Swal.fire({
+        title: 'កំពុងទាញយកពិន្ទុ...',
+        html: 'សូមរង់ចាំបន្តិច ប្រព័ន្ធកំពុងរៀបចំ PDF សម្រាប់អ្នក...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+    });
+
+    try {
+        // ⚠️ ចំណាំ៖ សូមប្រាកដថាអថេរថ្នាក់មាននៅក្នុង sessionUser (ឧ. .group ឬ .class_name)
+        const className = sessionUser.group || sessionUser.class_name || "A"; 
+
+        const res = await callAPI('getTranscript', { 
+            studentName: sessionUser.name, // បញ្ជូនឈ្មោះសិស្សទៅឲ្យ Sheet
+            className: className
+        });
+
+        if (res.success) {
+            Swal.fire({
+                title: 'ជោគជ័យ!',
+                text: 'ព្រឹត្តិបត្តិពិន្ទុរបស់អ្នករួចរាល់ហើយ',
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-file-pdf"></i> បើកមើលព្រឹត្តិបត្តិ',
+                cancelButtonText: 'បិទ',
+                confirmButtonColor: '#0f0659'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.open(res.url, '_blank'); // បើក PDF នៅក្នុងផ្ទាំងថ្មី
+                }
+            });
+        } else {
+            Swal.fire('បរាជ័យ', res.error, 'error');
+        }
+    } catch (e) {
+        Swal.fire('កំហុសប្រព័ន្ធ', 'មិនអាចភ្ជាប់ទៅកាន់ប្រព័ន្ធបានទេ', 'error');
+    }
+}
     </script>
 </body>
 </html>
