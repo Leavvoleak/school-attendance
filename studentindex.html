@@ -449,7 +449,7 @@
         </button>
 
         <!-- ប៊ូតុងថ្មីក្នុង Main Menu -->
-        <button class="nav-btn text-danger" onclick="viewTranscript(); return false;">
+        <button class="nav-btn" id="transcript" onclick="viewTranscript()">
             <i class="fas fa-file-contract"></i> ព្រឹត្តិបត្តិពិន្ទុ
         </button>
     </div>
@@ -1433,29 +1433,37 @@ function showChangePasswordModal() {
         }
     });
 }    
-
-        async function viewTranscript() {
-    // បិទ Radial Menu ប្រសិនបើវាកំពុងបើក
-    var radialMenu = document.getElementById('profileRadialMenu');
-    if (radialMenu) radialMenu.classList.remove('active');
-
-    Swal.fire({
-        title: 'កំពុងទាញយកពិន្ទុ...',
-        html: 'សូមរង់ចាំបន្តិច ប្រព័ន្ធកំពុងរៀបចំ PDF សម្រាប់អ្នក...',
-        allowOutsideClick: false,
-        didOpen: () => { Swal.showLoading(); }
-    });
-
+// ==========================================
+// 🌟 មុខងារទាញយក ព្រឹត្តិបត្តិពិន្ទុ (Transcript)
+// ==========================================
+async function viewTranscript() {
     try {
-        // ⚠️ ចំណាំ៖ សូមប្រាកដថាអថេរថ្នាក់មាននៅក្នុង sessionUser (ឧ. .group ឬ .class_name)
-        const className = sessionUser.group || sessionUser.class_name || "A"; 
+        // ១. ពិនិត្យមើលថាតើមានទិន្នន័យសិស្ស (sessionUser) ដែរឬទេ
+        if (!typeof sessionUser !== 'undefined' || !sessionUser) {
+            Swal.fire('បម្រាម', 'មិនមានទិន្នន័យសិស្សទេ។ សូម Login ម្តងទៀត!', 'warning');
+            return;
+        }
 
+        // ២. ទាញយកឈ្មោះថ្នាក់ (A, B, C...) ពី sessionUser
+        const className = sessionUser.group || sessionUser.class_name || "A"; 
+        const studentName = sessionUser.name;
+
+        // ៣. បង្ហាញផ្ទាំងរង់ចាំ
+        Swal.fire({
+            title: 'កំពុងទាញយកពិន្ទុ...',
+            html: 'សូមរង់ចាំបន្តិច ប្រព័ន្ធកំពុងរៀបចំ PDF សម្រាប់អ្នក...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        // ៤. ហៅ API ទៅកាន់ Cloudflare / GAS
         const res = await callAPI('getTranscript', { 
-            studentName: sessionUser.name, // បញ្ជូនឈ្មោះសិស្សទៅឲ្យ Sheet
+            studentName: studentName,
             className: className
         });
 
-        if (res.success) {
+        // ៥. បង្ហាញលទ្ធផល
+        if (res && res.success) {
             Swal.fire({
                 title: 'ជោគជ័យ!',
                 text: 'ព្រឹត្តិបត្តិពិន្ទុរបស់អ្នករួចរាល់ហើយ',
@@ -1470,10 +1478,12 @@ function showChangePasswordModal() {
                 }
             });
         } else {
-            Swal.fire('បរាជ័យ', res.error, 'error');
+            let errorMsg = (res && res.error) ? res.error : "មិនអាចទាញយកទិន្នន័យបានទេ!";
+            Swal.fire('បរាជ័យ', errorMsg, 'error');
         }
     } catch (e) {
-        Swal.fire('កំហុសប្រព័ន្ធ', 'មិនអាចភ្ជាប់ទៅកាន់ប្រព័ន្ធបានទេ', 'error');
+        console.error("Transcript Error: ", e);
+        Swal.fire('កំហុសប្រព័ន្ធ', 'មិនអាចភ្ជាប់ទៅកាន់ប្រព័ន្ធបានទេ! សូមពិនិត្យអ៊ីនធឺណិតរបស់អ្នក។', 'error');
     }
 }
     </script>
