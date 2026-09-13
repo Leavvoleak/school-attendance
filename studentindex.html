@@ -293,6 +293,10 @@
                     <button class="radial-item radial-item-2" onclick="showChangePasswordModal()" title="ប្តូរពាក្យសម្ងាត់">
                         <i class="fas fa-key"></i>
                     </button>
+
+                    <button class="radial-item radial-item-2" onclick="confirmLogout()">
+                        <i class="fas fa-sign-out-alt"></i> ចាកចេញ
+                    </button>
                 </div>
                 
                 <!-- Input សម្រាប់រើសរូបភាព គឺរក្សាទុកនៅដដែល -->
@@ -443,8 +447,10 @@
             </div>
             ដំណឹង
         </button>
-        <button class="nav-btn text-danger" onclick="confirmLogout()">
-            <i class="fas fa-sign-out-alt"></i> ចាកចេញ
+
+        <!-- ប៊ូតុងថ្មីក្នុង Main Menu -->
+        <button class="nav-btn text-danger" onclick="viewTranscript(); return false;">
+            <i class="fas fa-file-contract"></i> ព្រឹត្តិបត្តិពិន្ទុ
         </button>
     </div>
 
