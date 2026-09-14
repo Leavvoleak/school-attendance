@@ -1460,9 +1460,13 @@ async function viewTranscript() {
             return;
         }
 
-        const className = sessionUser.group || sessionUser.class_name || "A"; 
+        // const className = sessionUser.group || sessionUser.class_name || "A"; 
+        // const studentName = sessionUser.name;
+        
+// 🌟 លុប sessionUser.group ចេញ ដើម្បីកុំឲ្យវាចាប់យកពាក្យ "ក្រុម១" ទៀត
+        // វានឹងចាប់យកឈ្មោះថ្នាក់ (ឧ. A, B, C) ដែលបានមកពីពេល Login វិញ
+        const className = sessionUser.className || "A"; 
         const studentName = sessionUser.name;
-
         Swal.fire({
             title: 'កំពុងទាញយកពិន្ទុ...',
             html: 'សូមរង់ចាំបន្តិច ប្រព័ន្ធកំពុងរៀបចំ PDF សម្រាប់អ្នក...',
