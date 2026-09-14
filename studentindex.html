@@ -456,8 +456,7 @@
             ដំណឹង
         </button>
 
-        <!-- ប៊ូតុងថ្មីក្នុង Main Menu -->
-        <button class="nav-btn" id="transcript" onclick="switchView('viewTranscript')">
+        <button class="nav-btn" id="navTranscript" onclick="viewTranscript()">
             <i class="fas fa-file-contract"></i> ព្រឹត្តិបត្តិពិន្ទុ
         </button>
     </div>
@@ -1445,18 +1444,24 @@ function showChangePasswordModal() {
 // 🌟 មុខងារទាញយក ព្រឹត្តិបត្តិពិន្ទុ (Transcript)
 // ==========================================
 async function viewTranscript() {
+    // 🌟 កូដថ្មី៖ ធ្វើឲ្យប៊ូតុង ព្រឹត្តិបត្តិពិន្ទុ លោតពណ៌ Active
+    document.querySelectorAll('.nav-btn').forEach(function(btn) { btn.classList.remove('active'); });
+    var transcriptBtn = document.getElementById('navTranscript');
+    if (transcriptBtn) transcriptBtn.classList.add('active');
+
+    // បិទ Radial Menu ប្រសិនបើវាកំពុងបើកពីលើរូប Profile
+    var radialMenu = document.getElementById('profileRadialMenu');
+    if (radialMenu) radialMenu.classList.remove('active');
+
     try {
-        // ១. ពិនិត្យមើលថាតើមានទិន្នន័យសិស្ស (sessionUser) ដែរឬទេ
         if (!typeof sessionUser !== 'undefined' || !sessionUser) {
             Swal.fire('បម្រាម', 'មិនមានទិន្នន័យសិស្សទេ។ សូម Login ម្តងទៀត!', 'warning');
             return;
         }
 
-        // ២. ទាញយកឈ្មោះថ្នាក់ (A, B, C...) ពី sessionUser
         const className = sessionUser.group || sessionUser.class_name || "A"; 
         const studentName = sessionUser.name;
 
-        // ៣. បង្ហាញផ្ទាំងរង់ចាំ
         Swal.fire({
             title: 'កំពុងទាញយកពិន្ទុ...',
             html: 'សូមរង់ចាំបន្តិច ប្រព័ន្ធកំពុងរៀបចំ PDF សម្រាប់អ្នក...',
@@ -1464,13 +1469,11 @@ async function viewTranscript() {
             didOpen: () => { Swal.showLoading(); }
         });
 
-        // ៤. ហៅ API ទៅកាន់ Cloudflare / GAS
         const res = await callAPI('getTranscript', { 
             studentName: studentName,
             className: className
         });
 
-        // ៥. បង្ហាញលទ្ធផល
         if (res && res.success) {
             Swal.fire({
                 title: 'ជោគជ័យ!',
@@ -1482,7 +1485,7 @@ async function viewTranscript() {
                 confirmButtonColor: '#0f0659'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.open(res.url, '_blank'); // បើក PDF នៅក្នុងផ្ទាំងថ្មី
+                    window.open(res.url, '_blank'); 
                 }
             });
         } else {
