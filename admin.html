@@ -1582,8 +1582,10 @@
             if (settings) {
                 var tOffline = document.getElementById('adminScanOffline');
                 var tOnline = document.getElementById('adminScanOnline');
+                var tTranscript = document.getElementById('chkShowTranscript');
                 if (tOffline) tOffline.checked = settings.offline;
                 if (tOnline) tOnline.checked = settings.online;
+                if (tTranscript) tTranscript.checked = settings.showTranscript;
             }
         }
 
