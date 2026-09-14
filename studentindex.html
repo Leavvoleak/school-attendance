@@ -294,8 +294,8 @@
                         <i class="fas fa-key"></i>
                     </button>
 
-                    <button class="radial-item radial-item-2" onclick="confirmLogout()">
-                        <i class="fas fa-sign-out-alt"></i> ចាកចេញ
+                    <button class="radial-item text-danger" onclick="confirmLogout()" title="ចាកចេញ">
+                        <i class="fas fa-sign-out-alt"></i> 
                     </button>
                 </div>
                 
@@ -449,7 +449,7 @@
         </button>
 
         <!-- ប៊ូតុងថ្មីក្នុង Main Menu -->
-        <button class="nav-btn" id="transcript" onclick="viewTranscript()">
+        <button class="nav-btn" id="transcript" onclick="switchView('viewTranscript')">
             <i class="fas fa-file-contract"></i> ព្រឹត្តិបត្តិពិន្ទុ
         </button>
     </div>
@@ -632,7 +632,7 @@
                 document.querySelectorAll('.new-notif-badge').forEach(b => b.style.display = 'none');
             }
             
-            if (viewName === 'home' || viewName === 'report' || viewName === 'notification') {
+            if (viewName === 'home' || viewName === 'report' || viewName === 'notification'|| viewName==='transcript') {
                 refreshStats(viewName === 'report');
             }
         }
