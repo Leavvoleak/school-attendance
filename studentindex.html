@@ -1444,17 +1444,18 @@ function showChangePasswordModal() {
 // 🌟 មុខងារទាញយក ព្រឹត្តិបត្តិពិន្ទុ (Transcript)
 // ==========================================
 async function viewTranscript() {
-    // 🌟 កូដថ្មី៖ ធ្វើឲ្យប៊ូតុង ព្រឹត្តិបត្តិពិន្ទុ លោតពណ៌ Active
+    // ធ្វើឲ្យប៊ូតុង ព្រឹត្តិបត្តិពិន្ទុ លោតពណ៌ Active
     document.querySelectorAll('.nav-btn').forEach(function(btn) { btn.classList.remove('active'); });
     var transcriptBtn = document.getElementById('navTranscript');
     if (transcriptBtn) transcriptBtn.classList.add('active');
 
-    // បិទ Radial Menu ប្រសិនបើវាកំពុងបើកពីលើរូប Profile
+    // បិទ Radial Menu ប្រសិនបើវាកំពុងបើក
     var radialMenu = document.getElementById('profileRadialMenu');
     if (radialMenu) radialMenu.classList.remove('active');
 
     try {
-        if (typeof sessionUser !== 'undefined' || !sessionUser) {
+        // 🌟 នេះជាចំណុចដែលបានកែតម្រូវ! (លុបសញ្ញា ! ចេញពីមុខ typeof)
+        if (typeof sessionUser === 'undefined' || !sessionUser) {
             Swal.fire('បម្រាម', 'មិនមានទិន្នន័យសិស្សទេ។ សូម Login ម្តងទៀត!', 'warning');
             return;
         }
@@ -1480,7 +1481,7 @@ async function viewTranscript() {
                 text: 'ព្រឹត្តិបត្តិពិន្ទុរបស់អ្នករួចរាល់ហើយ',
                 icon: 'success',
                 showCancelButton: true,
-                confirmButtonText: '<i class="fas fa-file-pdf"></i> បើកមើលព្រឹត្តិបត្តិ',
+                confirmButtonText: '<i class="fas fa-file-pdf"></i> បើកមើល',
                 cancelButtonText: 'បិទ',
                 confirmButtonColor: '#0f0659'
             }).then((result) => {
