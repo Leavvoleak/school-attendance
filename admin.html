@@ -336,12 +336,15 @@
             </button>
         </div> -->
 
-        <div style="margin-top: 20px;">
-            <div style="color: #6c757d; font-size: 15px; margin-bottom: 10px; font-weight: bold;">គ្រប់គ្រងព្រឹត្តិបត្តិពិន្ទុ</div>
-            <label style="display: flex; align-items: center; gap: 10px; color: white; cursor: pointer; font-size: 16px;">
-                <input type="checkbox" id="chkShowTranscript" onchange="changeTranscriptStatus(this.checked)" style="width: 20px; height: 20px; cursor: pointer;">
-                អនុញ្ញាត ឲ្យមើលពិន្ទុ <span style="color: #0dcaf0;"></span>
-            </label>
+        <div style="margin-top: 25px; margin-bottom: 15px;">
+            <h6 style="color: #6c757d; font-weight: bold; font-size: 15px; margin-bottom: 12px;">គ្រប់គ្រងព្រឹត្តិបត្តិពិន្ទុ</h6>
+            
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="chkShowTranscript" onchange="changeTranscriptStatus(this.checked)" style="cursor: pointer; border-radius: 4px;">
+                <label class="form-check-label text-white" for="chkShowTranscript" style="cursor: pointer; font-size: 15px;">
+                    អនុញ្ញាត <span style="color: #0dcaf0;">ឲ្យមើលពិន្ទុ</span> (Transcript)
+                </label>
+            </div>
         </div>
          <div class="px-3 py-3 mt-auto" style="border-top: 1px solid rgba(255, 255, 255, 0.1); background: rgba(0,0,0,0.1);">
             <div><i class="bi bi-person-circle"></i> <span id="admin_name">User</span></div>
