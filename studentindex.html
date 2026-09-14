@@ -1454,7 +1454,7 @@ async function viewTranscript() {
     if (radialMenu) radialMenu.classList.remove('active');
 
     try {
-        if (!typeof sessionUser !== 'undefined' || !sessionUser) {
+        if (typeof sessionUser !== 'undefined' || !sessionUser) {
             Swal.fire('បម្រាម', 'មិនមានទិន្នន័យសិស្សទេ។ សូម Login ម្តងទៀត!', 'warning');
             return;
         }
