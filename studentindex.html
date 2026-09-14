@@ -750,7 +750,18 @@
 
                     var sOffline = data.stats.scanSettings.offline;
                     var sOnline = data.stats.scanSettings.online;
-                    
+                    // ===============================================
+                    // 🌟 ថែមកូដថ្មីនៅទីនេះ៖ បិទ/បើក ប៊ូតុងព្រឹត្តិបត្តិពិន្ទុ
+                    // ===============================================
+                    var sShowTranscript = data.stats.scanSettings.showTranscript;
+                    var transcriptBtn = document.getElementById('navTranscript');
+                    if (transcriptBtn) {
+                        if (sShowTranscript === false) {
+                            transcriptBtn.style.display = 'none'; // លាក់ប៊ូតុង
+                        } else {
+                            transcriptBtn.style.display = 'flex'; // បង្ហាញប៊ូតុង
+                        }
+                    }
                     if (btnContainer) {
                         var btnInPerson = document.getElementById('btnInPerson');
                         var btnOnline = document.getElementById('btnOnline');
