@@ -663,7 +663,7 @@
             data.action = action;
             
             let targetURL = BASE_URL; 
-            if (action === 'submitAttendance' || action === 'submitAttendanceWithBuilding' || action === 'login') {
+            if (action === 'submitAttendance' || action === 'submitAttendanceWithBuilding' || action === 'login' || action === 'toggleTranscriptSetting') {
                 targetURL = WORKER_URL;
             }
 
