@@ -1522,7 +1522,7 @@ function generateTranscriptPDF(className, studentName) {
 
     try {
         ss = SpreadsheetApp.openById(ssId);
-        templateSheet = ss.getSheetByName("ប្រតិបត្តិពិន្ទុ");
+        templateSheet = ss.getSheetByName("CP-ប្រតិបត្តិពិន្ទុ");
         if (!templateSheet) return { error: "រកមិនឃើញសន្លឹកឈ្មោះ 'ប្រតិបត្តិពិន្ទុ' ទេ" };
 
         // 🌟 ១. បើកបង្ហាញសន្លឹកជាបណ្ដោះអាសន្ន ប្រសិនបើវាត្រូវបានលាក់ (Hide)
