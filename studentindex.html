@@ -196,35 +196,68 @@
     z-index: 5;
 }
 
-.radial-item:hover {
-    transform: scale(1.1) !important;
-}
-
-/* ពណ៌ និងទីតាំងប៊ូតុងទី ១ (ប្តូររូបថត) */
-.radial-item-1 { background-color: #8c52ff; }
-.radial-item-1:hover { background-color: #7b45e6; }
-.radial-menu-container.active .radial-item-1 {
-    opacity: 1;
-    transform: translate(-75px, 0px) scale(1);
-}
-
-/* ពណ៌ និងទីតាំងប៊ូតុងទី ២ (ប្តូរពាក្យសម្ងាត់) */
-.radial-item-2 { background-color: #d9458d; }
-.radial-item-2:hover { background-color: #c4397e; }
-.radial-menu-container.active .radial-item-2 {
-    opacity: 1;
-   transform: translate(-55px, 55px) scale(1);
-}
-
-/* 🌟 ពណ៌ និងទីតាំងប៊ូតុងទី ៣ (ចាកចេញ) 🌟 */
-.radial-item-3 { background-color: #dc3545; } /* ពណ៌ក្រហម (Danger) */
-.radial-item-3:hover { background-color: #c82333; }
-.radial-menu-container.active .radial-item-3 {
-    opacity: 1;
-    transform: translate(0px, 75px) scale(1);
-}
-
-
+    .radial-item:hover {
+        transform: scale(1.1) !important;
+    }
+    
+    /* ពណ៌ និងទីតាំងប៊ូតុងទី ១ (ប្តូររូបថត) */
+    .radial-item-1 { background-color: #8c52ff; }
+    .radial-item-1:hover { background-color: #7b45e6; }
+    .radial-menu-container.active .radial-item-1 {
+        opacity: 1;
+        transform: translate(-75px, 0px) scale(1);
+    }
+    
+    /* ពណ៌ និងទីតាំងប៊ូតុងទី ២ (ប្តូរពាក្យសម្ងាត់) */
+    .radial-item-2 { background-color: #d9458d; }
+    .radial-item-2:hover { background-color: #c4397e; }
+    .radial-menu-container.active .radial-item-2 {
+        opacity: 1;
+       transform: translate(-55px, 55px) scale(1);
+    }
+    
+    /* 🌟 ពណ៌ និងទីតាំងប៊ូតុងទី ៣ (ចាកចេញ) 🌟 */
+    .radial-item-3 { background-color: #dc3545; } /* ពណ៌ក្រហម (Danger) */
+    .radial-item-3:hover { background-color: #c82333; }
+    .radial-menu-container.active .radial-item-3 {
+        opacity: 1;
+        transform: translate(0px, 75px) scale(1);
+    }
+    
+    /* 🌟 រចនាម៉ូដផ្ទាំង PDF Popup */
+    .pdf-modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.85); /* ផ្ទៃខាងក្រោយពណ៌ខ្មៅព្រាលៗ */
+        z-index: 99999; display: none; justify-content: center; align-items: center;
+        backdrop-filter: blur(5px);
+    }
+    .pdf-modal-content {
+        width: 95%; height: 90%; background: #fff; border-radius: 12px;
+        display: flex; flex-direction: column; overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .pdf-toolbar {
+        background: #0f0659; padding: 12px 20px; display: flex;
+        justify-content: space-between; align-items: center; color: white;
+    }
+    .pdf-tools button {
+        background: rgba(255,255,255,0.15); border: none; color: white;
+        padding: 8px 15px; margin-right: 8px; border-radius: 6px; cursor: pointer;
+        font-family: 'Kantumruy Pro', sans-serif; transition: 0.2s;
+    }
+    .pdf-tools button:hover { background: rgba(255,255,255,0.3); }
+    .pdf-tools .btn-print { background: #198754; font-weight: bold; } /* ពណ៌បៃតងសម្រាប់ប៊ូតុង Print */
+    .pdf-tools .btn-print:hover { background: #157347; }
+    .pdf-close-btn {
+        background: #dc3545; border: none; color: white; padding: 8px 15px;
+        border-radius: 6px; cursor: pointer; font-family: 'Kantumruy Pro', sans-serif;
+    }
+    .pdf-close-btn:hover { background: #c82333; }
+    .pdf-viewer-container {
+        flex: 1; overflow: auto; background: #e9ecef; display: flex; 
+        justify-content: center; align-items: flex-start;
+    }
+    #pdfIframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
@@ -243,6 +276,27 @@
         </button>
     </div>
 
+    <!-- 🌟 ផ្ទាំង Popup សម្រាប់មើល PDF -->
+<div id="pdfModal" class="pdf-modal-overlay">
+    <div class="pdf-modal-content">
+        <!-- របារឧបករណ៍ (Toolbar) ខាងលើ -->
+        <div class="pdf-toolbar">
+            <div class="pdf-tools">
+                <button onclick="zoomPDF(0.2)" title="ពង្រីក (Zoom In)"><i class="fas fa-search-plus"></i></button>
+                <button onclick="zoomPDF(-0.2)" title="បង្រួម (Zoom Out)"><i class="fas fa-search-minus"></i></button>
+                <button onclick="downloadPDF()" class="btn-print" title="រក្សាទុកជា PDF"><i class="fas fa-print"></i> Save / Print</button>
+            </div>
+            <button class="pdf-close-btn" onclick="closePDFModal()"><i class="fas fa-times"></i> បិទ</button>
+        </div>
+        
+        <!-- កន្លែងបង្ហាញ PDF -->
+        <div class="pdf-viewer-container">
+            <div id="pdfWrapper" style="transform: scale(1); transform-origin: top center; transition: 0.3s; width: 100%; height: 100%;">
+                <iframe id="pdfIframe" src="" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
     <!-- 🌟 Inline Camera UI (ជំនួស Pop-up) 🌟 -->
     <div id="inline-camera-overlay">
         <!-- 'playsinline' សំខាន់បំផុតសម្រាប់ iPhone កុំឲ្យលោតវីដេអូពេញអេក្រង់ -->
@@ -1454,19 +1508,16 @@ async function viewTranscript() {
     if (radialMenu) radialMenu.classList.remove('active');
 
     try {
-        // 🌟 នេះជាចំណុចដែលបានកែតម្រូវ! (លុបសញ្ញា ! ចេញពីមុខ typeof)
         if (typeof sessionUser === 'undefined' || !sessionUser) {
             Swal.fire('បម្រាម', 'មិនមានទិន្នន័យសិស្សទេ។ សូម Login ម្តងទៀត!', 'warning');
             return;
         }
 
-        // const className = sessionUser.group || sessionUser.class_name || "A"; 
-        // const studentName = sessionUser.name;
-        
-// 🌟 លុប sessionUser.group ចេញ ដើម្បីកុំឲ្យវាចាប់យកពាក្យ "ក្រុម១" ទៀត
-        // វានឹងចាប់យកឈ្មោះថ្នាក់ (ឧ. A, B, C) ដែលបានមកពីពេល Login វិញ
+        // ចាប់យកឈ្មោះថ្នាក់ (A, B, C...)
         const className = sessionUser.className || "A"; 
         const studentName = sessionUser.name;
+
+        // លោតផ្ទាំងរង់ចាំ
         Swal.fire({
             title: 'កំពុងទាញយកពិន្ទុ...',
             html: 'សូមរង់ចាំបន្តិច ប្រព័ន្ធកំពុងរៀបចំ PDF សម្រាប់អ្នក...',
@@ -1474,25 +1525,16 @@ async function viewTranscript() {
             didOpen: () => { Swal.showLoading(); }
         });
 
+        // ហៅ API ទាញយក PDF ពី GAS
         const res = await callAPI('getTranscript', { 
             studentName: studentName,
             className: className
         });
 
+        // ពេលជោគជ័យ បិទរង្វង់ Loading រួចបើកផ្ទាំង PDF តែម្តង (លុប Swal ទី២ចេញ)
         if (res && res.success) {
-            Swal.fire({
-                title: 'ជោគជ័យ!',
-                text: 'ព្រឹត្តិបត្តិពិន្ទុរបស់អ្នករួចរាល់ហើយ',
-                icon: 'success',
-                showCancelButton: true,
-                confirmButtonText: '<i class="fas fa-file-pdf"></i> បើកមើល',
-                cancelButtonText: 'បិទ',
-                confirmButtonColor: '#0f0659'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.open(res.url, '_blank'); 
-                }
-            });
+            Swal.close(); 
+            openPDFModal(res.url); // 🌟 បើកផ្ទាំង PDF ដែលមានប៊ូតុង Zoom និង Print
         } else {
             let errorMsg = (res && res.error) ? res.error : "មិនអាចទាញយកទិន្នន័យបានទេ!";
             Swal.fire('បរាជ័យ', errorMsg, 'error');
@@ -1500,6 +1542,51 @@ async function viewTranscript() {
     } catch (e) {
         console.error("Transcript Error: ", e);
         Swal.fire('កំហុសប្រព័ន្ធ', 'មិនអាចភ្ជាប់ទៅកាន់ប្រព័ន្ធបានទេ! សូមពិនិត្យអ៊ីនធឺណិតរបស់អ្នក។', 'error');
+    }
+}
+
+        // ==========================================
+// 🌟 មុខងារគ្រប់គ្រងផ្ទាំង PDF
+// ==========================================
+let currentZoom = 1;
+let currentPdfUrl = '';
+
+function openPDFModal(url) {
+    currentPdfUrl = url;
+    currentZoom = 1;
+    document.getElementById('pdfWrapper').style.transform = `scale(${currentZoom})`;
+    
+    // បំប្លែង URL ទៅជាទម្រង់ Preview ដើម្បីអាចបង្ហាញក្នុង iframe បានស្អាត
+    let fileIdMatch = url.match(/\/d\/(.+?)\//);
+    let previewUrl = url;
+    if(fileIdMatch && fileIdMatch[1]) {
+        previewUrl = `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
+    }
+    
+    document.getElementById('pdfIframe').src = previewUrl;
+    document.getElementById('pdfModal').style.display = 'flex';
+}
+
+function closePDFModal() {
+    document.getElementById('pdfModal').style.display = 'none';
+    document.getElementById('pdfIframe').src = ""; // លុបទិន្នន័យចាស់ចេញការពារការគាំង
+}
+
+function zoomPDF(step) {
+    currentZoom += step;
+    if(currentZoom < 0.5) currentZoom = 0.5; // បង្រួមតូចបំផុត
+    if(currentZoom > 3.0) currentZoom = 3.0; // ពង្រីកធំបំផុត
+    document.getElementById('pdfWrapper').style.transform = `scale(${currentZoom})`;
+}
+
+function downloadPDF() {
+    // ពេលចុច Save / Print វានឹងបំប្លែង URL ទៅជា Direct Download ទម្លាក់ចូលទូរស័ព្ទ/កុំព្យូទ័រសិស្សភ្លាមៗ
+    let fileIdMatch = currentPdfUrl.match(/\/d\/(.+?)\//);
+    if(fileIdMatch && fileIdMatch[1]) {
+        let downloadUrl = `https://drive.google.com/uc?export=download&id=${fileIdMatch[1]}`;
+        window.open(downloadUrl, '_blank'); // បើកដើម្បីទាញយក
+    } else {
+        window.open(currentPdfUrl, '_blank');
     }
 }
     </script>
