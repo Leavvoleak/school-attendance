@@ -1495,53 +1495,76 @@ function showChangePasswordModal() {
     });
 }    
 // ==========================================
-// 🌟 មុខងារទាញយក ព្រឹត្តិបត្តិពិន្ទុ (Transcript)
+// 🌟 មុខងារបង្កើត PDF (កែសម្រួលសម្រាប់ទាញពី Sheet ដែលលាក់)
 // ==========================================
-async function viewTranscript() {
-    // ធ្វើឲ្យប៊ូតុង ព្រឹត្តិបត្តិពិន្ទុ លោតពណ៌ Active
-    document.querySelectorAll('.nav-btn').forEach(function(btn) { btn.classList.remove('active'); });
-    var transcriptBtn = document.getElementById('navTranscript');
-    if (transcriptBtn) transcriptBtn.classList.add('active');
+function generateTranscriptPDF(className, studentName) {
+    var sheetMap = {
+      "A": "1J1E4BSPQ52T_FhlXd2VgF3L-DOmS5y1ZBB8nWl2NmMg", 
+      "B": "ដាក់_ID_Sheet_ថ្នាក់_B_នៅទីនេះ",
+      "C": "ដាក់_ID_Sheet_ថ្នាក់_C_នៅទីនេះ"
+    };
+    
+    var key = String(className).trim();
+    var ssId = sheetMap[key];
+    
+    if (!ssId) return { error: "មិនទាន់មានឯកសារព្រឹត្តិបត្តិពិន្ទុសម្រាប់ថ្នាក់ " + key + " ទេ!" };
 
-    // បិទ Radial Menu ប្រសិនបើវាកំពុងបើក
-    var radialMenu = document.getElementById('profileRadialMenu');
-    if (radialMenu) radialMenu.classList.remove('active');
+    var lock = LockService.getScriptLock();
+    try {
+        lock.waitLock(15000); 
+    } catch (e) {
+        return { error: "ប្រព័ន្ធកំពុងរវល់រៀបចំឲ្យសិស្សផ្សេង សូមសាកល្បងម្ដងទៀតនៅបន្តិចទៀត!" };
+    }
+    
+    var ss;
+    var templateSheet;
+    var wasHidden = false; // អថេរសម្រាប់កត់ចំណាំថាសន្លឹកត្រូវបានលាក់ឬអត់
 
     try {
-        if (typeof sessionUser === 'undefined' || !sessionUser) {
-            Swal.fire('បម្រាម', 'មិនមានទិន្នន័យសិស្សទេ។ សូម Login ម្តងទៀត!', 'warning');
-            return;
+        ss = SpreadsheetApp.openById(ssId);
+        templateSheet = ss.getSheetByName("ប្រតិបត្តិពិន្ទុ");
+        if (!templateSheet) return { error: "រកមិនឃើញសន្លឹកឈ្មោះ 'ប្រតិបត្តិពិន្ទុ' ទេ" };
+
+        // 🌟 ១. បើកបង្ហាញសន្លឹកជាបណ្ដោះអាសន្ន ប្រសិនបើវាត្រូវបានលាក់ (Hide)
+        wasHidden = templateSheet.isSheetHidden();
+        if (wasHidden) {
+            templateSheet.showSheet();
         }
 
-        // ចាប់យកឈ្មោះថ្នាក់ (A, B, C...)
-        const className = sessionUser.className || "A"; 
-        const studentName = sessionUser.name;
+        // ២. បញ្ចូលឈ្មោះសិស្ស
+        templateSheet.getRange("C8").setValue(studentName);
+        SpreadsheetApp.flush(); // បញ្ជាឲ្យ Google Sheet ធ្វើការ (VLOOKUP & បង្ហាញសន្លឹក)
+        Utilities.sleep(3000); // រង់ចាំ ៣ វិនាទីឲ្យទិន្នន័យលោតចូលពេញ
 
-        // លោតផ្ទាំងរង់ចាំ
-        Swal.fire({
-            title: 'កំពុងទាញយកពិន្ទុ...',
-            html: 'សូមរង់ចាំបន្តិច ប្រព័ន្ធកំពុងរៀបចំ PDF សម្រាប់អ្នក...',
-            allowOutsideClick: false,
-            didOpen: () => { Swal.showLoading(); }
+        // ៣. បង្កើត Link ទាញយក PDF
+        var url = "https://docs.google.com/spreadsheets/d/" + ssId + "/export?format=pdf&size=A4&portrait=true&fitw=true&gridlines=false&gid=" + templateSheet.getSheetId();
+        var token = ScriptApp.getOAuthToken();
+        
+        var response = UrlFetchApp.fetch(url, {
+            headers: { 'Authorization': 'Bearer ' + token },
+            muteHttpExceptions: true
         });
-
-        // ហៅ API ទាញយក PDF ពី GAS
-        const res = await callAPI('getTranscript', { 
-            studentName: studentName,
-            className: className
-        });
-
-        // ពេលជោគជ័យ បិទរង្វង់ Loading រួចបើកផ្ទាំង PDF តែម្តង (លុប Swal ទី២ចេញ)
-        if (res && res.success) {
-            Swal.close(); 
-            openPDFModal(res.url); // 🌟 បើកផ្ទាំង PDF ដែលមានប៊ូតុង Zoom និង Print
-        } else {
-            let errorMsg = (res && res.error) ? res.error : "មិនអាចទាញយកទិន្នន័យបានទេ!";
-            Swal.fire('បរាជ័យ', errorMsg, 'error');
+        
+        if (response.getResponseCode() !== 200) {
+            return { error: "មិនអាចទាញយក PDF បានទេ។ លេខកូដបញ្ហា៖ " + response.getResponseCode() };
         }
+        
+        var blob = response.getBlob().getAs('application/pdf').setName("Transcript_" + studentName + ".pdf");
+        
+        var tempFile = DriveApp.createFile(blob);
+        tempFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        
+        return { success: true, url: tempFile.getUrl() };
+        
     } catch (e) {
-        console.error("Transcript Error: ", e);
-        Swal.fire('កំហុសប្រព័ន្ធ', 'មិនអាចភ្ជាប់ទៅកាន់ប្រព័ន្ធបានទេ! សូមពិនិត្យអ៊ីនធឺណិតរបស់អ្នក។', 'error');
+        return { error: "កំហុសប្រព័ន្ធ៖ " + e.toString() };
+    } finally {
+        // 🌟 ៤. លាក់ (Hide) សន្លឹកនោះវិញ ពេលចប់ការងារ (ទោះជោគជ័យ ឬ Error ក៏ដោយ)
+        if (templateSheet && wasHidden) {
+            templateSheet.hideSheet();
+            SpreadsheetApp.flush();
+        }
+        lock.releaseLock(); 
     }
 }
 
