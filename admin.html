@@ -659,6 +659,34 @@
         
         const WORKER_URL = "https://billowing-river-2c20.ponlorkleav168.workers.dev"; // Cloudflare
   
+        // async function callAPI(action, data = {}) {
+        //     data.action = action;
+            
+        //     let targetURL = BASE_URL; 
+        //     if (action === 'submitAttendance' || action === 'submitAttendanceWithBuilding' || action === 'login' || action === 'toggleTranscriptSetting') {
+        //         targetURL = WORKER_URL;
+        //     }
+
+        //     try {
+        //         // 🌟 បន្ថែមពេលវេលា (Timestamp) ពីក្រោយលីង ដើម្បីបោក Telegram កុំឲ្យវាចាំទិន្នន័យចាស់
+        //         const noCacheURL = targetURL + "?t=" + new Date().getTime();
+
+        //         const response = await fetch(noCacheURL, {
+        //             method: 'POST',
+        //             body: JSON.stringify(data),
+        //             headers: { 
+        //                 'Content-Type': 'text/plain;charset=utf-8',
+        //                 'Cache-Control': 'no-cache, no-store, must-revalidate', // 🌟 ប្រាប់ Telegram កុំឲ្យលាក់ទិន្នន័យទុក
+        //                 'Pragma': 'no-cache',
+        //                 'Expires': '0'
+        //             },
+        //             redirect: 'follow'
+        //         });
+        //         return await response.json();
+        //     } catch (e) {
+        //         return { error: 'បញ្ហាភ្ជាប់អ៊ីនធឺណិត' };
+        //     }
+        // }
         async function callAPI(action, data = {}) {
             data.action = action;
             
@@ -668,17 +696,15 @@
             }
 
             try {
-                // 🌟 បន្ថែមពេលវេលា (Timestamp) ពីក្រោយលីង ដើម្បីបោក Telegram កុំឲ្យវាចាំទិន្នន័យចាស់
+                // 🌟 ការបន្ថែម Timestamp ពីក្រោយលីង គឺគ្រប់គ្រាន់សម្រាប់បោក Telegram កុំឲ្យចាំទិន្នន័យចាស់ហើយ
                 const noCacheURL = targetURL + "?t=" + new Date().getTime();
 
                 const response = await fetch(noCacheURL, {
                     method: 'POST',
                     body: JSON.stringify(data),
                     headers: { 
-                        'Content-Type': 'text/plain;charset=utf-8',
-                        'Cache-Control': 'no-cache, no-store, must-revalidate', // 🌟 ប្រាប់ Telegram កុំឲ្យលាក់ទិន្នន័យទុក
-                        'Pragma': 'no-cache',
-                        'Expires': '0'
+                        // ⚠️ សំខាន់៖ រក្សាទុកតែមួយបន្ទាត់នេះបានហើយ ហាមបន្ថែម Cache-Control ផ្សេងៗទៀត
+                        'Content-Type': 'text/plain;charset=utf-8' 
                     },
                     redirect: 'follow'
                 });
@@ -687,7 +713,6 @@
                 return { error: 'បញ្ហាភ្ជាប់អ៊ីនធឺណិត' };
             }
         }
-        
         window.onload = function() {
             var savedSession = localStorage.getItem('sessionUser');
             if (!savedSession) {
